@@ -7,10 +7,6 @@ from . import IGM
 
 
 
-
-
-
-
 class sed():
 
     def __init__(self, lam, description = False):
@@ -49,6 +45,15 @@ class sed():
 
 
 
+def beta(lam, slope, normalisation, normalisation_wavelength = 1500., include_ISM = True):
+
+    model = sed(lam)
+    
+    model.lnu = normalisation*(lam/normalisation_wavelength)**(slope + 2.0)
+    
+    if include_ISM: model.lnu[lam<912.] = 0.0 # add ISM absorption
+    
+    return model
     
 
 

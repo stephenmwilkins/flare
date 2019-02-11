@@ -2,16 +2,6 @@
 
 import numpy as np
 
-
-
-
-# --- filter helper
-
-
-
-
-
-
 def add_filters(filters, new_lam = False,  data_dir = 'data/filters'):
 
     F = {f: filter(f, new_lam, data_dir) for f in filters}

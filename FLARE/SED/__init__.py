@@ -1,3 +1,3 @@
 
 
-__all__ = ['filter_utility', 'SED', 'IGM']
+__all__ = ['filter_utility', 'models', 'IGM']
