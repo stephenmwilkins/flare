@@ -2,9 +2,9 @@
 
 import numpy as np
 
-def add_filters(filters, new_lam = False,  data_dir = 'data/filters'):
+def add_filters(filters, new_lam = False,  filter_path = '.'):
 
-    F = {f: filter(f, new_lam, data_dir) for f in filters}
+    F = {f: filter(f, new_lam, filter_path) for f in filters}
     
     return F
     
@@ -12,9 +12,9 @@ def add_filters(filters, new_lam = False,  data_dir = 'data/filters'):
 
 class filter():
 
-    def __init__(self, f, new_lam = False, data_dir = 'data/filters'):
+    def __init__(self, f, new_lam = False, filter_path = '.'):
 
-        self.l, self.t = np.loadtxt(data_dir + '/'+'/'.join(f.split('.'))+'.txt').T 
+        self.l, self.t = np.loadtxt(filter_path + '/'+'/'.join(f.split('.'))+'.txt').T 
         
         if isinstance(new_lam, np.ndarray):
         
