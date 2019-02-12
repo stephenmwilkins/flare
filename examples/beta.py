@@ -1,15 +1,15 @@
 
-
-
 import numpy as np
+import matplotlib.pyplot as plt 
 
 import sys
-sys.path.append('..')
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from FLARE.SED import models
 from FLARE.SED import filter_utility
 
-import matplotlib.pyplot as plt 
+
 
 
 # --- create a simple "beta" model with a power law slope and a break at 912.
