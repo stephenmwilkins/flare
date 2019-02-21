@@ -1,4 +1,9 @@
 
+import numpy as np
 
-print('This is the FLARE group observational python package')
 
+def default_cosmo():
+
+    from astropy.cosmology import WMAP9 as cosmo
+
+    return cosmo

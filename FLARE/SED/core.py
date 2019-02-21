@@ -3,6 +3,33 @@ import numpy as np
 
 from . import IGM
 
+
+def default_cosmo():
+
+    from astropy.cosmology import WMAP9 as cosmo
+
+    return cosmo
+
+
+
+def flux_to_m(flux):
+
+    return -2.5*np.log10(flux/1E9) + 8.9 # -- assumes flux in nJy
+
+def m_to_flux(m):
+
+    return 1E9 * 10**(-0.4*(m - 8.9)) # -- flux returned nJy
+
+def flux_to_L(flux, cosmo, z):
+
+    return flux*(4.*np.pi*cosmo.luminosity_distance(z).to('cm').value**2)/(1E23 * (1.+z))
+
+def lum_to_flux(lum, cosmo, z):
+
+    return 1E23 * lum * (1.+ z)/(4.*np.pi*cosmo.luminosity_distance(z).to('cm').value**2) 
+
+
+
 class sed():
 
     def __init__(self, lam, description = False):
@@ -18,6 +45,11 @@ class sed():
         
         return self.Lnu * nu
          
+         
+    def get_Lnu(self, F): # broad band luminosity/erg/s/Hz
+      
+        self.Lnu = {f: np.trapz(self.lnu * F[f].T, self.lam) / np.trapz(F[f].T, self.lam) for f in F['filters']}
+         
     def get_fnu(self, cosmo, z, include_IGM = True): # flux nJy, depends on redshift and cosmology 
 
         self.lamz = self.lam * (1. + z)
@@ -30,10 +62,8 @@ class sed():
         
     def get_Fnu(self, F): # broad band flux/nJy
                         
-        self.Fnu = {f: np.trapz(self.fnu * F[f].T, self.lamz) / np.trapz(F[f].T, self.lamz) for f in F.keys()}
+        self.Fnu = {f: np.trapz(self.fnu * F[f].T, self.lamz) / np.trapz(F[f].T, self.lamz) for f in F['filters']}
              
-    def get_Lnu(self, F): # broad band luminosity/erg/s/Hz
-      
-        self.Lnu = {f: np.trapz(self.lnu * F[f].T, self.lam) / np.trapz(F[f].T, self.lam) for f in F.keys()}
+
         
 

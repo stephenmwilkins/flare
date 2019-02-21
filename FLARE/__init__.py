@@ -1,2 +1,4 @@
 
-__all__ = ['SED']
+from .core import *
+
+__all__ = ['SED', 'core']

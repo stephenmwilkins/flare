@@ -7,7 +7,13 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from FLARE.SED import models
-from FLARE.SED import filter_utility
+import FLARE.filter
+
+
+
+
+
+
 
 
 
@@ -43,7 +49,7 @@ filters = []
 filters += ['HST.ACS.'+f for f in ['f850lp']] 
 filters += ['HST.WFC3.'+f for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
-F = filter_utility.add_filters(filters, new_lam = m.lam * (1. + z), filter_path = filter_path) # --- NOTE: need to give it the redshifted 
+F = FLARE.filter.add_filters(filters, new_lam = m.lam * (1. + z), filter_path = filter_path) # --- NOTE: need to give it the redshifted 
 
 m.get_Fnu(F) # generates Fnu (broad band fluxes)
 
