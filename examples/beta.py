@@ -7,13 +7,9 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from FLARE.SED import models
-import FLARE.filter
+import FLARE.filters
 
-
-
-
-
-
+# import FLARE
 
 
 
@@ -36,7 +32,7 @@ plt.show()
 
 # --- now move to the observer frame
 
-from astropy.cosmology import WMAP9 as cosmo
+cosmo = FLARE.default_cosmo()
 
 z = 8.
 
@@ -49,7 +45,7 @@ filters = []
 filters += ['HST.ACS.'+f for f in ['f850lp']] 
 filters += ['HST.WFC3.'+f for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
-F = FLARE.filter.add_filters(filters, new_lam = m.lam * (1. + z), filter_path = filter_path) # --- NOTE: need to give it the redshifted 
+F = FLARE.filters.add_filters(filters, new_lam = m.lam * (1. + z)) # --- NOTE: need to give it the redshifted 
 
 m.get_Fnu(F) # generates Fnu (broad band fluxes)
 

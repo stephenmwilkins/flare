@@ -6,16 +6,15 @@
 
 
 
-class base():
+
+class linear():
 
 
-    def interpolate_parameters(self,z):
+    def __init__(self, lp, z=8):
     
-        # get parameters as a function of z
-        # returns a dictionary of parameters
-        
-        return p
-    
+        # lp is a dictionary of the parameters of the linear evolution model
+
+        self.lp = lp
 
 
     def parameters(self,z):
@@ -25,15 +24,7 @@ class base():
         # returns a dictionary of parameters
         
         return p
-    
-    def calculate_linear_evolution_coeffs(self, z=8):
-    
-        # calculate the linear evolution coeffs using z as the normalisation
-    
-        # add a check to quantify how linear it actually is
-    
-    
-    
+        
     def N(self, cosmo = False, redshift_limits = [8., 15.], log10L_limits = [28., 32.], dz = 0.05, dlog10L = 0.05):
     
         # calculate the number of galaxies in each bin on a grid defined by redshift_limits, log10L_limits, dz, dlog10L
@@ -61,27 +52,56 @@ class base():
   
   
   
+  
+class existing_model()
+  
+    def __init__(self):
     
-class bluetides(base): # --- based on bluetides simulation
-
-    def __init__():
-
-        self.redshifts = # array of redshifts
-        self.phi_star = # array of phi_star value to interpolate
-        self.M_star = #
-        self.alpha = #
+        self.calculate_linear_evolution_coeffs(self, z=8)
+  
+    def interpolate_parameters(self,z):
+    
+        # get parameters as a function of z
+        # returns a dictionary of the Schechter function parameters
         
-        
-        
-        
-class Mason15(base): # --- based on Mason et al. (2015)
+        return p
+  
+    def calculate_linear_evolution_coeffs(self, z=8):
+    
+        # calculate the linear evolution coeffs using z as the normalisation
+    
+        # add a check to quantify how linear it actually is
 
-    def __init__():
+        self.lp =     
+    
+  
+  
 
-        self.redshifts = # array of redshifts
-        self.phi_star = # array of phi_star value to interpolate
-        self.M_star = #
-        self.alpha = #        
+  
+    
+class bluetides(existing_model): # --- based on bluetides simulation
+
+    self.redshifts = # array of redshifts
+    self.phi_star = # array of phi_star value to interpolate
+    self.M_star = #
+    self.alpha = #
+        
+       
+# class Mason15(existing_model): # --- based on Mason et al. (2015)
+# 
+#     self.redshifts = # array of redshifts
+#     self.phi_star = # array of phi_star value to interpolate
+#     self.M_star = #
+#     self.alpha = #        
+
+
+
+
+
+
+
+
+
 
 
 

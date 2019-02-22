@@ -1,9 +1,7 @@
 
+from .core import *
 
 import numpy as np
-
-
-
 
 WFC3UV_W = ['HST.WFC3.'+f for f in ['f225w','f275w','f336w']]
 ACS_W = ['HST.ACS.'+f for f in ['f814w', 'f606w', 'f775w', 'f814w']]
@@ -17,7 +15,7 @@ NIRCam_M = ['JWST.NIRCAM.'+f for f in ['F140M','F162M','F182M','F210M','F250M','
  
 
 
-def add_filters(filters, new_lam = False,  filter_path = '.'):
+def add_filters(filters, new_lam = False,  filter_path = FLARE_dir + '/data/filters/'):
 
     F = {f: filter(f, new_lam, filter_path) for f in filters}
     
@@ -28,7 +26,7 @@ def add_filters(filters, new_lam = False,  filter_path = '.'):
     
 class filter():
 
-    def __init__(self, f, new_lam = False, filter_path = '.'):
+    def __init__(self, f, new_lam = False, filter_path = FLARE_dir + '/data/filters/'):
 
         self.l, self.t = np.loadtxt(filter_path + '/'+'/'.join(f.split('.'))+'.txt', skiprows = 1).T 
         

@@ -28,12 +28,13 @@ LF.phi(L_bins) # --- return list of phi values (Mpc^-3 dex^-1) for a given set o
 
 # --- LF evolution examples
 
+# evo_model = evo.linear(p) # initialises the linear evolution model with an arbitrary set of parameters {}
 
-evo_model = evo.bluetides() # initialise bluetides LF evolution model
+evo_model = evo.linear(evo.bluetides().lp) # initialises the linear evolution model with the bluetides parameters
 
 
 p = evo_model.parameters(z = 8.5) # return model parameters at z=8.5
-p = evo_model.interpolate_parameters(z = 8.5) # return model parameters at z=8.5
+
 
 # --- return grid with number of galaxies in each bin
 
