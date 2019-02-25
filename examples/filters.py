@@ -1,4 +1,5 @@
 
+
 import numpy as np
 import matplotlib.pyplot as plt 
 from matplotlib import cm 
@@ -10,15 +11,12 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from FLARE import filters
 
 
-data_dir = '/Users/stephenwilkins/Dropbox/Research/Data'
-filter_path = data_dir + '/filters/'
-
 
 
 filter_set = filters.HST
 filter_set = filters.NIRCam_W
 
-F = filters.add_filters(filter_set, filter_path = filter_path) # --- NOTE: need to give it the redshifted 
+F = filters.add_filters(filter_set) # --- NOTE: need to give it the redshifted 
 
 
 for i,f in enumerate(F['filters']): 
@@ -36,6 +34,6 @@ for i,f in enumerate(F['filters']):
 
 plt.legend()
 
-plt.show()
+plt.savefig('filters.png')
  
 

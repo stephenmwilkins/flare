@@ -14,9 +14,7 @@ import FLARE.filters
 
 
 
-data_dir = '/Users/stephenwilkins/Dropbox/Research/Data'
 
-filter_path = data_dir + '/filters/'
 
 
 
@@ -39,11 +37,9 @@ z = 8.
 m.get_fnu(cosmo, z, include_IGM = True) # --- generates redshifted wavelength grid and fnu/nJy
 
 plt.plot(m.lamz, m.fnu,  zorder = 1)
+plt.savefig('beta1.png')
 
-
-filters = []
-filters += ['HST.ACS.'+f for f in ['f850lp']] 
-filters += ['HST.WFC3.'+f for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+filters = FLARE.filters.HST
 
 F = FLARE.filters.add_filters(filters, new_lam = m.lam * (1. + z)) # --- NOTE: need to give it the redshifted 
 
@@ -55,5 +51,6 @@ for f in filters: plt.scatter(F[f].pivwv(), m.Fnu[f], edgecolor = 'k', zorder = 
 plt.legend()
 
 plt.show()
+plt.savefig('beta2.png')
  
 
