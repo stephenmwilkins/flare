@@ -9,10 +9,22 @@ WFC3NIR_W = ['HST.WFC3.'+f for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
 HST = WFC3UV_W + ACS_W + WFC3NIR_W
 
-NIRCam_W = ['JWST.NIRCAM.'+f for f in ['F070W','F090W','F115W','F150W','F200W','F277W','F356W','F444W']]
-NIRCam_M = ['JWST.NIRCAM.'+f for f in ['F140M','F162M','F182M','F210M','F250M','F300M','F360M','F410M','F430M','F460M','F480M']]
+FAKE = ['FAKE.FAKE.'+f for f in ['1500','2500','Uth','Bth','Vth','Ith','Zth','Yth','Jth','Hth']] 
 
- 
+NIRCam_s_W = ['JWST.NIRCAM.'+f for f in ['F070W','F090W','F115W','F150W','F200W']]
+NIRCam_s_M = ['JWST.NIRCAM.'+f for f in ['F140M','F162M','F182M','F210M','F250M']]
+
+NIRCam_l_W = ['JWST.NIRCAM.'+f for f in ['F277W','F356W','F444W']]
+NIRCam_l_M = ['JWST.NIRCAM.'+f for f in ['F300M','F360M','F410M','F430M','F460M','F480M']]
+
+NIRCam_s = NIRCam_s_W + NIRCam_s_M
+NIRCam_l = NIRCam_l_W + NIRCam_l_M 
+
+NIRCam_W = NIRCam_s_W + NIRCam_l_W
+
+NIRCam =  NIRCam_s + NIRCam_l
+
+
 
 
 def add_filters(filters, new_lam = False,  filter_path = FLARE_dir + '/data/filters/'):
