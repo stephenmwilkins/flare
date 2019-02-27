@@ -3,13 +3,22 @@ from .core import *
 
 import numpy as np
 
+
+
+
+FAKE = ['FAKE.FAKE.'+f for f in ['1500','2500','Uth','Bth','Vth','Ith','Zth','Yth','Jth','Hth']] 
+
 WFC3UV_W = ['HST.WFC3.'+f for f in ['f225w','f275w','f336w']]
 ACS_W = ['HST.ACS.'+f for f in ['f814w', 'f606w', 'f775w', 'f814w']]
 WFC3NIR_W = ['HST.WFC3.'+f for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
 HST = WFC3UV_W + ACS_W + WFC3NIR_W
 
-FAKE = ['FAKE.FAKE.'+f for f in ['1500','2500','Uth','Bth','Vth','Ith','Zth','Yth','Jth','Hth']] 
+
+Spitzer = ['Spitzer.IRAC.'+f for f in ['ch1', 'ch2', 'ch3', 'ch4']]
+
+
+
 
 NIRCam_s_W = ['JWST.NIRCAM.'+f for f in ['F070W','F090W','F115W','F150W','F200W']]
 NIRCam_s_M = ['JWST.NIRCAM.'+f for f in ['F140M','F162M','F182M','F210M','F250M']]
@@ -23,6 +32,9 @@ NIRCam_l = NIRCam_l_W + NIRCam_l_M
 NIRCam_W = NIRCam_s_W + NIRCam_l_W
 
 NIRCam =  NIRCam_s + NIRCam_l
+
+
+MIRI = ['JWST.MIRI.'+f for f in ['F560W','F770W','F1000W','F1130W','F1280W','F1500W','F1800W','F2100W','F2550W']]
 
 
 
@@ -42,7 +54,7 @@ class filter():
 
         self.l, self.t = np.loadtxt(filter_path + '/'+'/'.join(f.split('.'))+'.txt', skiprows = 1).T 
         
-        if f.split('.')[0] == 'JWST': self.l *= 1E4 # convert from microns to \AA
+        if f.split('.')[1] == 'NIRCAM': self.l *= 1E4 # convert from microns to \AA
         
         
         if isinstance(new_lam, np.ndarray):

@@ -14,7 +14,7 @@ from FLARE import filters
 
 
 filter_set = filters.HST
-filter_set = filters.NIRCam_W
+filter_set = filters.NIRCam_W + filters.MIRI
 
 F = filters.add_filters(filter_set) # --- NOTE: need to give it the redshifted 
 
@@ -34,6 +34,6 @@ for i,f in enumerate(F['filters']):
 
 plt.legend()
 
-plt.savefig('filters.png')
+plt.savefig('filters.pdf')
  
 
