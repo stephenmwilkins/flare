@@ -153,50 +153,7 @@ class linear:
     
   
 '''
-  
-  
-class existing_model:
-  
-    def __init__(self, model = bluetides()):
-        self.model = model
-        self.lp = {}
-        
-    def interpolate_parameters(self, z=8.):
-    
-        # interpolates parameters as a function of z
-        # returns a dictionary of the Schechter function parameters for given redshift(s)
 
-        z_mod = self.model.redshifts
-        alpha_mod = self.model.alpha
-        log10phi_mod = self.model.phi_star
-        log10M_mod = self.model.M_star
-        p = {'alpha': np.interp(z, z_mod, alpha_mod), 'log10phi*': np.interp(z, z_mod, log10phi_mod), 'M*': np.interp(z, z_mod, log10M_mod)}
-
-        return p
-  
-    def calculate_linear_evolution_coeffs(self):
-
-        # Function that calculates the linear evolution coeffs
-        # returns a dictionary of linear model coefficients and goodness of fit
-
-        z_mod = self.model.redshifts
-        alpha_mod = self.model.alpha
-        log10phi_mod = self.model.phi_star
-        M_mod = self.model.M_star
-
-        # The output contains full linregress output (0th and 1st element contain the slope and intercept respectively)
-        fit_alpha = linregress(z_mod, alpha_mod)
-        fit_log10phi = linregress(z_mod, log10phi_mod)
-        fit_M = linregress(z_mod, M_mod)
-
-        self.lp =  {'alpha': fit_alpha, 'log10phi*': fit_log10phi, 'M*': fit_M}
-
-        return self.lp
-        
-  
-  
-
-  
     
 class bluetides: # --- based on bluetides simulation
 
@@ -228,11 +185,42 @@ class Ma2019:
 #     self.alpha = #        
 
 
+class existing_model:
 
+    def __init__(self, model=bluetides()):
+        self.model = model
+        self.lp = {}
 
+    def interpolate_parameters(self, z=8.):
+        # interpolates parameters as a function of z
+        # returns a dictionary of the Schechter function parameters for given redshift(s)
 
+        z_mod = self.model.redshifts
+        alpha_mod = self.model.alpha
+        log10phi_mod = self.model.phi_star
+        log10M_mod = self.model.M_star
+        p = {'alpha': np.interp(z, z_mod, alpha_mod), 'log10phi*': np.interp(z, z_mod, log10phi_mod),
+             'M*': np.interp(z, z_mod, log10M_mod)}
 
+        return p
 
+    def calculate_linear_evolution_coeffs(self):
+        # Function that calculates the linear evolution coeffs
+        # returns a dictionary of linear model coefficients and goodness of fit
+
+        z_mod = self.model.redshifts
+        alpha_mod = self.model.alpha
+        log10phi_mod = self.model.phi_star
+        M_mod = self.model.M_star
+
+        # The output contains full linregress output (0th and 1st element contain the slope and intercept respectively)
+        fit_alpha = linregress(z_mod, alpha_mod)
+        fit_log10phi = linregress(z_mod, log10phi_mod)
+        fit_M = linregress(z_mod, M_mod)
+
+        self.lp = {'alpha': fit_alpha, 'log10phi*': fit_log10phi, 'M*': fit_M}
+
+        return self.lp
 
 
 
