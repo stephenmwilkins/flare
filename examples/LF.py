@@ -42,7 +42,7 @@ p = evo_model.parameters(z = 8.5) # return model parameters at z=8.5
 
 # --- return grid with number of galaxies in each bin
 
-bin_edges, N = evo_model.N(cosmo = cosmo, redshift_limits = [8., 15.], log10L_limits = [27., 32.], dz = 0.05, dlog10L = 0.05)
+bin_edges, N = evo_model.N(cosmo = cosmo, redshift_limits = [8., 15.], log10L_limits = [27., 30.], dz = 0.05, dlog10L = 0.05)
 
 # <<<<< make plot
 
