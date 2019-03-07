@@ -6,6 +6,8 @@ import scipy.integrate as cp
 import astropy.cosmology
 import astropy.units as u
 
+import matplotlib.pyplot as plt
+
 
 # FOR NOW: The cosmology is forced to be the default astropy cosmology.
 cosmo = astropy.cosmology.default_cosmology.get()
@@ -225,18 +227,29 @@ class existing_model:
 
 
 
-
-
-
-
-
-'''
 def evo_plot(bin_edges, N, cosmo = False, f_limits = False, save_file = False):
 
     # --- make nice plot
-    
-    
-    
+
+    plt.figure(figsize=(6, 5))
+
+    X, Y = np.meshgrid(bin_edges['z'], bin_edges['log10L'])
+
+    cm = plt.get_cmap('plasma')
+    plt.pcolormesh(X, Y, np.log10(N), cmap=cm)
+
+    bar = plt.colorbar(orientation='vertical')
+    bar.set_label(r'$\rm log_{10}(N/ [arcmin^{-2}])$', rotation=90)
+
+    plt.ylabel(r"$\rm log_{10}(L_{\nu}/ [erg\, s^{-1}\, Hz^{-1}])$")
+    plt.xlabel(r"$\rm z$")
+    plt.xlim(min(bin_edges['z']), max(bin_edges['z']))
+    plt.ylim(min(bin_edges['log10L']), max(bin_edges['log10L']))
+
+    plt.savefig('LF_surface_N_exact_test.png', dpi=300)
+
+
+'''    
     if not cosmo: cosmo = FLARE.default_cosmology()    
     
     
