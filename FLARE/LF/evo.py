@@ -231,7 +231,7 @@ def evo_plot(bin_edges, N, cosmo = False, f_limits = False, save_file = False):
 
     # --- make nice plot
 
-    plt.figure(figsize=(6, 5))
+    fig = plt.figure(figsize=(6, 5))
 
     X, Y = np.meshgrid(bin_edges['z'], bin_edges['log10L'])
 
@@ -246,7 +246,11 @@ def evo_plot(bin_edges, N, cosmo = False, f_limits = False, save_file = False):
     plt.xlim(min(bin_edges['z']), max(bin_edges['z']))
     plt.ylim(min(bin_edges['log10L']), max(bin_edges['log10L']))
 
-    plt.savefig('LF_surface_N_exact_test.png', dpi=300)
+    if save_file == False:
+        return fig
+    else:
+        plt.savefig(save_file+'.png', dpi=300)
+
 
 
 '''    

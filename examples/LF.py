@@ -33,7 +33,7 @@ cosmo = astropy.cosmology.default_cosmology.get()
 
 # evo_model = evo.linear(p) # initialises the linear evolution model with an arbitrary set of parameters {}
 
-coeffs_bluetides = evo.existing_model(evo.bluetides())
+coeffs_bluetides = evo.existing_model(evo.bluetides()).calculate_linear_evolution_coeffs()
 evo_model = evo.linear(coeffs_bluetides) # initialises the linear evolution model with the bluetides parameters
 
 
