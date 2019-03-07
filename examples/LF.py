@@ -48,6 +48,7 @@ bin_edges, N = evo_model.N(cosmo = cosmo, redshift_limits = [8., 15.], log10L_li
 
 
 evo.evo_plot(bin_edges, N)
+plt.show()
 
 # --- return a random sample of redshifts and luminosities
 '''
