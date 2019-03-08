@@ -143,7 +143,7 @@ class linear:
         return bin_edges, sample
     
 
-    def bin_sample(self, redshifts, L, redshift_limits = [8., 15.], log10L_limits = [28., 32.], dz = 0.05, dlog10L = 0.05, log10L_min = 28., seed = False):
+    def bin_sample(self, redshift_limits = [8., 15.], log10L_limits = [28., 32.], dz = 0.05, dlog10L = 0.05, log10L_min = 28., seed = False):
     
         # bin the sampled LF
 
@@ -167,7 +167,7 @@ class linear:
         N_sample = np.zeros((len(bin_centres['log10L']), len(bin_centres['z'])))
 
         if seed: np.random.seed(seed)
-        
+
         # Loop calculates LF for each input z (bin centres) and returns the exact numbers expected in each bin
         # (There may be a better option for generating this)
         for i in range(len(bin_centres['z'])):
