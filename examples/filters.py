@@ -16,6 +16,8 @@ from FLARE import filters
 filter_set = filters.HST
 filter_set = filters.NIRCam_W + filters.MIRI
 
+filter_set = filters.Euclid + filters.HSC
+
 F = filters.add_filters(filter_set) # --- NOTE: need to give it the redshifted 
 
 

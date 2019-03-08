@@ -18,7 +18,10 @@ HST = WFC3UV_W + ACS_W + WFC3NIR_W
 Spitzer = ['Spitzer.IRAC.'+f for f in ['ch1', 'ch2', 'ch3', 'ch4']]
 
 
+Euclid = ['Euclid.VIS.'+f for f in ['VIS']]
+Euclid += ['Euclid.NISP.'+f for f in ['Y','J','H']]
 
+HSC = ['Subaru.HSC.'+f for f in ['g','r','i','z','y']]
 
 NIRCam_s_W = ['JWST.NIRCAM.'+f for f in ['F070W','F090W','F115W','F150W','F200W']]
 NIRCam_s_M = ['JWST.NIRCAM.'+f for f in ['F140M','F162M','F182M','F210M','F250M']]
@@ -32,7 +35,6 @@ NIRCam_l = NIRCam_l_W + NIRCam_l_M
 NIRCam_W = NIRCam_s_W + NIRCam_l_W
 
 NIRCam =  NIRCam_s + NIRCam_l
-
 
 MIRI = ['JWST.MIRI.'+f for f in ['F560W','F770W','F1000W','F1130W','F1280W','F1500W','F1800W','F2100W','F2550W']]
 

@@ -31,10 +31,8 @@ cosmo = astropy.cosmology.default_cosmology.get()
 
 # --- LF evolution examples
 
-# evo_model = evo.linear(p) # initialises the linear evolution model with an arbitrary set of parameters {}
 
-coeffs_bluetides = evo.existing_model(evo.bluetides()).calculate_linear_evolution_coeffs()
-evo_model = evo.linear(coeffs_bluetides) # initialises the linear evolution model with the bluetides parameters
+evo_model = evo.linear(evo.bluetides()) # initialises the linear evolution model with the bluetides parameters
 
 
 p = evo_model.parameters(z = 8.5) # return model parameters at z=8.5
