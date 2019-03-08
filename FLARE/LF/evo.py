@@ -166,6 +166,8 @@ class linear:
         # Initialising the output array
         N_sample = np.zeros((len(bin_centres['log10L']), len(bin_centres['z'])))
 
+        if seed: np.random.seed(seed)
+        
         # Loop calculates LF for each input z (bin centres) and returns the exact numbers expected in each bin
         # (There may be a better option for generating this)
         for i in range(len(bin_centres['z'])):
