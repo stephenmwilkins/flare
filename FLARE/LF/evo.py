@@ -27,7 +27,7 @@ def M(log10L):
     return -2.5 * (log10L - np.log10(geo)) - 48.6
 
 
-def dVc(z):
+def dVc(z, cosmo):
     return cosmo.differential_comoving_volume(z).value
 
 
@@ -35,42 +35,7 @@ def _integ(x,a):
     return x**(a-1) * np.exp(-x)
 
 
-def CulmPhi(log10L, sp):
-    y = log10L - sp['log10L*']
-    x = 10 ** y
-    alpha = sp['alpha']
-
-    gamma = cp.quad(_integ, x, np.inf, args=alpha + 1)[0]
-    num = gamma * sp['phi*']
-
-    return num
-
-
-def CDF(log10L_limit, normed=True):
-    log10Ls = np.arange(self.sp['log10L*'] + 5., log10L_limit - 0.01, -0.01)
-
-    CDF = np.array([self.CulmPhi(log10L) for log10L in log10Ls])
-
-    if normed: CDF /= CDF[-1]
-
-    return log10Ls, CDF
-
-
-def N_exact(volume, bin_edges, sp):
-    # --- return the exact number of galaxies expected in each bin
-
-    CulmN = np.array([CulmPhi(x, sp) for x in bin_edges]) * volume
-
-    return -(CulmN[1:] - CulmN[0:-1])
-
-
-def bin(log10L_sample, bins):
-    # --- bins can either be the number of bins or the bin_edges
-
-    N_sample, bin_edges = np.histogram(log10L_sample, bins=bins, normed=False)
-
-    return N_sample
-
+# Main part of module:
 
 
 class linear:
@@ -114,7 +79,7 @@ class linear:
         bin_centres = {'log10L': np.arange(bin_edges['log10L'][0]+dlog10L/2.,bin_edges['log10L'][-1]-dlog10L/2.,dlog10L), 'z': np.arange(bin_edges['z'][0]+dz/2.,bin_edges['z'][-1]-dz/2.,dz)}
 
         # Using astropy.cosmology to calculate the volume in each redshift bin
-        volumes = np.asarray([ cp.quad(dVc, bin_edges['z'][i-1], bin_edges['z'][i])[0] for i in range(1,len(bin_edges['z']))])
+        volumes = np.asarray([ cp.quad(dVc, bin_edges['z'][i-1], bin_edges['z'][i], args=[cosmo])[0] for i in range(1,len(bin_edges['z']))])
 
         # Initialising the output array
         N = np.zeros((len(bin_centres['log10L']), len(bin_centres['z'])))
@@ -129,34 +94,101 @@ class linear:
             sp['phi*'] = 10**params['log10phi*']
             sp['log10L*'] = M_to_log10L(params['M*'])
 
-            N_ext = N_exact(volumes[i] * area_sr, bin_edges['log10L'], sp)
+            LF = LF_interpolation(sp)
+
+            N_ext = LF.N_exact(volumes[i] * area_sr, bin_edges['log10L'])
 
             for j in range(len(N_ext)):
                 N[j,i] = N_ext[j]
 
         return bin_edges, N
 
-'''    
-    
+
     def sample(self, area = 1., cosmo = cosmo, redshift_limits = [8., 15.], log10L_min = 28., seed = False):
     
-        # sample the LF evolution model in a given volume or area
-        # if area will need to also give a cosmology 
-        
+        # samples the LF evolution model in a given area
+
+        area_sm = area                      # Area in square arcmin
+        area_sd = area_sm / 3600.           # Area in square degrees
+        area_sr = (np.pi/180.)**2 * area_sd # Area in steradian
+
+
         #if not cosmo: cosmo = FLARE.default_cosmology()
-    
+
+        # Setting the bin edges as well as centres for later operations
+        bin_edges = {'z': np.arange(redshift_limits[0],redshift_limits[-1]+dz,dz)}
+        bin_centres = {'z': np.arange(bin_edges['z'][0]+dz/2.,bin_edges['z'][-1]-dz/2.,dz)}
+
+        # Using astropy.cosmology to calculate the volume in each redshift bin
+        volumes = np.asarray([ cp.quad(dVc, bin_edges['z'][i-1], bin_edges['z'][i], args=cosmo)[0] for i in range(1,len(bin_edges['z']))])
+
+        # Initialising the output array
+        sample = np.zeros(len(bin_centres['z']))
+
+        if seed: np.random.seed(seed)
         
-        return 1. #redshifts, L
+        for i in range(len(bin_centres['z'])):
+            params = self.parameters(bin_centres['z'][i])
+
+            sp = {}
+            sp['alpha'] = params['alpha']
+            sp['phi*'] = 10**params['log10phi*']
+            sp['log10L*'] = M_to_log10L(params['M*'])
+
+            LF = LF_interpolation(sp)
+
+            sample[i] = LF.sample(volumes[i] * area_sr, log10L_min)
+
+
+        return bin_edges, sample
     
 
-    def bin_sample(self, redshifts, L, redshift_limits = [8., 15.], log10L_limits = [28., 32.], dz = 0.05, dlog10L = 0.05)
+    def bin_sample(self, redshifts, L, redshift_limits = [8., 15.], log10L_limits = [28., 32.], dz = 0.05, dlog10L = 0.05, log10L_min = 28., seed = False):
     
-        # bin the sample
-    
-        return 1. #bin_edges, N
+        # bin the sampled LF
+
+        # samples the LF evolution model in a given area and bins it
+
+        area_sm = area  # Area in square arcmin
+        area_sd = area_sm / 3600.  # Area in square degrees
+        area_sr = (np.pi / 180.) ** 2 * area_sd  # Area in steradian
+
+        # if not cosmo: cosmo = FLARE.default_cosmology()
+
+        # Setting the bin edges as well as centres for later operations
+        bin_edges = {'log10L': np.arange(log10L_limits[0],log10L_limits[-1]+dlog10L,dlog10L), 'z': np.arange(redshift_limits[0],redshift_limits[-1]+dz,dz)}
+        bin_centres = {'log10L': np.arange(bin_edges['log10L'][0]+dlog10L/2.,bin_edges['log10L'][-1]-dlog10L/2.,dlog10L), 'z': np.arange(bin_edges['z'][0]+dz/2.,bin_edges['z'][-1]-dz/2.,dz)}
+
+        # Using astropy.cosmology to calculate the volume in each redshift bin
+        volumes = np.asarray([cp.quad(dVc, bin_edges['z'][i - 1], bin_edges['z'][i], args=cosmo)[0] for i in
+                              range(1, len(bin_edges['z']))])
+
+        # Initialising the output array
+        N_sample = np.zeros((len(bin_centres['log10L']), len(bin_centres['z'])))
+
+        # Loop calculates LF for each input z (bin centres) and returns the exact numbers expected in each bin
+        # (There may be a better option for generating this)
+        for i in range(len(bin_centres['z'])):
+            params = self.parameters(bin_centres['z'][i])
+
+            sp = {}
+            sp['alpha'] = params['alpha']
+            sp['phi*'] = 10**params['log10phi*']
+            sp['log10L*'] = M_to_log10L(params['M*'])
+
+            LF = LF_interpolation(sp)
+
+            sample = LF.sample(volumes[i] * area_sr, log10L_min)
+            N_binned = LF.bin(sample, bin_edges['log10L'])
+
+            for j in range(len(N_binned)):
+                N_sample[j,i] = N_binned[j]
+
+
+        return bin_edges, N_sample
     
   
-'''
+
 
 
 class existing_model:
@@ -242,7 +274,60 @@ class Ma2019(existing_model):
 
 
 
+class LF_interpolation:
+    # --- LF interpolation functions for sampling and predictions
 
+    def __init__(self, sp):
+        self.sp = sp
+
+
+    def CulmPhi(self, log10L):
+        y = log10L - self.sp['log10L*']
+        x = 10 ** y
+        alpha = self.sp['alpha']
+
+        gamma = cp.quad(_integ, x, np.inf, args=alpha + 1)[0]
+        num = gamma * self.sp['phi*']
+
+        return num
+
+
+    def CDF(self, log10L_limit, normed=True):
+        log10Ls = np.arange(self.sp['log10L*'] + 5., log10L_limit - 0.01, -0.01)
+
+        CDF = np.array([CulmPhi(log10L) for log10L in log10Ls])
+
+        if normed: CDF /= CDF[-1]
+
+        return log10Ls, CDF
+
+
+    def N_exact(self, volume, bin_edges):
+        # --- return the exact number of galaxies expected in each bin
+
+        CulmN = np.array([CulmPhi(x) for x in bin_edges]) * volume
+
+        return -(CulmN[1:] - CulmN[0:-1])
+
+
+    def sample(self, volume, log10L_limit):
+        L, CDF = self.CDF(log10L_limit, normed=False)
+        
+        n = np.random.poisson(volume * CDF[-1])
+
+        nCDF = CDF / CDF[-1]
+
+        log10L_sample = np.interp(np.random.random(n), nCDF, L)
+
+        return log10L_sample
+
+
+    def bin(self, log10L_sample, bins):
+        # --- bins can either be the number of bins or the bin_edges
+
+        N_sample, bin_edges = np.histogram(log10L_sample, bins=bins, normed=False)
+
+        return N_sample    
 
 
 
