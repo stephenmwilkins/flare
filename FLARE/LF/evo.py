@@ -231,9 +231,9 @@ class existing_model:
 
 
     
-class bluetides: # --- based on bluetides simulation
+class bluetides(existing_model): # --- based on bluetides simulation
 
-    def __init__(self, existing_model):
+    def __init__(self):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
         
@@ -247,12 +247,11 @@ class bluetides: # --- based on bluetides simulation
         super().__init__()
         
         
-            
 
-class Ma2019:
+class Ma2019(existing_model):
     # --- LF evolution model based on Ma et al. (2019) (f_dust = 0.8)
 
-    def __init__(self, existing_model):
+    def __init__(self):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
         
@@ -295,7 +294,7 @@ class LF_interpolation:
     def CDF(self, log10L_limit, normed=True):
         log10Ls = np.arange(self.sp['log10L*'] + 5., log10L_limit - 0.01, -0.01)
 
-        CDF = np.array([CulmPhi(log10L) for log10L in log10Ls])
+        CDF = np.array([self.CulmPhi(log10L) for log10L in log10Ls])
 
         if normed: CDF /= CDF[-1]
 
@@ -305,7 +304,7 @@ class LF_interpolation:
     def N_exact(self, volume, bin_edges):
         # --- return the exact number of galaxies expected in each bin
 
-        CulmN = np.array([CulmPhi(x) for x in bin_edges]) * volume
+        CulmN = np.array([self.CulmPhi(x) for x in bin_edges]) * volume
 
         return -(CulmN[1:] - CulmN[0:-1])
 
