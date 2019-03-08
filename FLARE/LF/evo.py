@@ -79,7 +79,7 @@ class linear:
         bin_centres = {'log10L': np.arange(bin_edges['log10L'][0]+dlog10L/2.,bin_edges['log10L'][-1]-dlog10L/2.,dlog10L), 'z': np.arange(bin_edges['z'][0]+dz/2.,bin_edges['z'][-1]-dz/2.,dz)}
 
         # Using astropy.cosmology to calculate the volume in each redshift bin
-        volumes = np.asarray([ cp.quad(dVc, bin_edges['z'][i-1], bin_edges['z'][i], args=[cosmo])[0] for i in range(1,len(bin_edges['z']))])
+        volumes = np.asarray([ cp.quad(dVc, bin_edges['z'][i-1], bin_edges['z'][i], args=cosmo)[0] for i in range(1,len(bin_edges['z']))])
 
         # Initialising the output array
         N = np.zeros((len(bin_centres['log10L']), len(bin_centres['z'])))
@@ -231,9 +231,9 @@ class existing_model:
 
 
     
-class bluetides(existing_model): # --- based on bluetides simulation
+class bluetides: # --- based on bluetides simulation
 
-    def __init__(self):
+    def __init__(self, existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
         
@@ -243,16 +243,16 @@ class bluetides(existing_model): # --- based on bluetides simulation
         self.phi_star = [-3.92, -4.2, -4.7, -4.79, -5.09, -5.71]       # array of log10(phi_star) values
         self.M_star = [-20.93, -20.68, -20.69, -20.17, -19.92, -19.91] # array of M_star values
         self.alpha = [-2.04, -2.1, -2.27, -2.27, -2.35, -2.54]         # array of alpha values
-        
+
         super().__init__()
         
         
             
 
-class Ma2019(existing_model):
+class Ma2019:
     # --- LF evolution model based on Ma et al. (2019) (f_dust = 0.8)
 
-    def __init__(self):
+    def __init__(self, existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
         
