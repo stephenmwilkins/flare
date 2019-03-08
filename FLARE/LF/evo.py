@@ -76,11 +76,13 @@ def bin(log10L_sample, bins):
 class linear:
 
 
-    def __init__(self, lp, z=8):
+    def __init__(self, model):
     
         # lp is a dictionary of the parameters of the linear evolution model
 
-        self.lp = lp
+        self.model = model
+
+        self.lp = model.lp
 
 
     def parameters(self,z):
@@ -156,51 +158,22 @@ class linear:
   
 '''
 
-    
-class bluetides: # --- based on bluetides simulation
-
-    def __init__(self):
-        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
-        # Custom models should be created following the same form
-        self.redshifts = [8.0, 9.0, 10.0, 11.0, 12.0, 13.0]            # array of redshifts
-        self.phi_star = [-3.92, -4.2, -4.7, -4.79, -5.09, -5.71]       # array of log10(phi_star) values
-        self.M_star = [-20.93, -20.68, -20.69, -20.17, -19.92, -19.91] # array of M_star values
-        self.alpha = [-2.04, -2.1, -2.27, -2.27, -2.35, -2.54]         # array of alpha values
-            
-
-class Ma2019:
-    # --- LF evolution model based on Ma et al. (2019) (f_dust = 0.8)
-
-    def __init__(self):
-        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
-        # Custom models should be created following the same form
-        self.redshifts = [5., 6., 7., 8.0, 9.0, 10.0]                  # array of redshifts
-        self.phi_star = [-3.55, -3.44, -4.09, -3.98, -4.57, -4.74]     # array of log10(phi_star) values
-        self.M_star = [-21.77, -21.34, -21.73, -20.97, -21.30, -20.90] # array of M_star values
-        self.alpha = [-1.9, -1.87, -2.05, -2.08, -2.20, -2.31]         # array of alpha values
-
-# class Mason15(existing_model): # --- based on Mason et al. (2015)
-# 
-#     self.redshifts = # array of redshifts
-#     self.phi_star = # array of phi_star value to interpolate
-#     self.M_star = #
-#     self.alpha = #        
-
 
 class existing_model:
 
-    def __init__(self, model=bluetides()):
-        self.model = model
-        self.lp = {}
+    def __init__(self):
+        
+        self.lp = self.calculate_linear_evolution_coeffs()
+        print(self.name)
 
     def interpolate_parameters(self, z=8.):
         # interpolates parameters as a function of z
         # returns a dictionary of the Schechter function parameters for given redshift(s)
 
-        z_mod = self.model.redshifts
-        alpha_mod = self.model.alpha
-        log10phi_mod = self.model.phi_star
-        log10M_mod = self.model.M_star
+        z_mod = self.redshifts
+        alpha_mod = self.alpha
+        log10phi_mod = self.phi_star
+        log10M_mod = self.M_star
         p = {'alpha': np.interp(z, z_mod, alpha_mod), 'log10phi*': np.interp(z, z_mod, log10phi_mod),
              'M*': np.interp(z, z_mod, log10M_mod)}
 
@@ -210,10 +183,10 @@ class existing_model:
         # Function that calculates the linear evolution coeffs
         # returns a dictionary of linear model coefficients and goodness of fit
 
-        z_mod = self.model.redshifts
-        alpha_mod = self.model.alpha
-        log10phi_mod = self.model.phi_star
-        M_mod = self.model.M_star
+        z_mod = self.redshifts
+        alpha_mod = self.alpha
+        log10phi_mod = self.phi_star
+        M_mod = self.M_star
 
         # The output contains full linregress output (0th and 1st element contain the slope and intercept respectively)
         fit_alpha = linregress(z_mod, alpha_mod)
@@ -223,6 +196,52 @@ class existing_model:
         self.lp = {'alpha': fit_alpha, 'log10phi*': fit_log10phi, 'M*': fit_M}
 
         return self.lp
+
+
+    
+class bluetides(existing_model): # --- based on bluetides simulation
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+        
+        self.name = 'Bluetides (Wilkins+2017)'
+        self.ref = 'Wilkins+2017'
+        self.redshifts = [8.0, 9.0, 10.0, 11.0, 12.0, 13.0]            # array of redshifts
+        self.phi_star = [-3.92, -4.2, -4.7, -4.79, -5.09, -5.71]       # array of log10(phi_star) values
+        self.M_star = [-20.93, -20.68, -20.69, -20.17, -19.92, -19.91] # array of M_star values
+        self.alpha = [-2.04, -2.1, -2.27, -2.27, -2.35, -2.54]         # array of alpha values
+        
+        super().__init__()
+        
+        
+            
+
+class Ma2019(existing_model):
+    # --- LF evolution model based on Ma et al. (2019) (f_dust = 0.8)
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+        
+        self.name = 'FIRE-2 (Ma+2019)'
+        self.ref = 'Ma+2019'
+        self.redshifts = [5., 6., 7., 8.0, 9.0, 10.0]                  # array of redshifts
+        self.phi_star = [-3.55, -3.44, -4.09, -3.98, -4.57, -4.74]     # array of log10(phi_star) values
+        self.M_star = [-21.77, -21.34, -21.73, -20.97, -21.30, -20.90] # array of M_star values
+        self.alpha = [-1.9, -1.87, -2.05, -2.08, -2.20, -2.31]         # array of alpha values
+        
+        super().__init__()
+
+# class Mason15(existing_model): # --- based on Mason et al. (2015)
+# 
+#     self.redshifts = # array of redshifts
+#     self.phi_star = # array of phi_star value to interpolate
+#     self.M_star = #
+#     self.alpha = #        
+
+
+
 
 
 
