@@ -143,7 +143,7 @@ class linear:
         return bin_edges, sample
     
 
-    def bin_sample(self, redshift_limits = [8., 15.], log10L_limits = [28., 32.], dz = 0.05, dlog10L = 0.05, log10L_min = 28., seed = False):
+    def bin_sample(self, area = 1., redshift_limits = [8., 15.], log10L_limits = [28., 32.], dz = 0.05, dlog10L = 0.05, log10L_min = 28., seed = False):
     
         # bin the sampled LF
 
