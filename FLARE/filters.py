@@ -17,9 +17,11 @@ HST = WFC3UV_W + ACS_W + WFC3NIR_W
 
 Spitzer = ['Spitzer.IRAC.'+f for f in ['ch1', 'ch2', 'ch3', 'ch4']]
 
+Euclid_NISP = ['Euclid.NISP.'+f for f in ['Y','J','H']]
+Euclid = Euclid_NISP + ['Euclid.VIS.'+f for f in ['VIS']]
 
-Euclid = ['Euclid.VIS.'+f for f in ['VIS']]
-Euclid += ['Euclid.NISP.'+f for f in ['Y','J','H']]
+
+
 
 HSC = ['Subaru.HSC.'+f for f in ['g','r','i','z','y']]
 
