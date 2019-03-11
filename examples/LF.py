@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 import FLARE.LF
 from FLARE.LF import evo
+from FLARE.photom import m_to_flux
 
 #cosmo = FLARE.default_cosmology() # WMAP9
 
@@ -40,19 +41,27 @@ p = evo_model.parameters(z = 8.5) # return model parameters at z=8.5
 
 # --- return grid with number of galaxies in each bin
 
-bin_edges, N = evo_model.N(cosmo = cosmo, redshift_limits = [8., 15.], log10L_limits = [27., 30.], dz = 0.05, dlog10L = 0.05)
+bin_edges, bin_centres, N = evo_model.N(cosmo = cosmo, redshift_limits = [8., 15.], log10L_limits = [27., 30.], dz = 0.05, dlog10L = 0.05)
 
 # <<<<< make plot
-
-
 evo.evo_plot(bin_edges, N)
 plt.show()
 
+# Plot with f_limits:
+m_limits = np.arange(26.,31.,1.)
+f_limits = (FLARE.photom.m_to_flux(m_limits)/1E9).tolist()
+evo.evo_plot(bin_edges, N, f_limits=f_limits)
+plt.show()
+
+# Plot of binned samples area 100 sq arcmin
+bin_edges, bin_centres, N_binned = evo_model.bin_sample(area=100.)
+
+evo.evo_plot(bin_edges, N_binned)
+plt.show()
+
 # --- return a random sample of redshifts and luminosities
-'''
-redshifts, L = evo_model.sample(area = 1., cosmo = cosmo, redshift_limits = [8., 15.], log10L_limits = [28., 32.])
+sample = evo_model.sample(area = 100.)
 
-
-bin_edges, N = bin_sample(redshifts, L, redshift_limits = [8., 15.], log10L_limits = [28., 32.])
-'''
-# <<<<< make plot
+# Bin sample and plot
+evo.flux_sample_bin_plot(sample)
+plt.show()
