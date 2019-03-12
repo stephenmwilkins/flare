@@ -1,8 +1,10 @@
 # ---
 from scipy.stats import linregress
 import numpy as np
+
 import scipy.integrate as cp
 import scipy.interpolate as cpi
+import scipy.special as cps
 
 import matplotlib.pyplot as plt
 
@@ -204,6 +206,9 @@ class linear:
 
         lf_interp = cpi.interp2d(bin_centres['z'], bin_centres['log10L'], N)
 
+        # This returns a 2d surface at the moment. The idea was to return a single value for pairs of L, z
+        # Can still be used for this if individual pairs are used, but a bit useless as is.
+
         return lf_interp(zs, log10Ls)
 
 
@@ -365,10 +370,13 @@ def evo_plot(bin_edges, N, cosmo = False, f_limits = False, save_file = False):
 
     # --- draw lines of constant flux
 
-    if f_limits:
+    if type(f_limits) is list or type(f_limits) is np.ndarray or type(f_limits) is range:
 
         for f_limit in f_limits:
             plt.plot(bin_edges['z'], np.log10(flux_to_L(f_limit, cosmo, bin_edges['z'])), 'k--', alpha=0.8)
+
+    if type(f_limits) is float:
+        plt.plot(bin_edges['z'], np.log10(flux_to_L(f_limits, cosmo, bin_edges['z'])), 'k--', alpha=0.8)
 
 
     bar = plt.colorbar(orientation='vertical')
@@ -403,7 +411,7 @@ def flux_sample_bin_plot(samples, cosmo = False, bins = 100, range = [[0.,15.],[
     bar = plt.colorbar(orientation='vertical')
     bar.set_label(r'$\rm N$', rotation=90)
 
-    plt.ylabel(r"$\rm log_{10}(f_{\nu}/ [nJy \, Hz^{-1}])$")
+    plt.ylabel(r"$\rm log_{10}(f_{\nu}/ [nJy])$")
     plt.xlabel(r"$\rm z$")
     plt.xlim(range[0][0], range[0][-1])
     plt.ylim(range[1][0], range[1][-1])
