@@ -14,10 +14,9 @@ import FLARE.LF
 from FLARE.LF import evo
 from FLARE.photom import m_to_flux
 
-#cosmo = FLARE.default_cosmology() # WMAP9
-
 import astropy.cosmology
-cosmo = astropy.cosmology.default_cosmology.get()
+
+#cosmo = astropy.cosmology.default_cosmology.get()
 
 # --- simple LF examples
 
@@ -49,7 +48,7 @@ plt.show()
 
 # Plot with f_limits:
 m_limits = np.arange(26.,31.,1.)
-f_limits = (FLARE.photom.m_to_flux(m_limits)/1E9).tolist()
+f_limits = FLARE.photom.m_to_flux(m_limits)/1E9
 evo.evo_plot(bin_edges, N, f_limits=f_limits)
 plt.show()
 
