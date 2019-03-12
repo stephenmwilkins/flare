@@ -75,7 +75,7 @@ class linear:
 
         # Setting the bin edges as well as centres for later operations
         bin_edges = {'log10L': np.arange(log10L_limits[0],log10L_limits[-1]+dlog10L,dlog10L), 'z': np.arange(redshift_limits[0],redshift_limits[-1]+dz,dz)}
-        bin_centres = {'log10L': np.arange(bin_edges['log10L'][0]+dlog10L/2.,bin_edges['log10L'][-1]-dlog10L/2.,dlog10L), 'z': np.arange(bin_edges['z'][0]+dz/2.,bin_edges['z'][-1]-dz/2.,dz)}
+        bin_centres = {'log10L': bin_edges['log10L'][:-1]+dlog10L/2., 'z': bin_edges['z'][:-1]+dz/2.}
 
         # Using astropy.cosmology to calculate the volume in each redshift bin
         volumes = np.asarray([ cp.quad(dVc, bin_edges['z'][i-1], bin_edges['z'][i], args=cosmo)[0] for i in range(1,len(bin_edges['z']))])
@@ -126,7 +126,7 @@ class linear:
 
         # Setting the bin edges as well as centres for later operations
         bin_edges = {'z': np.arange(redshift_limits[0],redshift_limits[-1]+dz,dz)}
-        bin_centres = {'z': np.arange(bin_edges['z'][0]+dz/2.,bin_edges['z'][-1]-dz/2.,dz)}
+        bin_centres = {'log10L': bin_edges['log10L'][:-1]+dlog10L/2., 'z': bin_edges['z'][:-1]+dz/2.}
 
         # Using astropy.cosmology to calculate the volume in each redshift bin
         volumes = np.asarray([ cp.quad(dVc, bin_edges['z'][i-1], bin_edges['z'][i], args=cosmo)[0] for i in range(1,len(bin_edges['z']))])
@@ -166,8 +166,8 @@ class linear:
 
         # Setting the bin edges as well as centres for later operations
         bin_edges = {'log10L': np.arange(log10L_limits[0],log10L_limits[-1]+dlog10L,dlog10L), 'z': np.arange(redshift_limits[0],redshift_limits[-1]+dz,dz)}
-        bin_centres = {'log10L': np.arange(bin_edges['log10L'][0]+dlog10L/2.,bin_edges['log10L'][-1]-dlog10L/2.,dlog10L), 'z': np.arange(bin_edges['z'][0]+dz/2.,bin_edges['z'][-1]-dz/2.,dz)}
-
+        bin_centres = {'log10L': bin_edges['log10L'][:-1]+dlog10L/2., 'z': bin_edges['z'][:-1]+dz/2.}
+        
         # Using astropy.cosmology to calculate the volume in each redshift bin
         volumes = np.asarray([cp.quad(dVc, bin_edges['z'][i - 1], bin_edges['z'][i], args=cosmo)[0] for i in
                               range(1, len(bin_edges['z']))])

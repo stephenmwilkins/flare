@@ -24,7 +24,7 @@ print('area of Euclid deep: {0} arcmin2'.format(area))
 
 evo_model = evo.linear(evo.bluetides()) # initialises the linear evolution model with the bluetides parameters
 
-bin_edges, bin_centres, N = evo_model.N(cosmo = cosmo, redshift_limits = [8., 15.], log10L_limits = [27., 30.], dz = 0.05, dlog10L = 0.01, flux_min = f_limit_deep)
+bin_edges, bin_centres, N = evo_model.N(cosmo = cosmo, redshift_limits = [8., 15.], log10L_limits = [27., 30.], dz = 0.1, dlog10L = 0.01, flux_min = f_limit_deep)
 
 
 n = np.sum(N)
