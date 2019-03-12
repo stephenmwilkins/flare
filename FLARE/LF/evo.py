@@ -8,22 +8,22 @@ import scipy.special as cps
 
 import matplotlib.pyplot as plt
 
-from FLARE.photom import flux_to_L, lum_to_flux
+from FLARE.photom import flux_to_L, lum_to_flux, M_to_lum
 import FLARE.core
-
-geo = (4. * np.pi * (100. * 10. * 3.0867 * 10 ** 16) ** 2)  # factor relating the L to M in cm^2
-
-
-def L(M):
-    return 10 ** (-0.4 * (M + 48.6)) * geo
-
-
-def M_to_log10L(M):
-    return -0.4 * (M + 48.6) + np.log10(geo)
-
-
-def M(log10L):
-    return -2.5 * (log10L - np.log10(geo)) - 48.6
+# 
+# geo = (4. * np.pi * (100. * 10. * 3.0867 * 10 ** 16) ** 2)  # factor relating the L to M in cm^2
+# 
+# 
+# def L(M):
+#     return 10 ** (-0.4 * (M + 48.6)) * geo
+# 
+# 
+# def M_to_log10L(M):
+#     return -0.4 * (M + 48.6) + np.log10(geo)
+# 
+# 
+# def M(log10L):
+#     return -2.5 * (log10L - np.log10(geo)) - 48.6
 
 
 def dVc(z, cosmo):
@@ -93,7 +93,7 @@ class linear:
             sp = {}
             sp['alpha'] = params['alpha']
             sp['phi*'] = 10**params['log10phi*']
-            sp['log10L*'] = M_to_log10L(params['M*'])
+            sp['log10L*'] = np.log10(M_to_lum(params['M*']))
 
             LF = LF_interpolation(sp)
 
@@ -142,7 +142,7 @@ class linear:
             sp = {}
             sp['alpha'] = params['alpha']
             sp['phi*'] = 10**params['log10phi*']
-            sp['log10L*'] = M_to_log10L(params['M*'])
+            sp['log10L*'] = np.log10(M_to_lum(params['M*']))
 
             LF = LF_interpolation(sp)
 
@@ -185,7 +185,7 @@ class linear:
             sp = {}
             sp['alpha'] = params['alpha']
             sp['phi*'] = 10**params['log10phi*']
-            sp['log10L*'] = M_to_log10L(params['M*'])
+            sp['log10L*'] = np.log10(M_to_lum(params['M*']))
 
             LF = LF_interpolation(sp)
 
