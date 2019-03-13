@@ -15,13 +15,19 @@ def m_to_flux(m):
 
 def flux_to_L(flux, cosmo, z):
 
-    return flux*(4.*np.pi*cosmo.luminosity_distance(z).to('cm').value**2)/(1E23 * (1.+z))
+    return flux*(4.*np.pi*cosmo.luminosity_distance(z).to('cm').value**2)/(1E9 * 1E23 * (1.+z))
 
 def lum_to_flux(lum, cosmo, z):
 
-    return 1E23 * lum * (1.+ z)/(4.*np.pi*cosmo.luminosity_distance(z).to('cm').value**2) 
+    return 1E9 * 1E23 * lum * (1.+ z)/(4.*np.pi*cosmo.luminosity_distance(z).to('cm').value**2) 
 
 
 def lum_to_M(lum):
 
     return -2.5*np.log10(lum/geo)-48.6
+       
+def M_to_lum(M):
+
+    return 10**(-0.4*(M+48.6)) * geo
+
+    return 
