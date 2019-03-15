@@ -18,7 +18,7 @@ HST = WFC3UV_W + ACS_W + WFC3NIR_W
 Spitzer = ['Spitzer.IRAC.'+f for f in ['ch1', 'ch2', 'ch3', 'ch4']]
 
 Euclid_NISP = ['Euclid.NISP.'+f for f in ['Y','J','H']]
-Euclid = Euclid_NISP + ['Euclid.VIS.'+f for f in ['VIS']]
+Euclid = ['Euclid.VIS.'+f for f in ['VIS']] + Euclid_NISP
 
 
 
@@ -102,3 +102,26 @@ class filter():
     def rectw(self):
     
         return np.trapz(self.t, x=self.l)/self.Tpeak()
+        
+        
+
+
+def create_EAZY_filter_res(F, filter_res_file = 'FILTER.RES'):
+    
+    o = []
+
+    for f in F['filters']:
+        
+        o.append('{n} {f}\n'.format(n=len(F[f].l), f=f)) # filter header
+    
+        for i,l in enumerate(F[f].l):  
+            o.append('{i:>5}   {l}   {t}\n'.format(i=i+1, l=l,t=F[f].t[i]))
+        
+    open(filter_res_file,'w').writelines(o)
+        
+
+
+
+
+
+
