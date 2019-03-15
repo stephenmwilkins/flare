@@ -37,7 +37,7 @@ def _integ(x,a):
 # Main part of module:
 
 
-class linear:
+class evo_base:
 
 
     def __init__(self, model):
