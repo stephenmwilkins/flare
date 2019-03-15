@@ -102,3 +102,17 @@ class filter():
     def rectw(self):
     
         return np.trapz(self.t, x=self.l)/self.Tpeak()
+        
+        
+    def create_EAZY_filter_res(self, fname = 'FILTER.RES'):
+    
+        file = []
+    
+        
+        
+
+
+
+
+
+
