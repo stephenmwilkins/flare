@@ -36,31 +36,15 @@ def _integ(x,a):
 
 # Main part of module:
 
-
+  
 class evo_base:
 
 
-    def __init__(self, model):
+    def __init__(self):
     
-        # lp is a dictionary of the parameters of the linear evolution model
-
-        self.model = model
-
-        self.lp = model.lp
+        print(self.model_style)
 
 
-    def parameters(self,z):
-    
-        # use linear evolution model
-        # get parameters as a function of z
-        # returns a dictionary of parameters
-        p = {}
-        for param in self.lp:
-            p[param] = self.lp[param][0]*z + self.lp[param][1]
-  
-        return p
-
-        
     def N(self, area = 1., cosmo = False, redshift_limits = [8., 15.], log10L_limits = [27.5, 30.], dz = 0.05, dlog10L = 0.05, flux_min = False):
 
         # calculates the number of galaxies in each bin on a grid defined by redshift_limits, log10L_limits, dz, dlog10L
@@ -114,7 +98,7 @@ class evo_base:
         return bin_edges, bin_centres, N
 
 
-    def sample(self, area = 1., cosmo = False, redshift_limits = [8., 15.], dz = 0.05, flux_min = 1E-8, seed = False):
+    def sample(self, area = 1., cosmo = False, redshift_limits = [8., 15.], dlog10L = 0.05, dz = 0.05, flux_min = 1E-8, seed = False):
     
         # samples the LF evolution model in a given area
 
@@ -212,8 +196,47 @@ class evo_base:
         return lf_interp(zs, log10Ls)
 
 
-  
+class linear(evo_base):
 
+    def __init__(self, model):
+        # lp is a dictionary of the parameters of the linear evolution model
+
+        self.model = model
+
+        self.lp = model.lp
+
+        self.model_style = 'Linear regression LF evolution method.'
+
+        super().__init__()
+
+    def parameters(self, z):
+        # use linear evolution model
+        # get parameters as a function of z
+        # returns a dictionary of parameters
+        p = {}
+        for param in self.lp:
+            p[param] = self.lp[param][0] * z + self.lp[param][1]
+
+        return p
+
+
+class interp(evo_base):
+
+    def __init__(self, model):
+        # lp is a dictionary of the parameters of the linear evolution model
+
+        self.model = model
+
+        self.model_style = 'Interpolation LF evolution method.'
+
+        super().__init__()
+
+    def parameters(self, z=8.):
+        # use interpolation model
+        # get parameters as a function of z
+        # returns a dictionary of parameters
+
+        return self.model.interpolate_parameters(z)
 
 
 class existing_model:
