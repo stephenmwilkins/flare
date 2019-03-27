@@ -53,5 +53,13 @@ class sed():
         self.Fnu = {f: np.trapz(self.fnu * F[f].T, self.lamz) / np.trapz(F[f].T, self.lamz) for f in F['filters']}
              
 
-        
+def rebin(l, f, n): # rebin SED [currently destroys original]
+
+    n_len = int(np.floor(len(l)/n))
+    l = l[:n_len*n]
+    f = f[:n_len*n]
+    nl = np.mean(l.reshape(n_len,n), axis=1)
+    nf = np.sum(f.reshape(n_len,n), axis=1)/n
+
+    return nl, nf  
 
