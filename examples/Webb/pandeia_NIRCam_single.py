@@ -14,16 +14,16 @@ import numpy as np
 
 
 
-filter = 'f250m'
+filter = 'f200w'
 
 aperture = 'sw'
 mode = 'sw_imaging'
 
-aperture = 'lw'
-mode = 'lw_imaging'
+# aperture = 'lw'
+# mode = 'lw_imaging'
 
-norm_flux = 22.5 # nJy
-aperture_size = 0.031*2.5
+norm_flux = 100 # nJy
+aperture_size = 0.031*2.5 # arcsec
 # aperture_size = 0.063*2.5
 
 

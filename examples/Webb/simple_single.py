@@ -1,3 +1,8 @@
+
+
+# NOTE: this doesn't appear to be working. It does not reproduce numbers from Pandeia. sigh.
+
+
 import numpy as np
 from jwst_backgrounds import jbt
 
@@ -25,50 +30,37 @@ filters = ['JWST.NIRCAM.F070W']
 
 F = FLARE.filters.add_filters(filters)
 
-
 PSF = SynthObs.Morph.webbPSFs(filters, 4.) # creates a dictionary of instances of the webbPSF class
-
-# print(PSF[filters[0]].PSF.shape)
-# print(np.sum(PSF[filters[0]].PSF))
-
-
-
-
-#     
-# self.profile = {'r_pix': radii, 'r_kpc': radii*self.img.resolution, 'I': np.array([float(phot_table[0][j+3]) for j in range(len(radii))])}
-#         
 
 wavelengths = np.array([F[f].pivwv()/1E4 for f in F['filters']])
 
-print(wavelengths)
- 
-# ra = 53.1625
-# dec = -27.7914
- 
 
+# --- hopefully this is the same as the benchmark background
+ 
 ra = 261.6833333
 dec = -73.3322222
-
 day = 170
 
-# jbt.get_background(ra, dec, 4.4, plot_background=True, plot_bathtub=True, write_bathtub=True)
-
-
+# calculate background
 
 bg = jbt.background(ra,dec, wavelengths)
 
+
+# identify index of day
+
 day_i = np.argwhere(bg.bkg_data['calendar'] == day)[0][0]
    
-area = 25.*100**2 # cm2
+   
+# --- telescope area - precise?
+area = 25.*100**2 # cm2 
+
 pixel_s = 0.031 
 pixel_l = 0.063 
 
 
 source_flux_original = 100 # nJy
 
-aperture_radius = 0.1
-
-t_exp = 11466.87
+t_exp = 9974.46 # s
 
 
 for i,f in enumerate(filters):
@@ -76,54 +68,56 @@ for i,f in enumerate(filters):
     
     if f in FLARE.filters.NIRCam_s: pixel_scale = pixel_s
     if f in FLARE.filters.NIRCam_l: pixel_scale = pixel_l
-    
+        
     pixel_area = pixel_scale**2 * u.arcsec * u.arcsec 
       
     Tint = np.trapz(F[f].t/(F[f].l*h.value), x=F[f].l)
     
+    
+    
+    # --- aperture
+    
+    aperture_radius_pix = 2.5 
+    aperture_area_pix = np.pi*aperture_radius_pix**2 # in pixels
+    
     # --- source
-    
-    aperture_radius_pix = aperture_radius/pixel_scale
-    
-    aperture_area_pix = np.pi*(aperture_radius_pix)**2 # in pixels
-    
-    
+     
     positions = [(PSF[f].PSF.shape[0]/2., PSF[f].PSF.shape[0]/2.)] # centre
     apertures = [CircularAperture(positions, r=r) for r in [aperture_radius_pix]] #r in pixels
     
     phot_table = aperture_photometry(PSF[f].PSF, apertures) 
-    frac = phot_table[0][3]/np.sum(PSF[f].PSF) # fraction of sources light in aperture
-    print('fraction of source flux in aperture:',frac)
-    print(np.sum(PSF[f].PSF))
+    frac = phot_table[0][3]/np.sum(PSF[f].PSF) # fraction of source's light in aperture
+    print('fraction of source flux in aperture:', frac)
+    
     
     source_flux = source_flux_original * frac # nJy
-    
     source_flux /= 1E9 # Jy
-    
     source_flux *= 1E-30 # J/s/cm2/Hz
     
     source_e_s =  source_flux*Tint*area # e-/s in each pixel
     
-    print('Extracted flux', source_e_s, 'e-/s')
+    print('Total flux:', source_e_s / frac, 'e-/s')
+    print('Extracted flux:', source_e_s, 'e-/s')
     
     source_e = source_e_s * t_exp # e-
     
-    
     # --- background
     
-    background_flux = bg.bathtub['total_thiswave'][day_i, i] * 1E6 # Jy/sr 
+    # background_flux = bg.bathtub['total_thiswave'][day_i, i] * 1E6 # Jy/sr 
     
-    # background_flux = 0.21 * 1E6
+    background_flux = 0.21 * 1E6
     
     print('background flux/MJy:', background_flux/1E6)
     
     background_flux *= 1E-30 # J/s/cm2/Hz 
     
-    background_flux_pix = background_flux * pixel_area.to('sr').value # J/s/cm2/Hz per pixel
+    background_flux_pix = background_flux * pixel_area.to('sr').value # J/s/cm2/Hz per pixel    
 
     background_e_s_pix = background_flux_pix * Tint * area   # e-/s
 
     background_e_pix = background_e_s_pix * t_exp  # e-
+    
+    print('total background in each pixel (e-):', background_e_pix)
     
     background_e_aperture = background_e_pix * aperture_area_pix
     
@@ -140,9 +134,3 @@ for i,f in enumerate(filters):
     
 
 
-
-
-   
-# plt(bg.bathtub(
-# 
-# print(bg)
