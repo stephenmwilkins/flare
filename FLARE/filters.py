@@ -4,45 +4,73 @@ from .core import *
 import numpy as np
 
 
-
+# --- artificial
 
 FAKE = ['FAKE.FAKE.'+f for f in ['1500','2500','Uth','Bth','Vth','Ith','Zth','Yth','Jth','Hth']] 
-
 TH = ['FAKE.TH.'+f for f in ['FUV','MUV', 'NUV','U','B','V','R','I','Z','Y','J','H','K']] 
 
-
+# --- Hubble
 
 WFC3UV_W = ['HST.WFC3.'+f for f in ['f225w','f275w','f336w']]
 ACS_W = ['HST.ACS.'+f for f in ['f814w', 'f606w', 'f775w', 'f814w']]
 WFC3NIR_W = ['HST.WFC3.'+f for f in ['f105w', 'f125w', 'f140w', 'f160w']]
-
 HST = WFC3UV_W + ACS_W + WFC3NIR_W
+Hubble = HST
 
+# --- Spitzer
 
-Spitzer = ['Spitzer.IRAC.'+f for f in ['ch1', 'ch2', 'ch3', 'ch4']]
+IRAC = ['Spitzer.IRAC.'+f for f in ['ch1', 'ch2', 'ch3', 'ch4']]
+Spitzer = IRAC
 
+# --- Euclid
+
+Euclid_VIS = ['Euclid.VIS.'+f for f in ['VIS']]
 Euclid_NISP = ['Euclid.NISP.'+f for f in ['Y','J','H']]
-Euclid = ['Euclid.VIS.'+f for f in ['VIS']] + Euclid_NISP
+Euclid = Euclid_VIS + Euclid_NISP
 
-
-
+# --- Subaru
 
 HSC = ['Subaru.HSC.'+f for f in ['g','r','i','z','y']]
 
+# --- Webb
+
 NIRCam_s_W = ['JWST.NIRCAM.'+f for f in ['F070W','F090W','F115W','F150W','F200W']]
 NIRCam_s_M = ['JWST.NIRCAM.'+f for f in ['F140M','F162M','F182M','F210M']]
-
 NIRCam_l_W = ['JWST.NIRCAM.'+f for f in ['F277W','F356W','F444W']]
 NIRCam_l_M = ['JWST.NIRCAM.'+f for f in ['F250M','F300M','F360M','F410M','F430M','F460M','F480M']]
-
 NIRCam_s = NIRCam_s_W + NIRCam_s_M
 NIRCam_l = NIRCam_l_W + NIRCam_l_M 
-
 NIRCam_W = NIRCam_s_W + NIRCam_l_W
-
 NIRCam =  NIRCam_s + NIRCam_l
-
 MIRI = ['JWST.MIRI.'+f for f in ['F560W','F770W','F1000W','F1130W','F1280W','F1500W','F1800W','F2100W','F2550W']]
+Webb = NIRCam + MIRI
+
+
+# ----------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------
+
+
+pixel_scale = {}
+
+# --- Euclid
+
+pixel_scale.update({f: 0.3 for f in Euclid_NISP}) 
+
+# --- Hubble
+
+pixel_scale.update({f: 0.13 for f in WFC3UV_W}) # this is wrong
+pixel_scale.update({f: 0.13 for f in WFC3UV_W}) # this is wrong
+pixel_scale.update({f: 0.13 for f in WFC3NIR_W})
+
+# --- Webb
+
+pixel_scale.update({f: 0.031 for f in NIRCam_s}) 
+pixel_scale.update({f: 0.063 for f in NIRCam_l}) 
+pixel_scale.update({f: 0.11 for f in MIRI}) 
+
+
+
+
 
 
 
