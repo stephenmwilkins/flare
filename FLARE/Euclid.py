@@ -5,7 +5,7 @@
 import numpy as np
 from . import photom
 
-
+# https://euclid.roe.ac.uk/attachments/download/1698/puwg-high-z-counts.pdf
 
 area_deg2 = 40.
 area = 60.*60.*area_deg2 # arcmin2
