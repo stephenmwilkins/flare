@@ -13,6 +13,11 @@ import FLARE.filters
 
 
 
+
+
+
+
+
 # --- create a simple "beta" model with a power law slope and a break at 912.
 
 m = models.beta(np.arange(0., 2000., 1.), -2.5, 1E28, normalisation_wavelength = 1500.)
@@ -29,11 +34,16 @@ m.get_fnu(cosmo, z) # --- generate observed frame spectrum (necessary to get bro
 
 filters = FLARE.filters.Euclid
 
+noise_value = 10. # nJy
+
+noise = {f: noise_value for f in filters} # set noise to be the same in each band  
+
+
 F = FLARE.filters.add_filters(filters, new_lam = m.lam * (1. + z)) 
 
 # --- generates Fnu (broad band fluxes)
-
-m.get_Fnu(F) 
+ 
+m.get_Fnu(F) #  generate observed frame broad band fluxes # in nJy
 
 for f in filters: print('{f}: {flux}/nJy'.format(f = f, flux = m.Fnu[f]))
 
