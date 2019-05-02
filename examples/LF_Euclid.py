@@ -18,39 +18,29 @@ cosmo = FLARE.default_cosmo() # WMAP9
 
 f_limit_deep = FLARE.photom.m_to_flux(26.)
 
-area = 60.*60.*20.
+area = 60.*60.*40.
 
 print('area of Euclid deep: {0} arcmin2'.format(area))
 
+
+
+
 evo_model = evo.linear(evo.bluetides()) # initialises the linear evolution model with the bluetides parameters
-
 bin_edges, bin_centres, N = evo_model.N(cosmo = cosmo, redshift_limits = [8., 15.], log10L_limits = [27., 30.], dz = 0.1, dlog10L = 0.01, flux_min = f_limit_deep)
-
-
 n = np.sum(N)
-
 print('density per arcmin: {0:9.2f}'.format(n))
-
 print('number in Eudlid deep: {0:9.1f}'.format(n*area))
-
 
 evo.evo_plot(bin_edges, N, f_limits=[f_limit_deep])
 plt.show()
 
 
+evo_model = evo.interp(evo.bluetides()) # initialises the linear evolution model with the bluetides parameters
+bin_edges, bin_centres, N = evo_model.N(cosmo = cosmo, redshift_limits = [8., 15.], log10L_limits = [27., 30.], dz = 0.1, dlog10L = 0.01, flux_min = f_limit_deep)
+n = np.sum(N)
+print('density per arcmin: {0:9.2f}'.format(n))
+print('number in Eudlid deep: {0:9.1f}'.format(n*area))
 
-# 
-# area = 60.*60.*20.
-# 
-# 
-# area = 1.
-# 
-# 
-# # --- return a random sample of redshifts and luminosities
-# sample = evo_model.sample(area = area, cosmo = cosmo, flux_min = f_limit_deep )
-# 
-# print(sample['z'].shape)
-# 
-# # Bin sample and plot
-# evo.flux_sample_bin_plot(sample)
-# plt.show()
+evo.evo_plot(bin_edges, N, f_limits=[f_limit_deep])
+plt.show()
+
