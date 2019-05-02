@@ -52,6 +52,10 @@ Webb = NIRCam + MIRI
 
 pixel_scale = {}
 
+# --- Spizer
+
+pixel_scale.update({f: 1.22 for f in IRAC}) 
+
 # --- Euclid
 
 pixel_scale.update({f: 0.3 for f in Euclid_NISP}) 
