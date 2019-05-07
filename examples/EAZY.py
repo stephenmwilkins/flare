@@ -20,7 +20,7 @@ import FLARE.filters
 
 # --- create a simple "beta" model with a power law slope and a break at 912.
 
-m = models.beta(np.arange(0., 2000., 1.), -2.5, 1E28, normalisation_wavelength = 1500.)
+m = models.beta(np.arange(0., 5000., 1.), -2.5, 1E28, normalisation_wavelength = 1500.)
 
 # --- now move to the observer frame
 
