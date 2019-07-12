@@ -12,14 +12,16 @@ TH = ['FAKE.TH.'+f for f in ['FUV','MUV', 'NUV','U','B','V','R','I','Z','Y','J',
 # --- Hubble
 
 WFC3UV_W = ['HST.WFC3.'+f for f in ['f225w','f275w','f336w']]
-ACS_W = ['HST.ACS.'+f for f in ['f814w', 'f606w', 'f775w', 'f814w']]
+ACS_W = ['HST.ACS.'+f for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']]
 WFC3NIR_W = ['HST.WFC3.'+f for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 HST = WFC3UV_W + ACS_W + WFC3NIR_W
 Hubble = HST
+XDF = WFC3NIR_W + ACS_W
 
 # --- Spitzer
 
-IRAC = ['Spitzer.IRAC.'+f for f in ['ch1', 'ch2', 'ch3', 'ch4']]
+# IRAC = ['Spitzer.IRAC.'+f for f in ['ch1', 'ch2', 'ch3', 'ch4']]
+IRAC = ['Spitzer.IRAC.'+f for f in ['ch1', 'ch2']]
 Spitzer = IRAC
 
 # --- Euclid
@@ -62,6 +64,7 @@ pixel_scale.update({f: 0.3 for f in Euclid_NISP})
 
 # --- Hubble
 
+pixel_scale.update({f: 0.05 for f in ACS_W}) # this is wrong
 pixel_scale.update({f: 0.13 for f in WFC3UV_W}) # this is wrong
 pixel_scale.update({f: 0.13 for f in WFC3UV_W}) # this is wrong
 pixel_scale.update({f: 0.13 for f in WFC3NIR_W})
@@ -74,6 +77,17 @@ pixel_scale.update({f: 0.11 for f in MIRI})
 
 
 
+zeropoints = {}
+zeropoints['HST.ACS.f435w'] = 25.684
+zeropoints['HST.ACS.f606w'] = 26.505
+zeropoints['HST.ACS.f775w'] = 25.678
+zeropoints['HST.ACS.f814w'] = 25.959
+zeropoints['HST.ACS.f850lp'] = 24.867
+
+zeropoints['HST.WFC3.f105w'] = 26.269
+zeropoints['HST.WFC3.f125w'] = 26.230
+zeropoints['HST.WFC3.f140w'] = 26.452
+zeropoints['HST.WFC3.f160w'] = 25.946
 
 
 
@@ -92,10 +106,11 @@ class filter():
 
     def __init__(self, f, new_lam = False, filter_path = FLARE_dir + '/data/filters/'):
 
+        # l, t are the original wavelength and transmission grid
+
         self.l, self.t = np.loadtxt(filter_path + '/'+'/'.join(f.split('.'))+'.txt', skiprows = 1).T 
         
         if f.split('.')[1] == 'NIRCAM': self.l *= 1E4 # convert from microns to \AA
-        
         
         if isinstance(new_lam, np.ndarray):
         
@@ -108,6 +123,12 @@ class filter():
             self.T = self.t
     
     
+    def apply_new_lam(self, new_lam):
+    
+        self.lam = new_lam
+        self.T = np.interp(self.lam, self.l, self.t)
+    
+
     #http://stsdas.stsci.edu/stsci_python_epydoc/SynphotManual.pdf   #got to page 42 (5.1)
             
     def pivwv(self): # -- calculate pivot wavelength using original l, t

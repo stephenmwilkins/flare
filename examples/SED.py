@@ -17,20 +17,30 @@ import FLARE.filters
 
 
 
-
-SPS = models.SPS('BPASSv2.2.1.binary/ModSalpeter_300')
+SPS = models.SPS('P2/ModSalpeter_100')
 
 sfzh, sfr = SFZH.constant(SPS, {'log10_duration': 8., 'log10Z': -2., 'log10M*': 8.})
 
 print('star formation rate: {0}'.format(sfr))
 
-# plt.imshow(sfzh.T)
-# plt.show()
 
-SED = SPS.get_Lnu(sfzh)
+for fesc in [0.0, 1.0]:
 
-plt.plot(np.log10(SED.stellar.lam), np.log10(SED.stellar.lnu))
-plt.plot(np.log10(SED.total.lam), np.log10(SED.total.lnu))
+    SED = SPS.get_Lnu(sfzh, {'fesc': fesc}, dust_model = False)
+    plt.plot(np.log10(SED.total.lam), np.log10(SED.total.lnu))
+
+    # -- integrate
+
+    # s = (SED.total.lam>912.)&(SED.total.lam<10000.)
+    s = (SED.total.lam<10000.)
+
+    y = SED.total.lnu[s]
+    x = SED.total.nu[s]
+
+    Ltot = np.log10(np.trapz(y[::-1], x[::-1]))
+
+    print('fesc: {0} L_tot: {1:.2f}'.format(fesc, Ltot))
+
 
 plt.xlim([2.7, 4.])
 
@@ -44,8 +54,9 @@ plt.show()
 # --- create observed SED
 
 cosmo = FLARE.default_cosmo()
+z = 8.0
 
-SED.total.get_fnu(cosmo, z=8.0) # calculate observer frame wavelength
+SED.total.get_fnu(cosmo, z) # calculate observer frame wavelength
 
 plt.plot(SED.total.lamz, np.log10(SED.total.fnu), zorder = 1) # plot SED
 
