@@ -1,6 +1,8 @@
 
 from .core import *
 
+class empty: pass
+
 import numpy as np
 
 
@@ -11,12 +13,15 @@ TH = ['FAKE.TH.'+f for f in ['FUV','MUV', 'NUV','U','B','V','R','I','Z','Y','J',
 
 # --- Hubble
 
-WFC3UV_W = ['HST.WFC3.'+f for f in ['f225w','f275w','f336w']]
-ACS_W = ['HST.ACS.'+f for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']]
+WFC3UVIS_W = ['HST.WFC3.'+f for f in ['f225w','f275w','f336w']]
 WFC3NIR_W = ['HST.WFC3.'+f for f in ['f105w', 'f125w', 'f140w', 'f160w']]
-HST = WFC3UV_W + ACS_W + WFC3NIR_W
+WFC3 = WFC3UVIS_W + WFC3NIR_W
+
+ACS_W = ['HST.ACS.'+f for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']]
+ACS = ACS_W
+
+HST = ACS + WFC3
 Hubble = HST
-XDF = WFC3NIR_W + ACS_W
 
 # --- Spitzer
 
@@ -33,6 +38,7 @@ Euclid = Euclid_VIS + Euclid_NISP
 # --- Subaru
 
 HSC = ['Subaru.HSC.'+f for f in ['g','r','i','z','y']]
+Subaru = HSC
 
 # --- Webb
 
@@ -48,9 +54,43 @@ MIRI = ['JWST.MIRI.'+f for f in ['F560W','F770W','F1000W','F1130W','F1280W','F15
 Webb = NIRCam + MIRI
 
 
+# --- All *real* filters
+
+all_filters = Hubble + Spitzer + Euclid + Subaru + Webb 
+
+
+# --- filter info
+
+info = {filter:empty() for filter in all_filters}
+
+for filter in all_filters: info[filter].zeropoint = None # photometric zeropoint (e/s -> erg/s/Hz)
+for filter in all_filters: info[filter].pixel_scale = None # arcsec
+for filter in all_filters: info[filter].FOV = None # field of view of instrument filter is on
+
+info['HST.ACS.f435w'].zeropoint = 25.684
+info['HST.ACS.f606w'].zeropoint = 26.505
+info['HST.ACS.f775w'].zeropoint = 25.678
+info['HST.ACS.f814w'].zeropoint = 25.959
+info['HST.ACS.f850lp'].zeropoint = 24.867
+info['HST.WFC3.f105w'].zeropoint = 26.269
+info['HST.WFC3.f125w'].zeropoint = 26.230
+info['HST.WFC3.f140w'].zeropoint = 26.452
+info['HST.WFC3.f160w'].zeropoint = 25.946
+
+for filter in IRAC: info[filter].pixel_scale = 1.22
+for filter in Euclid_NISP: info[filter].pixel_scale = 0.3
+for filter in ACS: info[filter].pixel_scale = 0.05 
+for filter in WFC3: info[filter].pixel_scale = 0.13
+for filter in NIRCam_s: info[filter].pixel_scale = 0.031
+for filter in NIRCam_l: info[filter].pixel_scale = 0.063
+for filter in MIRI: info[filter].pixel_scale = 0.11
+# for filter in : info[filter].pixel_scale = 
+
+
 # ----------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------
 
+# below is deprecated in favour of the above
 
 pixel_scale = {}
 
@@ -65,8 +105,7 @@ pixel_scale.update({f: 0.3 for f in Euclid_NISP})
 # --- Hubble
 
 pixel_scale.update({f: 0.05 for f in ACS_W}) # this is wrong
-pixel_scale.update({f: 0.13 for f in WFC3UV_W}) # this is wrong
-pixel_scale.update({f: 0.13 for f in WFC3UV_W}) # this is wrong
+pixel_scale.update({f: 0.13 for f in WFC3UVIS_W}) # this is wrong
 pixel_scale.update({f: 0.13 for f in WFC3NIR_W})
 
 # --- Webb
@@ -88,6 +127,11 @@ zeropoints['HST.WFC3.f105w'] = 26.269
 zeropoints['HST.WFC3.f125w'] = 26.230
 zeropoints['HST.WFC3.f140w'] = 26.452
 zeropoints['HST.WFC3.f160w'] = 25.946
+
+
+
+
+
 
 
 
@@ -121,6 +165,8 @@ class filter():
         
             self.lam = self.l
             self.T = self.t
+    
+        self.info = info[f]
     
     
     def apply_new_lam(self, new_lam):

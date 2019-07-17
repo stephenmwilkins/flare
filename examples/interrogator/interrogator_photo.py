@@ -88,10 +88,10 @@ if redshift: model.prior_def['z'] = {'type': 'delta', 'value': z} # --- ASSUME R
 
 # --- test model call time
 
-start_time = time.time()
-N = 10
-for i in range(N): model.p(parameters) 
-print('{0:.4f}'.format((time.time() - start_time)/N))
+# start_time = time.time()
+# N = 10
+# for i in range(N): model.p(parameters) 
+# print('{0:.4f}'.format((time.time() - start_time)/N))
 
 
 
@@ -101,8 +101,13 @@ run = True
 if run:
     start_time = time.time()
     fit = fitter.source(obs, model, verbose = True)
-    fit.fit(nwalkers = 50, nsamples = 5000, burn = 500)
-    print('{0:.2f}'.format(time.time() - start_time))
+    nwalkers = 50
+    nsamples = 2000
+    burn = 200
+    fit.fit(nwalkers = nwalkers, nsamples = nsamples, burn = burn)
+    total_time = time.time() - start_time
+    print('total time: {0:.4f}'.format(total_time))
+    print('time per sample: {0:.4f}'.format(total_time/(nsamples * nwalkers)))
     fit.save()
 
 plots.plots(ID).simple_triangle()

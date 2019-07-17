@@ -19,7 +19,10 @@ import FLARE.filters
 
 SPS = models.SPS('P2/ModSalpeter_100')
 
-sfzh, sfr = SFZH.constant(SPS, {'log10_duration': 8., 'log10Z': -2., 'log10M*': 8.})
+
+
+
+sfzh, sfr = SFZH.constant(SPS.grid['log10age'], SPS.grid['log10Z'] , {'log10_duration': 8., 'log10Z': -2., 'log10M*': 8.})
 
 print('star formation rate: {0}'.format(sfr))
 
