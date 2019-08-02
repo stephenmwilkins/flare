@@ -56,7 +56,7 @@ Webb = NIRCam + MIRI
 
 # --- All *real* filters
 
-all_filters = Hubble + Spitzer + Euclid + Subaru + Webb 
+all_filters = FAKE + TH + Hubble + Spitzer + Euclid + Subaru + Webb 
 
 
 # --- filter info
