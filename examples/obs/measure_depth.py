@@ -1,5 +1,6 @@
 
-
+import sys
+import os
 
 from astropy.io import fits
 import numpy as np
@@ -17,15 +18,22 @@ for fieldID, field in survey.fields.items():
 
     print('-'*5, fieldID)
 
-    mask = fits.getdata('{0}/{1}/hlsp_xdf_hst_deepest_flag_v1.fits'.format(FLARE.FLARE_dir, survey.datadir)) 
+    if field.mask_file:
+        mask = fits.getdata('{0}/{1}/{2}'.format(FLARE.FLARE_dir, survey.datadir, field.mask_file)) 
+    else:
+        mask = False
 
     for filter in field.filters:
 
-        img = FLARE.obs.image(field.filename[filter], filter, mask = mask)
+        img = FLARE.obs.image_from_file(field.filename[filter], filter, mask = mask)
 
         depth = FLARE.photom.flux_to_m(img.determine_depth())
 
-        print('{0}: {1:.1f} | {2:.1f})'.format(filter, depth, depth - field.literature_depths[filter])) # 5\sigma limiting magnitude
+        if filter == field.filters[0]: print('area/arcmin2: {0:.2f}'.format(img.get_area()))
 
+        if field.literature_depths:
+            print('{0}: {1:.1f} | {2:.1f})'.format(filter, depth, depth - field.literature_depths[filter])) # 5\sigma limiting magnitude
+        else:
+            print('{0}: {1:.1f})'.format(filter, depth)) # 5\sigma limiting magnitude
 
 
