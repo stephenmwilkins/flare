@@ -134,6 +134,7 @@ def measure_core_properties(SourceProperties, DetectionImage, SegmentationImage,
     # --- pixels inside k*r_kron
     k = 2.5
     KronMask = CircularAperture((x,y), r=k*p['kron_radius']).to_mask(method='center')# --- mask all pixels in k*r_kron 
+    if type(KronMask) is list: KronMask = KronMask[0]
     MaskedImage = DetectionImage.sci * (1-ExclusionMask.astype('float'))
     MaskedImage = KronMask.multiply(MaskedImage) 
     sortpix = np.array(sorted(MaskedImage.flatten())[::-1])
@@ -149,26 +150,6 @@ def measure_core_properties(SourceProperties, DetectionImage, SegmentationImage,
      
     return p, Mask, ExclusionMask
 
-
-
-# def measure_central(cat, detection, segm, tolerance = 2., verbose = False):
-# 
-#     """Measure the core properties of the central object if one is found. This is useful when an object has been inserted."""
-# 
-#     width = segm.data.shape[0]
-#     x, y = cat['xcentroid'].value, cat['ycentroid'].value
-#     r = np.sqrt((x - width/2)**2 + (y - width/2)**2)
-#     s = r<tolerance
-#         
-#     if len(x[s])==1:
-#         idx = np.where(s==True)[0][0]
-#         p = measure_core_properties(idx, cat, detection, segm_deblend, verbose = verbose)                
-#     else:  
-#         p = {'detected': False} 
-#         if verbose: print('NO SOURCE DETECTED')
-#         
-#     return p
-    
     
 
 
@@ -256,6 +237,7 @@ def measure_properties(p, img, Mask, ExclusionMask, verbose = False):
         # --- pixels inside k*r_kron
         k = 2.5
         KronMask = CircularAperture((x,y), r=k*p['kron_radius']).to_mask(method='center') # --- mask all pixels in k*r_kron 
+        if type(KronMask) is list: KronMask = KronMask[0]
         MaskedImage = img.sci * (1-ExclusionMask.astype('float'))
         MaskedImage = KronMask.multiply(MaskedImage) 
         sortpix = np.array(sorted(MaskedImage.flatten())[::-1])/img.nJy_to_es
