@@ -39,16 +39,14 @@ class SED():
 
 class SPS():
 
-    def __init__(self, grid, path_to_SPS_grid = FLARE_dir + 'data/SPS/nebular/1.0/Z/', dust = False):
+    def __init__(self, grid, path_to_SPS_grid = '/data/SPS/nebular/2.0/Z_refQ/'):
     
-        self.grid = pickle.load(open(path_to_SPS_grid + grid + '/nebular.p','rb'), encoding='latin1')
+        self.grid = pickle.load(open(FLARE_dir + path_to_SPS_grid + grid + '/nebular.p','rb'), encoding='latin1')
 
         self.lam = self.grid['lam']
 
-        self.dust = dust
-      
   
-    def get_Lnu(self, SFZH):
+    def get_Lnu(self, SFZH, SED_p, dust_model = False, fast = False):
     
         sed = SED()
         
@@ -57,31 +55,58 @@ class SPS():
          
         sed.stellar = core.sed(self.lam)
         sed.stellar.lnu = np.sum(self.grid['stellar'] * SFZH, axis=(0,1))
+        sed.stellar.lnu[self.lam<912.] *= SED_p['fesc']
         
         sed.nebular = core.sed(self.lam)
         sed.nebular.lnu = np.sum(self.grid['nebular'] * SFZH, axis=(0,1))
         
         sed.total = core.sed(self.lam)
-        sed.total.lnu = np.sum((self.grid['stellar']+self.grid['nebular']) * SFZH, axis=(0,1))
+        sed.total.lnu = sed.stellar.lnu + (1.-SED_p['fesc'])*sed.nebular.lnu
 
-        if self.dust:
+        if dust_model:
         
-            sed.stellar_intrinsic = copy.deepcopy(sed.stellar)
-            sed.nebular_intrinsic = copy.deepcopy(sed.nebular)
-            sed.total_intrinsic = copy.deepcopy(sed.total)
+            if not fast:
+                sed.stellar_intrinsic = copy.deepcopy(sed.stellar)
+                sed.nebular_intrinsic = copy.deepcopy(sed.nebular)
+                sed.total_intrinsic = copy.deepcopy(sed.total)
                         
-            if self.dust['model'] == 'simple':
+            if dust_model == 'simple':
             
-                tau = self.dust['tau_V']*(self.lam/5500.)**self.dust['slope']
+                tau = (10**(SED_p['log10tau_V']))*(self.lam/5500.)**SED_p['slope']
                 T = np.exp(-tau) 
-        
+                
+            if dust_model == 'very_simple':
+            
+                tau = (10**(SED_p['log10tau_V']))*(self.lam/5500.)**(-1.)
+                T = np.exp(-tau) 
+                   
             sed.stellar.lnu *= T
             sed.nebular.lnu *= T
             sed.total.lnu *= T
                 
         return sed
+              
+    def get_Q(self, SFZH):
+         
+        return np.log10(np.sum(10**self.grid['log10Q'] * SFZH, axis=(0,1)))
+        
+
+       
         
         
+class lines():
+
+    def __init__(self, grid, path_to_SPS_grid = FLARE_dir + '/data/SPS/nebular/2.0/Z_refQ', dust = False):
+    
+        self.grid = pickle.load(open(path_to_SPS_grid + grid + '/lines.p','rb'), encoding='latin1')
+
+
+    def get_L(self, SFZH, line):
+     
+        L = np.sum(10**self.grid[line]['luminosity'] * SFZH, axis=(0,1))
         
+        return L
+      
+       
         
         
