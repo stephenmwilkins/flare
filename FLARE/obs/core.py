@@ -109,6 +109,10 @@ class image:
 #         if self.verbose: print(sci.shape)
 #         if self.verbose: print(self.sci[xmin:xmax,ymin:ymax].shape)
 
+        if (width % 2) != 0:  
+            xmax += 1
+            ymax += 1
+
         sci[xstart:xend,ystart:yend] = self.sci[xmin:xmax,ymin:ymax]
         wht[xstart:xend,ystart:yend] = self.wht[xmin:xmax,ymin:ymax]
 
