@@ -250,13 +250,13 @@ def measure_properties(p, img, Mask, ExclusionMask, verbose = False, save_apertu
 
         else:
     
-            sizes['pixel'] = False
+            sizes['pixel'] = -99
     
             if verbose: print('    r_e (Pixel)/pix: UNDEFINED')
         
     else:
     
-        sizes = False
+        sizes = {'pixel': -99., 'COG': -99.}
     
     
     if not save_apertures: 
