@@ -250,14 +250,22 @@ def measure_properties(p, img, Mask, ExclusionMask, verbose = False, save_apertu
 
         else:
     
-            sizes['pixel'] = -99
-    
+            sizes['pixel'] = SimpleNamespace()
+            sizes['pixel'].radius = -99
+            sizes['pixel'].minflux = -99
+            
             if verbose: print('    r_e (Pixel)/pix: UNDEFINED')
         
     else:
     
-        sizes = {'pixel': -99., 'COG': -99.}
+        sizes = {}
     
+        sizes['COG'] = SimpleNamespace()
+        sizes['COG'].radius = -99
+    
+        sizes['pixel'] = SimpleNamespace()
+        sizes['pixel'].radius = -99
+        sizes['pixel'].minflux = -99
     
     if not save_apertures: 
         del photo['aperture'].radii
