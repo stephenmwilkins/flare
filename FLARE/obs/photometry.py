@@ -16,7 +16,7 @@ from types import SimpleNamespace
 
 
 
-aperture_radii = np.arange(0.5, 20, 0.5) # r in pixels     
+aperture_radii = np.arange(0.5, 50, 0.5) # r in pixels     
     
     
 

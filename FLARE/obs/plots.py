@@ -58,14 +58,22 @@ def make_plots(imgs, threshold = 2.5, signficance_plot = False, filename = False
     else:
         imsize = 1
 
-    fig, axes = plt.subplots(1, n, figsize = (n*imsize,1*imsize), dpi = next(iter(imgs.values())).sci.shape[0])
+    if hasattr(next(iter(imgs.values())), 'sci'):
+        fig, axes = plt.subplots(1, n, figsize = (n*imsize,1*imsize), dpi = next(iter(imgs.values())).sci.shape[0])
+    else:
+        fig, axes = plt.subplots(1, n, figsize = (n*imsize,1*imsize))
+    
     plt.subplots_adjust(left=0, top=1, bottom=0, right=1, wspace=0.0, hspace=0.0)
     
     if type(signficance_plot) != list: signficance_plot = [signficance_plot]*n
     
-        
-    if fixed_range:
-        vmax = np.max([np.max(img.sci) for img in imgs.values()])
+    if hasattr(next(iter(imgs.values())), 'sci'):    
+        if fixed_range:
+            vmax = np.max([np.max(img.sci) for img in imgs.values()])
+    else:
+        if fixed_range:
+            vmax = np.max([np.max(img) for img in imgs.values()])
+
       
     for ax, (filter, img), sig_plot in zip(axes, imgs.items(), signficance_plot): 
     
