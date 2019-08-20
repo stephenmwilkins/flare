@@ -32,7 +32,9 @@ def measure_core_properties(SourceProperties, DetectionImage, SegmentationImage,
     p['label'] = label
     
     
-    if verbose: print('-'*5, label)
+    if verbose: 
+        print()
+        print('-'*10, 'Detection Image Properties')
     
     Mask = SegmentationImage.data == label
     ExclusionMask = np.isin(SegmentationImage.data, [label, 0], invert = True) # produce a mask excluding all other objects 
@@ -148,7 +150,11 @@ def measure_core_properties(SourceProperties, DetectionImage, SegmentationImage,
 
 def measure_properties(p, img, Mask, ExclusionMask, verbose = False, save_apertures = False):           
     
-    if verbose: print('    -----')
+    if verbose:
+        if hasattr(img, 'filter'):
+            print(f'-----{img.filter}')
+        else:
+            print('-----')
     
     photo = {}
             
@@ -160,7 +166,7 @@ def measure_properties(p, img, Mask, ExclusionMask, verbose = False, save_apertu
     photo['ISO'].flux = np.sum(img.sci[Mask])/img.nJy_to_es
     photo['ISO'].error = np.sqrt(np.sum(img.noise[Mask]**2))/img.nJy_to_es
 
-    if verbose: print('    ISO:', '{0:.2f}'.format(photo['ISO'].flux), 'S/N: {0:.2f}'.format(photo['ISO'].flux/photo['ISO'].error) )
+    if verbose: print('ISO:', '{0:.2f}'.format(photo['ISO'].flux), 'S/N: {0:.2f}'.format(photo['ISO'].flux/photo['ISO'].error) )
      
     # --- Kron flux (AUTO)
  
@@ -178,7 +184,7 @@ def measure_properties(p, img, Mask, ExclusionMask, verbose = False, save_apertu
     photo['circular_kron'].TOTAL_flux = photo['circular_kron'].flux * kron_correction
     photo['circular_kron'].TOTAL_error = photo['circular_kron'].error * kron_correction
 
-    if verbose: print('    AUTO:', '{0:.2f}'.format(photo['circular_kron'].flux), 'S/N: {0:.2f}'.format(photo['circular_kron'].flux/photo['circular_kron'].error) )
+    if verbose: print('AUTO:', '{0:.2f}'.format(photo['circular_kron'].flux), 'S/N: {0:.2f}'.format(photo['circular_kron'].flux/photo['circular_kron'].error) )
 
     
     # --- small Kron flux (AUTO)
@@ -190,7 +196,7 @@ def measure_properties(p, img, Mask, ExclusionMask, verbose = False, save_apertu
     photo['small_circular_kron'].flux = phot_table['aperture_sum'][0]/img.nJy_to_es
     photo['small_circular_kron'].error = phot_table['aperture_sum_err'][0]/img.nJy_to_es
 
-    if verbose: print('    small AUTO:', '{0:.2f}'.format(photo['small_circular_kron'].flux), 'S/N: {0:.2f}'.format(photo['small_circular_kron'].flux/photo['small_circular_kron'].error) )
+    if verbose: print('small AUTO:', '{0:.2f}'.format(photo['small_circular_kron'].flux), 'S/N: {0:.2f}'.format(photo['small_circular_kron'].flux/photo['small_circular_kron'].error) )
     
     
     # --- series of apertures (to give COG)
@@ -213,7 +219,7 @@ def measure_properties(p, img, Mask, ExclusionMask, verbose = False, save_apertu
     photo['optimum_aperture'].flux = photo['aperture'].flux[argopt] 
     photo['optimum_aperture'].error = photo['aperture'].error[argopt]
 
-    if verbose: print('    optimum aperture:', '{0:.2f}'.format(photo['optimum_aperture'].flux), 'S/N: {0:.2f}'.format(photo['optimum_aperture'].flux/photo['optimum_aperture'].error) )
+    if verbose: print('optimum aperture:', '{0:.2f}'.format(photo['optimum_aperture'].flux), 'S/N: {0:.2f}'.format(photo['optimum_aperture'].flux/photo['optimum_aperture'].error) )
  
     if photo['circular_kron'].TOTAL_flux > 0.0: 
 
@@ -225,7 +231,7 @@ def measure_properties(p, img, Mask, ExclusionMask, verbose = False, save_apertu
         sizes['COG'] = SimpleNamespace()
         sizes['COG'].radius = np.interp(0.5, photo['aperture'].flux/photo['circular_kron'].TOTAL_flux, photo['aperture'].radii)
     
-        if verbose: print('    r_e (COG)/pix: {0:.2f}'.format(sizes['COG'].radius))
+        if verbose: print('r_e (COG)/pix: {0:.2f}'.format(sizes['COG'].radius))
     
         # --- pixels inside k*r_kron
         k = 2.5
@@ -246,7 +252,7 @@ def measure_properties(p, img, Mask, ExclusionMask, verbose = False, save_apertu
             sizes['pixel'].radius = np.sqrt(len(cumsum[cumsum<0.5])/np.pi) 
             sizes['pixel'].minflux = np.min(sortpix[cumsum<0.5]) # faintest pixel contributing to the size
             
-            if verbose: print('    r_e (Pixel)/pix: {0:.2f}'.format(sizes['pixel'].radius))
+            if verbose: print('r_e (Pixel)/pix: {0:.2f}'.format(sizes['pixel'].radius))
 
         else:
     
@@ -254,7 +260,7 @@ def measure_properties(p, img, Mask, ExclusionMask, verbose = False, save_apertu
             sizes['pixel'].radius = -99
             sizes['pixel'].minflux = -99
             
-            if verbose: print('    r_e (Pixel)/pix: UNDEFINED')
+            if verbose: print('r_e (Pixel)/pix: UNDEFINED')
         
     else:
     
@@ -286,7 +292,11 @@ def measure_properties(p, img, Mask, ExclusionMask, verbose = False, save_apertu
 
 def measure_model_properties(img, verbose = False, save_apertures = False):           
     
-    if verbose: print('    -----')
+    if verbose:
+        if hasattr(img, 'filter'):
+            print(f'-----{img.filter}')
+        else:
+            print('-----')
     
     photo = {}
     
