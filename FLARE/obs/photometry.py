@@ -20,7 +20,7 @@ aperture_radii = np.arange(0.5, 50, 0.5) # r in pixels
     
     
 
-def measure_core_properties(SourceProperties, DetectionImage, SegmentationImage, verbose = False, save_apertures = False):
+def measure_core_properties(SourceProperties, DetectionImage, SegmentationImage, verbose = False, measure_apertures = True, save_apertures = False):
     
     """Extracts some of the SourceProperties quantities and calculates the Kron radius"""
     
@@ -97,46 +97,48 @@ def measure_core_properties(SourceProperties, DetectionImage, SegmentationImage,
     
     # --- series of apertures (to give COG)
 
-    p['aperture'] = SimpleNamespace()
-    p['aperture'].radii = aperture_radii
+    if measure_apertures:
 
-    apertures = [CircularAperture((x,y), r=r) for r in p['aperture'].radii] 
+        p['aperture'] = SimpleNamespace()
+        p['aperture'].radii = aperture_radii
 
-    phot_table = aperture_photometry(DetectionImage.sci, apertures, DetectionImage.noise, mask = ExclusionMask) 
-    p['aperture'].flux = np.array([phot_table['aperture_sum_{0}'.format(i)][0] for i, r in enumerate(p['aperture'].radii)])
-    p['aperture'].noise = np.array([phot_table['aperture_sum_err_{0}'.format(i)][0] for i, r in enumerate(p['aperture'].radii)])
+        apertures = [CircularAperture((x,y), r=r) for r in p['aperture'].radii] 
+
+        phot_table = aperture_photometry(DetectionImage.sci, apertures, DetectionImage.noise, mask = ExclusionMask) 
+        p['aperture'].flux = np.array([phot_table['aperture_sum_{0}'.format(i)][0] for i, r in enumerate(p['aperture'].radii)])
+        p['aperture'].noise = np.array([phot_table['aperture_sum_err_{0}'.format(i)][0] for i, r in enumerate(p['aperture'].radii)])
     
-    p['aperture'].argopt = np.argmax(p['aperture'].flux/p['aperture'].noise)
-    p['aperture'].optimum_radius = p['aperture'].radii[p['aperture'].argopt]
+        p['aperture'].argopt = np.argmax(p['aperture'].flux/p['aperture'].noise)
+        p['aperture'].optimum_radius = p['aperture'].radii[p['aperture'].argopt]
     
-    if verbose: print('ISO flux: {0:.2f}'.format(np.sum(DetectionImage.sci[Mask])))  
-    if verbose: print('flux at 6\sigma: {0:.2f}'.format(f2))
-    if verbose: print('Kron radius: {0:.2f}'.format(p['kron_radius']))
-    if verbose: print('optimum aperture radius: {0:.2f}'.format(p['aperture'].optimum_radius))
+        if verbose: print('ISO flux: {0:.2f}'.format(np.sum(DetectionImage.sci[Mask])))  
+        if verbose: print('flux at 6\sigma: {0:.2f}'.format(f2))
+        if verbose: print('Kron radius: {0:.2f}'.format(p['kron_radius']))
+        if verbose: print('optimum aperture radius: {0:.2f}'.format(p['aperture'].optimum_radius))
     
     
-    # --- curve-of-growth size
+        # --- curve-of-growth size
     
-    p['sizes'] = {}
+        p['sizes'] = {}
     
-    p['sizes']['COG'] = SimpleNamespace()
-    p['sizes']['COG'].radius = np.interp(0.5, p['aperture'].flux/p['circular_kron'].TOTAL_flux, p['aperture'].radii)
+        p['sizes']['COG'] = SimpleNamespace()
+        p['sizes']['COG'].radius = np.interp(0.5, p['aperture'].flux/p['circular_kron'].TOTAL_flux, p['aperture'].radii)
     
-    # --- pixels inside k*r_kron
-    k = 2.5
-    KronMask = CircularAperture((x,y), r=k*p['kron_radius']).to_mask(method='center')# --- mask all pixels in k*r_kron 
-    if type(KronMask) is list: KronMask = KronMask[0]
-    MaskedImage = DetectionImage.sci * (1-ExclusionMask.astype('float'))
-    MaskedImage = KronMask.multiply(MaskedImage) 
-    sortpix = np.array(sorted(MaskedImage.flatten())[::-1])
-    cumsum = np.cumsum(sortpix)/p['circular_kron'].TOTAL_flux   
+        # --- pixels inside k*r_kron
+        k = 2.5
+        KronMask = CircularAperture((x,y), r=k*p['kron_radius']).to_mask(method='center')# --- mask all pixels in k*r_kron 
+        if type(KronMask) is list: KronMask = KronMask[0]
+        MaskedImage = DetectionImage.sci * (1-ExclusionMask.astype('float'))
+        MaskedImage = KronMask.multiply(MaskedImage) 
+        sortpix = np.array(sorted(MaskedImage.flatten())[::-1])
+        cumsum = np.cumsum(sortpix)/p['circular_kron'].TOTAL_flux   
     
-    p['sizes']['pixel'] = SimpleNamespace()
-    p['sizes']['pixel'].radius = np.sqrt(len(cumsum[cumsum<0.5])/np.pi) 
-    p['sizes']['pixel'].minflux = np.min(sortpix[cumsum<0.5]) # faintest pixel contributing to the size
+        p['sizes']['pixel'] = SimpleNamespace()
+        p['sizes']['pixel'].radius = np.sqrt(len(cumsum[cumsum<0.5])/np.pi) 
+        p['sizes']['pixel'].minflux = np.min(sortpix[cumsum<0.5]) # faintest pixel contributing to the size
 
 
-    if verbose: print('SIZES: COG: {0:.2f} Pixel: {1:.2f}'.format(p['sizes']['COG'].radius, p['sizes']['pixel'].radius))
+        if verbose: print('SIZES: COG: {0:.2f} Pixel: {1:.2f}'.format(p['sizes']['COG'].radius, p['sizes']['pixel'].radius))
       
     if not save_apertures: 
         del p['aperture'].radii
@@ -283,7 +285,35 @@ def measure_properties(p, img, Mask, ExclusionMask, verbose = False, save_apertu
 
 
 
-
+def measure_properties_quick(p, img, Mask, ExclusionMask, verbose = False):           
+    
+    if verbose:
+        if hasattr(img, 'filter'):
+            print(f'-----{img.filter}')
+        else:
+            print('-----')
+    
+    photo = {}
+            
+    x, y = p['x'], p['y'] 
+        
+    # --- Kron flux (AUTO)
+    k = 2.5 
+    aperture = CircularAperture((x,y), r=k*p['kron_radius'])    
+    phot_table = aperture_photometry(img.sci, aperture, img.noise, mask = ExclusionMask)     
+    photo['circular_kron'] = SimpleNamespace()
+    photo['circular_kron'].flux = phot_table['aperture_sum'][0]/img.nJy_to_es
+    photo['circular_kron'].error = phot_table['aperture_sum_err'][0]/img.nJy_to_es
+        
+    # --- small Kron flux (AUTO)
+    k = 1.
+    aperture = CircularAperture((x,y), r=k*p['kron_radius'])  
+    phot_table = aperture_photometry(img.sci, aperture, img.noise, mask = ExclusionMask) 
+    photo['small_circular_kron'] = SimpleNamespace()
+    photo['small_circular_kron'].flux = phot_table['aperture_sum'][0]/img.nJy_to_es
+    photo['small_circular_kron'].error = phot_table['aperture_sum_err'][0]/img.nJy_to_es
+    
+    return photo
 
 
 
