@@ -27,6 +27,12 @@ class sed():
       
         self.Lnu = {f: np.trapz(self.lnu * F[f].T, self.lam) / np.trapz(F[f].T, self.lam) for f in F['filters']}
     
+    
+    def return_Lnu(self, F): # broad band luminosity/erg/s/Hz
+      
+        return {f: np.trapz(self.lnu * F[f].T, self.lam) / np.trapz(F[f].T, self.lam) for f in F['filters']}
+    
+    
           
     def get_fnu(self, cosmo, z, include_IGM = True): # flux nJy, depends on redshift and cosmology 
 

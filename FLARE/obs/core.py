@@ -175,7 +175,7 @@ class image_from_file(image):
         self.sci = fits.getdata('{0}/{1}_{2}.fits'.format(FLARE.FLARE_dir, filename, sci_suffix))
         self.wht = fits.getdata('{0}/{1}_{2}.fits'.format(FLARE.FLARE_dir, filename, wht_suffix))
         
-        self.zeropoint = FLARE.filters.zeropoints[filter] # AB magnitude zeropoint
+        self.zeropoint = FLARE.filters.info[filter].zeropoint # AB magnitude zeropoint
         if verbose: print('zeropoint: {0}'.format(self.zeropoint))
         
         self.nJy_to_es = 1E-9 * 10**(0.4*(self.zeropoint-8.9)) # conversion from nJy to e/s 
@@ -258,7 +258,7 @@ class Background():
     
         self.filter = filter
         self.pixel_scale = pixel_scale
-        self.zeropoint = FLARE.filters.zeropoints[filter] # AB magnitude zeropoint
+        self.zeropoint = FLARE.filters.info[filter].zeropoint # AB magnitude zeropoint # AB magnitude zeropoint
         self.nJy_to_es = 1E-9 * 10**(0.4*(self.zeropoint-8.9)) # conversion from nJy to e/s 
     
         self.aperture = empty()

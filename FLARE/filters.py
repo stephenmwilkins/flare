@@ -77,6 +77,9 @@ info['HST.WFC3.f125w'].zeropoint = 26.230
 info['HST.WFC3.f140w'].zeropoint = 26.452
 info['HST.WFC3.f160w'].zeropoint = 25.946
 
+
+for filter in NIRCam: info[filter].zeropoint = 26.0 # need to think about this
+
 for filter in IRAC: info[filter].pixel_scale = 1.22
 for filter in Euclid_NISP: info[filter].pixel_scale = 0.3
 for filter in ACS: info[filter].pixel_scale = 0.05 

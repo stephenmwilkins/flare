@@ -185,7 +185,7 @@ def default_params(EAZY_working_dir):
     params['CATALOG_FILE']='hdfn_fs99_eazy.cat' # Catalog data file
     params['MAGNITUDES']='n'                  # Catalog photometry in magnitudes rather than f_nu fluxes
     params['NOT_OBS_THRESHOLD']=-90                # Ignore flux point if <NOT_OBS_THRESH
-    params['N_MIN_COLORS']=5                  # Require N_MIN_COLORS to fit
+    params['N_MIN_COLORS']=3                  # Require N_MIN_COLORS to fit
 
     ## Output Files
     params['OUTPUT_DIRECTORY']=f'{EAZY_working_dir}/outputs'          # Directory to put output files in
@@ -207,9 +207,9 @@ def default_params(EAZY_working_dir):
     ## Redshift Grid
     params['FIX_ZSPEC']='n'                  # Fix redshift to catalog zspec
     params['Z_MIN']=0.01               # Minimum redshift
-    params['Z_MAX']=10.00               # Maximum redshift
+    params['Z_MAX']=15.00               # Maximum redshift
     params['Z_STEP']=0.01               # Redshift step size
-    params['Z_STEP_TYPE']=1                  #  0 = ZSTEP, 1 = Z_STEP*(1+z)
+    params['Z_STEP_TYPE']=0                  #  0 = ZSTEP, 1 = Z_STEP*(1+z)
 
     ## Zeropoint Offsets
     params['GET_ZP_OFFSETS']='n'                  # Look for zphot.zeropoint file and compute zeropoint offsets
