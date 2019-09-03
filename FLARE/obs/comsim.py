@@ -46,11 +46,69 @@ def removekey(d, key):
 class simulation():
 
 
-    def run(self, N, threshold = 2.5, npixels = 5, run_EAZY = False):
+    def run_list(self, list, run_EAZY = False):
     
-        Sources = self.run_many(N, threshold =threshold, npixels = npixels)
+        Sources = []
+        
+        for i in range(len(list['z'])):
+            p = {k:v[i] for k,v in list.items()}             
+            Sources.append(self.run_single(p))    
+        
+        hf = self.write_to_HDF5(Sources, OutputFolder = f'data/{self.surveyName}/{self.fieldName}/{self.SimType}')
+    
+        if self.verbose:
+   
+            def get_name_shape(name, item):    
+                shape = ''
+                if hasattr(item, 'value'):
+                    shape = item.shape
+                print(name, shape)
+
+            hf.visititems(get_name_shape)
+    
+    
+        if run_EAZY: 
+            
+            hf_EAZY = eazy.eazy(ID = self.ID, create_POFZ_FILE = True).run(hf, self.F)
+    
+            # --- append EAZY group to original file
+            
+            hf_EAZY.copy('EAZY', hf)
+    
+    
+        if self.verbose:
+   
+            def get_name_shape(name, item):    
+                shape = ''
+                if hasattr(item, 'value'):
+                    shape = item.shape
+                print(name, shape)
+
+            hf.visititems(get_name_shape) 
+    
+    
+        hf.close()
+
+
+
+    def run(self, N, run_EAZY = False):
+    
+        # run for many galaxies, run EAZY, and output as HDF5
+    
+        Sources = self.run_many(N)
     
         hf = self.write_to_HDF5(Sources)
+    
+        if self.verbose:
+   
+            def get_name_shape(name, item):    
+                shape = ''
+                if hasattr(item, 'value'):
+                    shape = item.shape
+                print(name, shape)
+
+            hf.visititems(get_name_shape)
+    
     
         if run_EAZY: 
             
@@ -75,15 +133,25 @@ class simulation():
         hf.close()
     
     
+    def run_many(self, N):
     
-    def run_many(self, N, threshold = 2.5, npixels = 5):
+        return [self.run_single(self.get_p()) for i in range(N)]  
     
-        return [self.run_single(threshold = threshold, npixels = npixels) for i in range(N)]  
+    
+    
+    
+    
+    
+    
+    
+    
+    
      
-    def run_single(self, threshold = 2.5, npixels = 5):
+    def get_p(self):
       
-        s = SimpleNamespace() # output object
+        # --- This gets the parameters for the model
       
+    
         # --- choose parameters
 
         p = {}
@@ -116,6 +184,18 @@ class simulation():
         if 'duration' in self.prange.keys():
             p['log10_duration'] = np.log10(p['duration']) + 6.
        
+
+            
+        return p
+
+
+
+
+
+
+    def run_single(self, p):
+        
+        
         p['r_eff'] = 10**p['log10r_eff']
     
         if self.verbose:
@@ -123,7 +203,8 @@ class simulation():
             for k,v in p.items(): print(f'{k}: {v:.2f}')
             print('r_eff/pix:', p['r_eff']*self.cosmo.arcsec_per_kpc_proper(p['z']).value/self.Field.pixel_scale)
             print('r_eff/arcsec:', p['r_eff']*self.cosmo.arcsec_per_kpc_proper(p['z']).value)
-
+        
+        s = SimpleNamespace() # output object
         
         s.InputParameters = p
 
@@ -153,23 +234,10 @@ class simulation():
     
         # --- detect sources
 
-        detected, DetectionProperties, Mask, ExclusionMask, ObservedProperties = self.detect(DetectionImage, CutoutImages, threshold = threshold, npixels = npixels)
+        detected, DetectionProperties, Mask, ExclusionMask, ObservedProperties = self.detect(DetectionImage, CutoutImages, threshold = self.threshold, npixels = self.npixels)
     
         s.detected = detected
         s.ObservedProperties = ObservedProperties
-
-#         try:
-#         
-#             detected, DetectionProperties, Mask, ExclusionMask, ObservedProperties = self.detect(DetectionImage, CutoutImages, threshold = threshold, npixels = npixels)
-#     
-#             s.detected = detected
-#             s.ObservedProperties = ObservedProperties
-#     
-#         except:
-#         
-#             if self.verbose: print('**** SOURCE DETECTION FAILED')
-#             s.detected = False
-        
     
         if self.make_plots:
         
@@ -179,8 +247,6 @@ class simulation():
     
         # if test and detected:
         
-        
-    
         return s
     
     
@@ -391,7 +457,9 @@ class simulation():
 class idealised(simulation):
 
     
-    def __init__(self, surveyName, fieldName, DetectionFilters, prange, cosmo = FLARE.default_cosmo(), CutoutWidth = 101,  SPS = False, verbose = False, make_plots = False):
+    def __init__(self, surveyName, fieldName, DetectionFilters, prange = False, cosmo = FLARE.default_cosmo(), CutoutWidth = 101, threshold = 2.5, npixels = 5,  SPS = False, verbose = False, make_plots = False):
+
+
 
         self.SimType = 'idealised'
         self.surveyName = surveyName
@@ -400,6 +468,9 @@ class idealised(simulation):
         self.prange = prange
         self.cosmo = cosmo
         self.CutoutWidth = CutoutWidth
+        self.threshold = threshold
+        self.npixels = npixels
+        
         self.verbose = verbose
         self.make_plots = make_plots
         

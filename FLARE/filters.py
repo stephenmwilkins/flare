@@ -53,6 +53,7 @@ NIRCam =  NIRCam_s + NIRCam_l
 MIRI = ['JWST.MIRI.'+f for f in ['F560W','F770W','F1000W','F1130W','F1280W','F1500W','F1800W','F2100W','F2550W']]
 Webb = NIRCam + MIRI
 
+CEERS = ['JWST.NIRCAM.'+f for f in ['F115W','F150W','F200W', ]]
 
 # --- All *real* filters
 

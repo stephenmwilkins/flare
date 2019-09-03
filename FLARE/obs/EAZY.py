@@ -26,7 +26,7 @@ import FLARE.filters
 class eazy():
 
 
-    def __init__(self, ID = np.random.randint(1E9), EAZY_working_dir = 'EAZY', path_to_EAZY = FLARE.FLARE_dir + '/software/eazy-photoz'):
+    def __init__(self, ID = np.random.randint(1E9), EAZY_working_dir = 'EAZY', path_to_EAZY = FLARE.FLARE_dir + '/software/eazy-photoz', create_POFZ_FILE = False):
         
         self.ID = ID
     
@@ -34,6 +34,10 @@ class eazy():
 
         self.EAZY_working_dir = EAZY_working_dir
         self.path_to_EAZY = path_to_EAZY
+
+        # 
+        
+        self.create_POFZ_FILE = create_POFZ_FILE
 
         if not os.path.exists(EAZY_working_dir): 
             os.mkdir(EAZY_working_dir)
@@ -54,7 +58,7 @@ class eazy():
         FLARE.filters.create_EAZY_filter_res(F, filter_res_file = f'{self.EAZY_working_dir}/inputs/{self.ID}.RES')
     
     
-    def run(self, hf, F, phot_type = 'small_circular_kron'):
+    def run(self, hf, F, phot_type = 'photometry/small_circular_kron_'):
     
 
         # --- create filter RES file
@@ -74,7 +78,7 @@ class eazy():
 
         # --- read EAZY output
         
-        return get_EAZY_output_as_HDF5(f'{self.EAZY_working_dir}/outputs/{self.ID}.zout')
+        return get_EAZY_output_as_HDF5(f'{self.EAZY_working_dir}/outputs/{self.ID}', read_POFZ_FILE = self.create_POFZ_FILE)
         
 
     def create_param(self):
@@ -84,19 +88,20 @@ class eazy():
         self.params['MAIN_OUTPUT_FILE'] = f'{self.ID}'
         self.params['FILTERS_RES'] = f'{self.EAZY_working_dir}/inputs/{self.ID}.RES'
      
+        if self.create_POFZ_FILE: self.params['POFZ_FILE'] = 'y'
         
 
-    def create_input_from_HDF5(self, hf, phot_type = 'small_circular_kron'):
+    def create_input_from_HDF5(self, hf, phot_type = 'photometry/small_circular_kron_'):
 
         self.hf = hf
         
-        N = len(hf.get(f'obs/{self.filters[0]}/photometry/{phot_type}_flux').value)
+        N = len(hf.get(f'obs/{self.filters[0]}/{phot_type}flux').value)
 
         table = {'#id': np.arange(N)}
 
         for i, f in enumerate(self.filters):
-            table['F'+str(i+1)] = hf.get(f'obs/{f}/photometry/{phot_type}_flux').value
-            table['E'+str(i+1)] = hf.get(f'obs/{f}/photometry/{phot_type}_error').value
+            table['F'+str(i+1)] = hf.get(f'obs/{f}/{phot_type}flux').value
+            table['E'+str(i+1)] = hf.get(f'obs/{f}/{phot_type}error').value
 
         flatten = lambda l: [item for sublist in l for item in sublist]
         names = ['#id'] + flatten([['F'+str(i+1), 'E'+str(i+1)] for i in range(len(self.filters))])
@@ -112,7 +117,7 @@ class eazy():
 
 
 
-def get_EAZY_output_as_HDF5(filename):
+def get_EAZY_output_as_HDF5(filename, read_POFZ_FILE = False):
 
     # --- create a temporary file
 
@@ -125,14 +130,27 @@ def get_EAZY_output_as_HDF5(filename):
 
     output_labels = ['id', 'z_spec', 'z_a', 'z_m1', 'chi_a', 'l68', 'u68', 'l95', 'u95', 'l99', 'u99', 'nfilt', 'q_z', 'z_peak', 'peak_prob', 'z_mc']
 
-    EAZY_output = np.loadtxt(filename, ndmin = 2).T # .T converts from row -> columns
+    EAZY_output = np.loadtxt(f'{filename}.zout', ndmin = 2).T # .T converts from row -> columns
 
     print(EAZY_output)
     print(EAZY_output.shape)
+    N = len(EAZY_output[1])
+    print(N)
 
-    for i, lab in enumerate(output_labels):   
-    
+    for i, lab in enumerate(output_labels):       
         g.create_dataset(lab, data = EAZY_output[i]) 
+
+    if read_POFZ_FILE:
+    
+        POFZ = g.create_dataset('POZ', (N,1500))
+    
+        for i in range(N):
+        
+            POFZ[i] = np.loadtxt(f'{filename}_{i}.pz', usecols = 1)
+            
+        
+            
+
 
     return f
 

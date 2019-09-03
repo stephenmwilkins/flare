@@ -46,3 +46,66 @@ def Casternato(filter, aperture_diameter_arcsec = False, output_pixel_size = 0.0
 
 
     return sqrF_A
+    
+    
+    
+    
+ 
+ 
+ 
+ 
+ 
+    
+    
+    
+
+
+from scipy.stats import linregress
+
+
+def measure_beta(z, fluxes, F, verbose = False):
+
+    # --- determine which filters can be used
+
+    fitFilters = []
+    for f in F['filters']:
+        if min(F[f].l[F[f].t > 0.01]) >= 1216.*(1+z) and max(F[f].l[F[f].t > 0.01]) <= 3000.*(1+z):
+            fitFilters.append(f)
+    
+    if verbose: print(fitFilters)
+        
+    pivwvs = [F[f].pivwv() for f in fitFilters] 
+    fluxes = [fluxes[f] for f in fitFilters]
+
+    if len(fluxes) > 1:
+        beta = linregress(np.log10(pivwvs), np.log10(fluxes))[0] - 2.
+    else:
+        beta = None
+    
+    if verbose: print(f'{beta:.2f}')
+    
+    return beta
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
