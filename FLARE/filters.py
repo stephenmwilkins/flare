@@ -53,6 +53,7 @@ NIRCam =  NIRCam_s + NIRCam_l
 MIRI = ['JWST.MIRI.'+f for f in ['F560W','F770W','F1000W','F1130W','F1280W','F1500W','F1800W','F2100W','F2550W']]
 Webb = NIRCam + MIRI
 
+CEERS = ['JWST.NIRCAM.'+f for f in ['F115W','F150W','F200W', ]]
 
 # --- All *real* filters
 
@@ -76,6 +77,9 @@ info['HST.WFC3.f105w'].zeropoint = 26.269
 info['HST.WFC3.f125w'].zeropoint = 26.230
 info['HST.WFC3.f140w'].zeropoint = 26.452
 info['HST.WFC3.f160w'].zeropoint = 25.946
+
+
+for filter in NIRCam: info[filter].zeropoint = 26.0 # need to think about this
 
 for filter in IRAC: info[filter].pixel_scale = 1.22
 for filter in Euclid_NISP: info[filter].pixel_scale = 0.3

@@ -27,6 +27,12 @@ class sed():
       
         self.Lnu = {f: np.trapz(self.lnu * F[f].T, self.lam) / np.trapz(F[f].T, self.lam) for f in F['filters']}
     
+    
+    def return_Lnu(self, F): # broad band luminosity/erg/s/Hz
+      
+        return {f: np.trapz(self.lnu * F[f].T, self.lam) / np.trapz(F[f].T, self.lam) for f in F['filters']}
+    
+    
           
     def get_fnu(self, cosmo, z, include_IGM = True): # flux nJy, depends on redshift and cosmology 
 
@@ -42,7 +48,10 @@ class sed():
         self.Fnu = {f: np.trapz(self.fnu * F[f].T, self.lamz) / np.trapz(F[f].T, self.lamz) for f in F['filters']}
            
         self.Fnu_array = np.array([self.Fnu[f] for f in F['filters']])
-             
+        
+    def return_Fnu(self, F): # broad band flux/nJy
+
+        return {f: np.trapz(self.fnu * F[f].T, self.lamz) / np.trapz(F[f].T, self.lamz) for f in F['filters']}
 
 def rebin(l, f, n): # rebin SED [currently destroys original]
 
