@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-# plt.style.use('simple') # --- makes nicer plots 
+# plt.style.use('simple') # --- makes nicer plots
 
 
 
@@ -14,13 +14,13 @@ def make_significance_plot(img, threshold = 2.5):
 
     fig = plt.figure(figsize=figsize_inch, dpi=dpi)
     ax = fig.add_axes([0,0,1,1])
-    
+
     ax.axis('off')
-     
+
     sig = (img.sci/img.noise)
 
-    ax.imshow(sig, cmap = cm.Greys, vmin = -5.0, vmax = 5.0, origin = 'lower') 
-    ax.imshow(np.ma.masked_where(sig <= threshold, sig), cmap = cm.plasma, vmin = threshold, vmax = 100, origin = 'lower') 
+    ax.imshow(sig, cmap = cm.Greys, vmin = -5.0, vmax = 5.0, origin = 'lower')
+    ax.imshow(np.ma.masked_where(sig <= threshold, sig), cmap = cm.plasma, vmin = threshold, vmax = 100, origin = 'lower')
 
     plt.show()
     plt.close(fig)
@@ -34,14 +34,14 @@ def make_significance_plots(imgs, threshold = 2.5):
 
     fig, axes = plt.subplots(1, n, figsize = (4*n,4))
     plt.subplots_adjust(left=0, top=1, bottom=0, right=1, wspace=0.01, hspace=0.0)
-     
-    for ax, (filter, img) in zip(axes, imgs.items()): 
-    
+
+    for ax, (filter, img) in zip(axes, imgs.items()):
+
         sig = (img.sci/img.noise)
-    
+
         ax.set_axis_off()
-        ax.imshow(sig, cmap = cm.Greys, vmin = -5.0, vmax = 5.0, origin = 'lower') 
-        ax.imshow(np.ma.masked_where(sig <= threshold, sig), cmap = cm.plasma, vmin = threshold, vmax = 100, origin = 'lower') 
+        ax.imshow(sig, cmap = cm.Greys, vmin = -5.0, vmax = 5.0, origin = 'lower')
+        ax.imshow(np.ma.masked_where(sig <= threshold, sig), cmap = cm.plasma, vmin = threshold, vmax = 100, origin = 'lower')
 
     plt.show()
     plt.close(fig)
@@ -49,57 +49,61 @@ def make_significance_plots(imgs, threshold = 2.5):
 
 
 
-def make_plots(imgs, threshold = 2.5, signficance_plot = False, filename = False, show = False, use_vmax = True, fixed_range = False):
+def make_plots(imgs, threshold = 2.5, signficance_plot = False, filter_label = False, filename = False, show = False, use_vmax = True, fixed_range = False, imsize = 1, frame = True):
 
     n = len(imgs)
-    
+
     if show:
         imsize = 4
     else:
-        imsize = 1
+        imsize = imsize
 
     if hasattr(next(iter(imgs.values())), 'sci'):
         fig, axes = plt.subplots(1, n, figsize = (n*imsize,1*imsize), dpi = next(iter(imgs.values())).sci.shape[0])
     else:
         fig, axes = plt.subplots(1, n, figsize = (n*imsize,1*imsize))
-    
+
     plt.subplots_adjust(left=0, top=1, bottom=0, right=1, wspace=0.0, hspace=0.0)
-    
+
     if type(signficance_plot) != list: signficance_plot = [signficance_plot]*n
-    
-    if hasattr(next(iter(imgs.values())), 'sci'):    
+
+    if hasattr(next(iter(imgs.values())), 'sci'):
         if fixed_range:
             vmax = np.max([np.max(img.sci) for img in imgs.values()])
     else:
         if fixed_range:
             vmax = np.max([np.max(img) for img in imgs.values()])
 
-      
-    for ax, (filter, img), sig_plot in zip(axes, imgs.items(), signficance_plot): 
-    
-        ax.set_axis_off()
-        
-        ax.text(0.5, 0.9, filter, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, fontsize = 8, color = '1.0')
-    
+
+    for ax, (filter, img), sig_plot in zip(axes, imgs.items(), signficance_plot):
+
+        if frame:
+            ax.get_xaxis().set_ticks([])
+            ax.get_yaxis().set_ticks([])
+        else:
+            ax.set_axis_off()
+
+        if filter_label: ax.text(0.5, 0.9, filter, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, fontsize = 8, color = '1.0')
+
         if sig_plot:
-    
+
             sig = (img.sci/img.noise)
-    
-            ax.imshow(sig, cmap = cm.Greys, vmin = -5.0, vmax = 5.0, origin = 'lower') 
-            ax.imshow(np.ma.masked_where(sig <= threshold, sig), cmap = cm.plasma, vmin = threshold, vmax = 100, origin = 'lower') 
+
+            ax.imshow(sig, cmap = cm.Greys, vmin = -5.0, vmax = 5.0, origin = 'lower')
+            ax.imshow(np.ma.masked_where(sig <= threshold, sig), cmap = cm.plasma, vmin = threshold, vmax = 100, origin = 'lower')
 
         else:
-        
+
             new_cmap = rand_cmap(1000, type='bright', first_color_black=True, last_color_black=False, verbose=False)
-            
+
             if fixed_range:
                 vmin = 0.0
             else:
                 vmin = None
                 vmax = None
-            
+
             if hasattr(img, 'sci'):
-                ax.imshow(img.sci, cmap = cm.viridis, origin = 'lower', vmin = vmin, vmax = vmax) 
+                ax.imshow(img.sci, cmap = cm.viridis, origin = 'lower', vmin = vmin, vmax = vmax)
             else:
                 ax.imshow(img, cmap = new_cmap, origin = 'lower', vmin = vmin, vmax = vmax) # --- assumes img is just a 2D array
 
@@ -110,7 +114,7 @@ def make_plots(imgs, threshold = 2.5, signficance_plot = False, filename = False
         plt.savefig(filename)
     if show:
         plt.show()
-    
+
     plt.close(fig)
 
 
@@ -184,82 +188,82 @@ def rand_cmap(nlabels, type='bright', first_color_black=True, last_color_black=F
                                    boundaries=bounds, format='%1i', orientation=u'horizontal')
 
     return random_colormap
-    
-    
+
+
 def COG_plots(Properties, ModelProperties = False, filename = False, show = False):
-   
+
     nfilters = len(Properties)
-   
+
     fig, axes = plt.subplots(1, nfilters, figsize = (3*(nfilters),3), dpi = 200)
-    
+
     plt.subplots_adjust(left=0.025, top=0.85, bottom=0.2, right=0.9, wspace=0.2, hspace=0.0)
-          
-    for ax, (filter, properties) in zip(axes, Properties.items()): 
-    
+
+    for ax, (filter, properties) in zip(axes, Properties.items()):
+
         ax.set_title(filter, fontsize = 10)
-    
+
         ax.plot(properties['photometry']['aperture'].radii, properties['photometry']['aperture'].flux, c = '0.5', label = 'curve-of-growth')
         ax.axvline(properties['photometry']['aperture'].optimum_radius, color = '0.5', alpha = 0.5)
-    
+
         if ModelProperties is not False:
-            
+
             ax.axhline(ModelProperties[filter]['photometry']['total'].flux, color = '0.5', alpha = 0.5, ls = ':')
             ax.plot(ModelProperties[filter]['photometry']['aperture'].radii, ModelProperties[filter]['photometry']['aperture'].flux, c = '0.5', ls = ':', label = 'true curve-of-growth')
-            
-    
-    
+
+
+
         del properties['photometry']['aperture']
-    
+
         color_idx = np.linspace(0, 1, len(properties['photometry']))
-        
+
         for c_idx, (phot_type, p) in zip(color_idx, properties['photometry'].items()):
-    
+
             ax.axhline(p.flux, label = phot_type, color = cm.viridis(c_idx))
             ax.axhspan(p.flux-p.error, p.flux+p.error, color = cm.viridis(c_idx), alpha=0.5)
             if phot_type == 'optimum_aperture': ax.axvline(p.radius, color = cm.viridis(c_idx), alpha = 0.5)
-    
+
     ax.legend(bbox_to_anchor=(1.1, 1.0), fontsize = 8)
-    
+
     if filename:
         plt.savefig(filename)
     if show:
         plt.show()
-    
+
     plt.close(fig)
 
 
 
 def SED_plot(Properties,  ModelProperties = False, FilterInfo = False, phot_type = 'optimum_aperture', filename = False, show = False):
-    
-        
-    # if not FilterInfo: 
-   
+
+
+    # if not FilterInfo:
+
     fig, ax = plt.subplots(1, 1, figsize = (3,2), dpi = 200)
     plt.subplots_adjust(left=0.2, top=0.85, bottom=0.25, right=0.9, wspace=0.2, hspace=0.0)
-    
+
     color_idx = np.linspace(0, 1, len(Properties))
-    
-    for c_idx, (filter, properties) in zip(color_idx, Properties.items()): 
-    
+
+    for c_idx, (filter, properties) in zip(color_idx, Properties.items()):
+
         pivwv = FilterInfo[filter].pivwv()/1E4
-    
+
         ax.scatter(pivwv, properties['photometry'][phot_type].flux, color = cm.viridis(c_idx))
         ax.plot([pivwv]*2, [properties['photometry'][phot_type].flux - properties['photometry'][phot_type].error, properties['photometry'][phot_type].flux + properties['photometry'][phot_type].error], color = 'k', lw = 1)
-    
+
         if ModelProperties is not False:
-        
+
             ax.scatter(pivwv, ModelProperties[filter]['photometry']['total'].flux, color = cm.viridis(c_idx), alpha = 0.5)
-            
-    
-    
+
+
+
     ax.set_xlabel(r'$\lambda/\mu m$')
     ax.set_ylabel(r'$f_{\nu}/nJy$')
-        
+
     if filename:
         plt.savefig(filename)
     if show:
         plt.show()
-    
+
     plt.close(fig)
 
 
@@ -267,21 +271,21 @@ def SED_plot(Properties,  ModelProperties = False, FilterInfo = False, phot_type
 
 def size_plot(img, p, ExclusionMask, threshold = 2.5, signficance_plot = False, filename = False, show = False, add_contours = False):
 
-    
+
     width = img.sci.shape[0]
-    
+
     fig, ax = plt.subplots(1, 1, figsize = (3,3), dpi = width*2)
     plt.subplots_adjust(left=0, top=1, bottom=0, right=1, wspace=0.01, hspace=0.0)
-        
+
     ax.set_axis_off()
 
     sig = (img.sci/img.noise)
 
-    ax.imshow(sig, cmap = cm.Greys, vmin = -5.0, vmax = 5.0, origin = 'lower') 
-    ax.imshow(np.ma.masked_where(sig <= threshold, sig), cmap = cm.plasma, vmin = threshold, vmax = 100, origin = 'lower') 
+    ax.imshow(sig, cmap = cm.Greys, vmin = -5.0, vmax = 5.0, origin = 'lower')
+    ax.imshow(np.ma.masked_where(sig <= threshold, sig), cmap = cm.plasma, vmin = threshold, vmax = 100, origin = 'lower')
 
     k = 2.5
-    
+
     # --- make mask image including Kron Mask and Exclusion mask
     x = np.linspace(-(width//2), (width//2), width)
     X, Y = np.meshgrid(x, x)
@@ -295,8 +299,8 @@ def size_plot(img, p, ExclusionMask, threshold = 2.5, signficance_plot = False, 
     RGBA = np.ones((width, width, 4))
     RGBA[:,:,3] = alpha
 
-    ax.imshow(RGBA, origin = 'lower', alpha = 0.8)     
-    
+    ax.imshow(RGBA, origin = 'lower', alpha = 0.8)
+
     # --- add contours around pixels contributing to r_pix (VERY SLOW FOR SOME REASON)
     if add_contours:
         image = alpha[::-1]
@@ -310,14 +314,14 @@ def size_plot(img, p, ExclusionMask, threshold = 2.5, signficance_plot = False, 
 
         ax.contour(Z[::-1], [0.5], colors='k', linewidths=[2], extent=[0-0.5, x[:-1].max()-0.5,0-0.5, y[:-1].max()-0.5])
 
-    
+
     # --- add k*r_Kron radius
     kKronRadius = plt.Circle((width//2,width//2), k*p['kron_radius'], alpha = 0.2)
     ax.add_artist(kKronRadius)
     # --- add COG radius
     COGRadius = plt.Circle((width//2,width//2), p['sizes']['COG'].radius, alpha = 1.0, fill = False, lw = 1, color='1')
     ax.add_artist(COGRadius)
-    
+
     # --- add COG radius
     PixelRadius = plt.Circle((width//2,width//2), p['sizes']['pixel'].radius, alpha = 1.0, fill = False, lw = 1, ls = '--', color='1')
     ax.add_artist(PixelRadius)
@@ -327,6 +331,5 @@ def size_plot(img, p, ExclusionMask, threshold = 2.5, signficance_plot = False, 
         plt.savefig(filename)
     if show:
         plt.show()
-    
-    plt.close(fig)
 
+    plt.close(fig)

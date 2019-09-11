@@ -23,6 +23,7 @@ import FLARE.SED.SFZH as SFZH
 import FLARE.surveys
 import FLARE.photom
 import FLARE.obs.EAZY as eazy
+import FLARE.obs.plots
 
 import SynthObs
 from SynthObs.Morph import measure
@@ -473,11 +474,9 @@ class idealised(simulation):
         self.verbose = verbose
         self.make_plots = make_plots
 
-        self.Field = FLARE.surveys.surveys[self.surveyName].fields[self.fieldName] # deepest portion of the XDF
+        self.Field = FLARE.surveys.surveys[self.surveyName].fields[self.fieldName]
         self.Filters = self.Field.filters
         self.Backgrounds = FLARE.obs.FieldBackgrounds(self.Field, verbose = self.verbose) # --- create Background object
-
-        if make_plots: import FLARE.obs.plots
 
         # --- define PSF
         TargetPSF = PSF.PSF(self.Filters[-1])
