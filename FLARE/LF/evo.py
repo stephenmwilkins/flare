@@ -10,7 +10,9 @@ import matplotlib.pyplot as plt
 
 from FLARE.photom import flux_to_L, lum_to_flux, M_to_lum
 import FLARE.core
-# 
+
+
+#
 # geo = (4. * np.pi * (100. * 10. * 3.0867 * 10 ** 16) ** 2)  # factor relating the L to M in cm^2
 # 
 # 
@@ -30,39 +32,39 @@ def dVc(z, cosmo):
     return cosmo.differential_comoving_volume(z).value
 
 
-def _integ(x,a):
-    return x**(a-1) * np.exp(-x)
+def _integ(x, a):
+    return x ** (a - 1) * np.exp(-x)
 
 
 # Main part of module:
 
-  
+
 class evo_base:
 
-
     def __init__(self):
-    
+
         print(self.model_style)
 
-
-    def N(self, area = 1., cosmo = False, redshift_limits = [8., 15.], log10L_limits = [27.5, 30.], dz = 0.05, dlog10L = 0.05, flux_min = False):
+    def N(self, area=1., cosmo=False, redshift_limits=[8., 15.], log10L_limits=[27.5, 30.], dz=0.05, dlog10L=0.05,
+          flux_min=False):
 
         # calculates the number of galaxies in each bin on a grid defined by redshift_limits, log10L_limits, dz, dlog10L
         # and area based on a luminosity function evolution model.
-        
-        area_sm = area                      # Area in square arcmin
-        area_sd = area_sm / 3600.           # Area in square degrees
-        area_sr = (np.pi/180.)**2 * area_sd # Area in steradian
 
+        area_sm = area  # Area in square arcmin
+        area_sd = area_sm / 3600.  # Area in square degrees
+        area_sr = (np.pi / 180.) ** 2 * area_sd  # Area in steradian
 
         if not cosmo: cosmo = FLARE.core.default_cosmo()
 
         # Setting the bin edges as well as centres for later operations
-        bin_edges = {'log10L': np.arange(log10L_limits[0],log10L_limits[-1]+dlog10L,dlog10L), 'z': np.arange(redshift_limits[0],redshift_limits[-1]+dz,dz)}
-        bin_centres = {'log10L': bin_edges['log10L'][:-1]+dlog10L/2., 'z': bin_edges['z'][:-1]+dz/2.}
+        bin_edges = {'log10L': np.arange(log10L_limits[0], log10L_limits[-1] + dlog10L, dlog10L),
+                     'z': np.arange(redshift_limits[0], redshift_limits[-1] + dz, dz)}
+        bin_centres = {'log10L': bin_edges['log10L'][:-1] + dlog10L / 2., 'z': bin_edges['z'][:-1] + dz / 2.}
 
         # Using astropy.cosmology to calculate the volume in each redshift bin
-        volumes = np.asarray([ cp.quad(dVc, bin_edges['z'][i-1], bin_edges['z'][i], args=cosmo)[0] for i in range(1,len(bin_edges['z']))])
+        volumes = np.asarray([cp.quad(dVc, bin_edges['z'][i - 1], bin_edges['z'][i], args=cosmo)[0] for i in
+                              range(1, len(bin_edges['z']))])
 
         # Initialising the output array
         N = np.zeros((len(bin_centres['log10L']), len(bin_centres['z'])))
@@ -70,13 +72,12 @@ class evo_base:
         # Loop calculates LF for each input z (bin centres) and returns the exact numbers expected in each bin
         # (There may be a better option for generating this)
 
-
         for i in range(len(bin_centres['z'])):
             params = self.parameters(bin_centres['z'][i])
 
             sp = {}
             sp['alpha'] = params['alpha']
-            sp['phi*'] = 10**params['log10phi*']
+            sp['phi*'] = 10 ** params['log10phi*']
             sp['log10L*'] = np.log10(M_to_lum(params['M*']))
 
             LF = LF_interpolation(sp)
@@ -86,60 +87,100 @@ class evo_base:
                 N_ext = LF.N_exact(volumes[i] * area_sr, bin_edges['log10L'])
 
                 for j in range(len(N_ext)):
-                    N[j,i] = N_ext[j] / area_sm
+                    N[j, i] = N_ext[j] / area_sm
             else:
                 log10L_min = np.log10(flux_to_L(flux_min, cosmo, bin_centres['z'][i]))
                 log10L_edges = bin_edges['log10L'][np.where(bin_edges['log10L'] >= log10L_min - dlog10L)]
                 N_ext = LF.N_exact(volumes[i] * area_sr, log10L_edges)
 
-                for j in range(1, len(N_ext)+1):
+                for j in range(1, len(N_ext) + 1):
                     N[-j, i] = N_ext[len(N_ext) - j] / area_sm
 
         return bin_edges, bin_centres, N
 
+    def sample(self, area=1., cosmo=False, redshift_limits=[8., 15.], dlog10L=0.05, dz=0.05, flux_min=1E-8, seed=False):
 
-    def sample(self, area = 1., cosmo = False, redshift_limits = [8., 15.], dlog10L = 0.05, dz = 0.05, flux_min = 1E-8, seed = False):
-    
         # samples the LF evolution model in a given area
 
         if not cosmo: cosmo = FLARE.core.default_cosmo()
 
-        area_sm = area                      # Area in square arcmin
-        area_sd = area_sm / 3600.           # Area in square degrees
-        area_sr = (np.pi/180.)**2 * area_sd # Area in steradian
+        area_sm = area  # Area in square arcmin
+        area_sd = area_sm / 3600.  # Area in square degrees
+        area_sr = (np.pi / 180.) ** 2 * area_sd  # Area in steradian
 
         # Setting the bin edges as well as centres for later operations
-        bin_edges = {'z': np.arange(redshift_limits[0],redshift_limits[-1]+dz,dz)}
-        bin_centres = {'log10L': bin_edges['log10L'][:-1]+dlog10L/2., 'z': bin_edges['z'][:-1]+dz/2.}
+        bin_edges = {'z': np.arange(redshift_limits[0], redshift_limits[-1] + dz, dz)}
+        bin_centres = {'log10L': bin_edges['log10L'][:-1] + dlog10L / 2., 'z': bin_edges['z'][:-1] + dz / 2.}
 
         # Using astropy.cosmology to calculate the volume in each redshift bin
-        volumes = np.asarray([ cp.quad(dVc, bin_edges['z'][i-1], bin_edges['z'][i], args=cosmo)[0] for i in range(1,len(bin_edges['z']))])
+        volumes = np.asarray([cp.quad(dVc, bin_edges['z'][i - 1], bin_edges['z'][i], args=cosmo)[0] for i in
+                              range(1, len(bin_edges['z']))])
 
         # Initialising the output array
         sample = {'log10L': np.asarray([]), 'z': np.asarray([])}
 
         if seed: np.random.seed(seed)
-        
+
         for i in range(len(bin_centres['z'])):
             params = self.parameters(bin_centres['z'][i])
 
             sp = {}
             sp['alpha'] = params['alpha']
-            sp['phi*'] = 10**params['log10phi*']
+            sp['phi*'] = 10 ** params['log10phi*']
             sp['log10L*'] = np.log10(M_to_lum(params['M*']))
 
             LF = LF_interpolation(sp)
 
             samples = LF.sample(volumes[i] * area_sr, np.log10(flux_to_L(flux_min, cosmo, bin_centres['z'][i])))
             sample['log10L'] = np.concatenate((sample['log10L'], samples))
-            sample['z'] = np.concatenate((sample['z'], np.asarray([bin_centres['z'][i]]*len(samples))))
-
+            sample['z'] = np.concatenate((sample['z'], np.asarray([bin_centres['z'][i]] * len(samples))))
 
         return sample
-    
 
-    def bin_sample(self, area = 1., cosmo = False, redshift_limits = [8., 15.], log10L_limits = [27., 32.], dz = 0.05, dlog10L = 0.05, flux_min = 1E-8, seed = False):
-    
+    def sample_input(self, area=1., cosmo=False, redshift_limits=[8., 15.], log10L_limits=[27., 30.], dz=0.05,
+                     seed=False):
+
+        # samples the LF evolution model in a given area
+
+        if not cosmo: cosmo = FLARE.core.default_cosmo()
+
+        area_sm = area  # Area in square arcmin
+        area_sd = area_sm / 3600.  # Area in square degrees
+        area_sr = (np.pi / 180.) ** 2 * area_sd  # Area in steradian
+
+        # Setting the bin edges as well as centres for later operations
+        bin_edges = {'z': np.arange(redshift_limits[0], redshift_limits[-1] + dz, dz)}
+        bin_centres = {'z': bin_edges['z'][:-1] + dz / 2.}
+
+        # Using astropy.cosmology to calculate the volume in each redshift bin
+        volumes = np.asarray([cp.quad(dVc, bin_edges['z'][i - 1], bin_edges['z'][i], args=cosmo)[0] for i in
+                              range(1, len(bin_edges['z']))])
+
+        # Initialising the output array
+        sample = {'log10L': np.asarray([]), 'z': np.asarray([])}
+
+        if seed: np.random.seed(seed)
+
+        for i in range(len(bin_centres['z'])):
+            params = self.parameters(bin_centres['z'][i])
+
+            sp = {}
+            sp['alpha'] = params['alpha']
+            sp['phi*'] = 10 ** params['log10phi*']
+            sp['log10L*'] = np.log10(M_to_lum(params['M*']))
+
+            LF = LF_interpolation(sp)
+
+            samples = LF.sample(volumes[i] * area_sr, log10L_limits[0])
+            sample['log10L'] = np.concatenate((sample['log10L'], samples))
+            sample['z'] = np.concatenate(
+                (sample['z'], np.array([bin_centres['z'][i] + dz * (np.random.random() - 0.5) for item in samples])))
+
+        return sample
+
+    def bin_sample(self, area=1., cosmo=False, redshift_limits=[8., 15.], log10L_limits=[27., 32.], dz=0.05,
+                   dlog10L=0.05, flux_min=1E-8, seed=False):
+
         # bin the sampled LF
         if not cosmo: cosmo = FLARE.core.default_cosmo()
         # samples the LF evolution model in a given area and bins it
@@ -149,9 +190,10 @@ class evo_base:
         area_sr = (np.pi / 180.) ** 2 * area_sd  # Area in steradian
 
         # Setting the bin edges as well as centres for later operations
-        bin_edges = {'log10L': np.arange(log10L_limits[0],log10L_limits[-1]+dlog10L,dlog10L), 'z': np.arange(redshift_limits[0],redshift_limits[-1]+dz,dz)}
-        bin_centres = {'log10L': bin_edges['log10L'][:-1]+dlog10L/2., 'z': bin_edges['z'][:-1]+dz/2.}
-        
+        bin_edges = {'log10L': np.arange(log10L_limits[0], log10L_limits[-1] + dlog10L, dlog10L),
+                     'z': np.arange(redshift_limits[0], redshift_limits[-1] + dz, dz)}
+        bin_centres = {'log10L': bin_edges['log10L'][:-1] + dlog10L / 2., 'z': bin_edges['z'][:-1] + dz / 2.}
+
         # Using astropy.cosmology to calculate the volume in each redshift bin
         volumes = np.asarray([cp.quad(dVc, bin_edges['z'][i - 1], bin_edges['z'][i], args=cosmo)[0] for i in
                               range(1, len(bin_edges['z']))])
@@ -168,7 +210,7 @@ class evo_base:
 
             sp = {}
             sp['alpha'] = params['alpha']
-            sp['phi*'] = 10**params['log10phi*']
+            sp['phi*'] = 10 ** params['log10phi*']
             sp['log10L*'] = np.log10(M_to_lum(params['M*']))
 
             LF = LF_interpolation(sp)
@@ -177,11 +219,9 @@ class evo_base:
             N_binned = LF.bin(sample, bin_edges['log10L'])
 
             for j in range(len(N_binned)):
-                N_sample[j,i] = N_binned[j]
-
+                N_sample[j, i] = N_binned[j]
 
         return bin_edges, bin_centres, N_sample
-
 
     def interpolate_LF(self, bin_centres, N, zs, log10Ls):
 
@@ -242,7 +282,6 @@ class interp(evo_base):
 class existing_model:
 
     def __init__(self):
-        
         self.lp = self.calculate_linear_evolution_coeffs()
         print(self.name)
 
@@ -278,23 +317,56 @@ class existing_model:
         return self.lp
 
 
-    
-class bluetides(existing_model): # --- based on bluetides simulation
+class bluetides(existing_model):  # --- based on bluetides simulation
 
     def __init__(self):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
-        
+
         self.name = 'Bluetides (Wilkins+2017)'
         self.ref = 'Wilkins+2017'
-        self.redshifts = [8.0, 9.0, 10.0, 11.0, 12.0, 13.0]            # array of redshifts
-        self.phi_star = [-3.92, -4.2, -4.7, -4.79, -5.09, -5.71]       # array of log10(phi_star) values
-        self.M_star = [-20.93, -20.68, -20.69, -20.17, -19.92, -19.91] # array of M_star values
-        self.alpha = [-2.04, -2.1, -2.27, -2.27, -2.35, -2.54]         # array of alpha values
+        self.redshifts = [8.0, 9.0, 10.0, 11.0, 12.0, 13.0]  # array of redshifts
+        self.phi_star = [-3.92, -4.2, -4.7, -4.79, -5.09, -5.71]  # array of log10(phi_star) values
+        self.M_star = [-20.93, -20.68, -20.69, -20.17, -19.92, -19.91]  # array of M_star values
+        self.alpha = [-2.04, -2.1, -2.27, -2.27, -2.35, -2.54]  # array of alpha values
 
         super().__init__()
-        
-        
+
+
+class Finkelstein_review(existing_model):
+    # --- LF evolution model based on Finkelstein review (2016)
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+
+        self.name = 'Observational review (Finkelstein2016)'
+        self.ref = 'Finkelstein2016'
+        self.redshifts = [4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]  # array of redshifts
+        self.phi_star = [-2.99, -3.18, -3.37, -3.56, -3.75, -3.94, -4.13]  # array of log10(phi_star) values
+        self.M_star = [-21.05, -20.92, -20.79, -20.66, -20.52, -20.39, -20.25]  # array of M_star values
+        self.alpha = [-1.69, -1.80, -1.91, -2.02, -2.13, -2.24, -2.35]  # array of alpha values
+
+        super().__init__()
+
+
+class Finkelstein_obs(existing_model):
+    # --- LF evolution model based on Finkelstein+ (2015)
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+
+        self.name = 'Observational (Finkelstein+2015)'
+        self.ref = 'Finkelstein+2015'
+        self.redshifts = [4.0, 5.0, 6.0, 7.0, 8.0]  # array of redshifts
+        self.phi_star = [np.log10(14.1 * 10 ** -4), np.log10(8.95 * 10 ** -4), np.log10(1.86 * 10 ** -4),
+                         np.log10(1.57 * 10 ** -4), np.log10(0.72 * 10 ** -4)]  # array of log10(phi_star) values
+        self.M_star = [-20.73, -20.81, -21.13, -21.03, -20.89]  # array of M_star values
+        self.alpha = [-1.56, -1.67, -2.02, -2.03, -2.36]  # array of alpha values
+
+        super().__init__()
+
 
 class Ma2019(existing_model):
     # --- LF evolution model based on Ma et al. (2019) (f_dust = 0.8)
@@ -302,23 +374,23 @@ class Ma2019(existing_model):
     def __init__(self):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
-        
+
         self.name = 'FIRE-2 (Ma+2019)'
         self.ref = 'Ma+2019'
-        self.redshifts = [5., 6., 7., 8.0, 9.0, 10.0]                  # array of redshifts
-        self.phi_star = [-3.55, -3.44, -4.09, -3.98, -4.57, -4.74]     # array of log10(phi_star) values
-        self.M_star = [-21.77, -21.34, -21.73, -20.97, -21.30, -20.90] # array of M_star values
-        self.alpha = [-1.9, -1.87, -2.05, -2.08, -2.20, -2.31]         # array of alpha values
-        
+        self.redshifts = [5., 6., 7., 8.0, 9.0, 10.0]  # array of redshifts
+        self.phi_star = [-3.55, -3.44, -4.09, -3.98, -4.57, -4.74]  # array of log10(phi_star) values
+        self.M_star = [-21.77, -21.34, -21.73, -20.97, -21.30, -20.90]  # array of M_star values
+        self.alpha = [-1.9, -1.87, -2.05, -2.08, -2.20, -2.31]  # array of alpha values
+
         super().__init__()
 
+
 # class Mason15(existing_model): # --- based on Mason et al. (2015)
-# 
+#
 #     self.redshifts = # array of redshifts
 #     self.phi_star = # array of phi_star value to interpolate
 #     self.M_star = #
-#     self.alpha = #        
-
+#     self.alpha = #
 
 
 class LF_interpolation:
@@ -326,7 +398,6 @@ class LF_interpolation:
 
     def __init__(self, sp):
         self.sp = sp
-
 
     def CulmPhi(self, log10L):
         y = log10L - self.sp['log10L*']
@@ -338,7 +409,6 @@ class LF_interpolation:
 
         return num
 
-
     def CDF(self, log10L_limit, normed=True):
         log10Ls = np.arange(self.sp['log10L*'] + 5., log10L_limit - 0.01, -0.01)
 
@@ -348,7 +418,6 @@ class LF_interpolation:
 
         return log10Ls, CDF
 
-
     def N_exact(self, volume, bin_edges):
         # --- return the exact number of galaxies expected in each bin
 
@@ -356,10 +425,9 @@ class LF_interpolation:
 
         return -(CulmN[1:] - CulmN[0:-1])
 
-
     def sample(self, volume, log10L_limit):
         L, CDF = self.CDF(log10L_limit, normed=False)
-        
+
         n = np.random.poisson(volume * CDF[-1])
 
         nCDF = CDF / CDF[-1]
@@ -368,18 +436,15 @@ class LF_interpolation:
 
         return log10L_sample
 
-
     def bin(self, log10L_sample, bins):
         # --- bins can either be the number of bins or the bin_edges
 
         N_sample, bin_edges = np.histogram(log10L_sample, bins=bins, normed=False)
 
-        return N_sample    
+        return N_sample
 
 
-
-def evo_plot(bin_edges, N, cosmo = False, f_limits = False, save_file = False):
-
+def evo_plot(bin_edges, N, cosmo=False, f_limits=False, save_file=False):
     # --- make nice plot
 
     if not cosmo: cosmo = FLARE.core.default_cosmo()
@@ -401,7 +466,6 @@ def evo_plot(bin_edges, N, cosmo = False, f_limits = False, save_file = False):
     if type(f_limits) is float:
         plt.plot(bin_edges['z'], np.log10(flux_to_L(f_limits, cosmo, bin_edges['z'])), 'k--', alpha=0.8)
 
-
     bar = plt.colorbar(orientation='vertical')
     bar.set_label(r'$\rm log_{10}(N/ [arcmin^{-2}])$', rotation=90)
 
@@ -413,11 +477,10 @@ def evo_plot(bin_edges, N, cosmo = False, f_limits = False, save_file = False):
     if save_file == False:
         return fig
     else:
-        plt.savefig(save_file+'.png', dpi=300)
+        plt.savefig(save_file + '.png', dpi=300)
 
 
-def flux_sample_bin_plot(samples, cosmo = False, bins = 100, range = [[0.,15.],[0.,3.]], save_file = False):
-
+def flux_sample_bin_plot(samples, cosmo=False, bins=100, range=[[0., 15.], [0., 3.]], save_file=False):
     # --- make nice plot
 
     if not cosmo: cosmo = FLARE.core.default_cosmo()
@@ -425,7 +488,7 @@ def flux_sample_bin_plot(samples, cosmo = False, bins = 100, range = [[0.,15.],[
     fig = plt.figure(figsize=(6, 5))
 
     z_array = samples['z']
-    f_array = lum_to_flux(10.**samples['log10L'], cosmo, z_array)*(10.**9)
+    f_array = lum_to_flux(10. ** samples['log10L'], cosmo, z_array) * (10. ** 9)
 
     cm = plt.get_cmap('plasma')
 
@@ -442,4 +505,4 @@ def flux_sample_bin_plot(samples, cosmo = False, bins = 100, range = [[0.,15.],[
     if save_file == False:
         return fig
     else:
-        plt.savefig(save_file+'.png', dpi=300)
+        plt.savefig(save_file + '.png', dpi=300)
