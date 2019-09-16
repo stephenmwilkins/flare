@@ -6,6 +6,8 @@ import scipy.integrate as cp
 import scipy.interpolate as cpi
 import scipy.special as cps
 
+from mpmath import gammainc
+
 import matplotlib.pyplot as plt
 
 from FLARE.photom import flux_to_L, lum_to_flux, M_to_lum
@@ -36,6 +38,10 @@ def _integ(x, a):
     return x ** (a - 1) * np.exp(-x)
 
 
+def quadfunct(f, a, b, args):
+    return cp.quad(f, a, b, args=args)[0]
+
+
 # Main part of module:
 
 
@@ -45,7 +51,44 @@ class evo_base:
 
         print(self.model_style)
 
-    def N(self, area=1., cosmo=False, redshift_limits=[8., 15.], log10L_limits=[27.5, 30.], dz=0.05, dlog10L=0.05,
+
+    def N(self, area=1., cosmo=False, redshift_limits=[8., 15.], log10L_limits=[27.5, 30.], dz=0.05, dlog10L=0.05, per_arcmin=False):
+
+        # calculates the number of galaxies in each bin on a grid defined by redshift_limits, log10L_limits, dz, dlog10L
+        # and area based on a luminosity function evolution model.
+
+        area_sm = area  # Area in square arcmin
+        area_sd = area_sm / 3600.  # Area in square degrees
+        area_sr = (np.pi / 180.) ** 2 * area_sd  # Area in steradian
+
+        if not cosmo: cosmo = FLARE.core.default_cosmo()
+
+        # Setting the bin edges as well as centres for later operations
+        bin_edges = {'log10L': np.arange(log10L_limits[0], log10L_limits[-1] + dlog10L, dlog10L),
+                     'z': np.arange(redshift_limits[0], redshift_limits[-1] + dz, dz)}
+        bin_centres = {'log10L': bin_edges['log10L'][:-1] + dlog10L / 2., 'z': bin_edges['z'][:-1] + dz / 2.}
+
+        # Using astropy.cosmology to calculate the volume in each redshift bin
+        volumes = np.asarray([cp.quad(dVc, bin_edges['z'][i - 1], bin_edges['z'][i], args=cosmo)[0] for i in
+                              range(1, len(bin_edges['z']))])
+
+        params = self.parameters(bin_centres['z'])
+        alphas = params['alpha']
+        Lstars = M_to_lum(params['M*'])
+        phistars = 10**params['log10phi*']
+
+        N = phistars[None, :] * np.vectorize(quadfunct)(_integ,
+                                                         10 ** bin_edges['log10L'][:-1, None] / Lstars[None, :],
+                                                         10 ** bin_edges['log10L'][1:, None] / Lstars[None, :],
+                                                         args=(alphas[None, :])+1) * volumes[None, :] * area_sr
+
+        if per_arcmin:
+            N /= area_sm
+
+        return bin_edges, bin_centres, N
+
+
+    def N_old(self, area=1., cosmo=False, redshift_limits=[8., 15.], log10L_limits=[27.5, 30.], dz=0.05, dlog10L=0.05,
           flux_min=False):
 
         # calculates the number of galaxies in each bin on a grid defined by redshift_limits, log10L_limits, dz, dlog10L
@@ -97,6 +140,39 @@ class evo_base:
                     N[-j, i] = N_ext[len(N_ext) - j] / area_sm
 
         return bin_edges, bin_centres, N
+
+
+    def N_mpmath(self, area=1., cosmo=False, redshift_limits=[8., 15.], log10L_limits=[27.5, 30.], dz=0.05, dlog10L=0.05):
+
+        # calculates the number of galaxies in each bin on a grid defined by redshift_limits, log10L_limits, dz, dlog10L
+        # and area based on a luminosity function evolution model.
+
+        area_sm = area  # Area in square arcmin
+        area_sd = area_sm / 3600.  # Area in square degrees
+        area_sr = (np.pi / 180.) ** 2 * area_sd  # Area in steradian
+
+        if not cosmo: cosmo = FLARE.core.default_cosmo()
+
+        # Setting the bin edges as well as centres for later operations
+        bin_edges = {'log10L': np.arange(log10L_limits[0], log10L_limits[-1] + dlog10L, dlog10L),
+                     'z': np.arange(redshift_limits[0], redshift_limits[-1] + dz, dz)}
+        bin_centres = {'log10L': bin_edges['log10L'][:-1] + dlog10L / 2., 'z': bin_edges['z'][:-1] + dz / 2.}
+
+        # Using astropy.cosmology to calculate the volume in each redshift bin
+        volumes = np.asarray([cp.quad(dVc, bin_edges['z'][i - 1], bin_edges['z'][i], args=cosmo)[0] for i in
+                              range(1, len(bin_edges['z']))])
+
+        params = self.parameters(bin_centres['z'])
+        alphas = params['alpha']
+        Lstars = M_to_lum(params['M*'])
+        phistars = 10**params['log10phi*']
+
+        N = phistars[None, :]*np.vectorize(gammainc)(alphas[None, :]+1., 10**bin_edges['log10L'][:-1, None]/Lstars[None, :], 10**bin_edges['log10L'][1:, None]/Lstars[None, :])*volumes[None, :]*area_sr
+
+        N /= area_sm
+
+        return bin_edges, bin_centres, N
+
 
     def sample(self, area=1., cosmo=False, redshift_limits=[8., 15.], dlog10L=0.05, dz=0.05, flux_min=1E-8, seed=False):
 
