@@ -22,7 +22,6 @@ import FLARE.obs.plots as plots
 
 class detector():
 
-
     def __init__(self, surveyName, fieldName, DetectionFilters, sci_suffix = 'sci_convolved', verbose = False, make_figures = False):
 
 
@@ -141,7 +140,7 @@ class detector():
     def get_all_source_properties(self, N = False):
 
         if not N: N = len(self.AllSourceProperties) # do all sources
-        
+
         return list(filter(None, [self.get_source_properties(i) for i in range(N)]))
 
 

@@ -14,16 +14,16 @@ import FLARE.core
 
 #
 # geo = (4. * np.pi * (100. * 10. * 3.0867 * 10 ** 16) ** 2)  # factor relating the L to M in cm^2
-# 
-# 
+#
+#
 # def L(M):
 #     return 10 ** (-0.4 * (M + 48.6)) * geo
-# 
-# 
+#
+#
 # def M_to_log10L(M):
 #     return -0.4 * (M + 48.6) + np.log10(geo)
-# 
-# 
+#
+#
 # def M(log10L):
 #     return -2.5 * (log10L - np.log10(geo)) - 48.6
 
@@ -258,6 +258,16 @@ class linear(evo_base):
             p[param] = self.lp[param][0] * z + self.lp[param][1]
 
         return p
+
+    def parameters_line(self, zr = [6.,13.]):
+        # use linear evolution model
+        # get parameters as a function of z
+        # returns a dictionary of parameters
+        p = {}
+        for param in self.lp:
+            p[param] = [self.lp[param][0] * zr[0] + self.lp[param][1], self.lp[param][0] * zr[1] + self.lp[param][1]]
+
+        return zr, p
 
 
 class interp(evo_base):

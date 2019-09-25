@@ -34,7 +34,7 @@ config['background'] = 'minzodi'
 config['background_level'] = 'benchmark'
 
 config['configuration'] = {}
-config['configuration']['detector'] = {'nexp': 1, 'ngroup':47, 'nint':1, 'readmode': 'deep8', 'subarray': 'full'}
+config['configuration']['detector'] = {'nexp': 1, 'ngroup':5, 'nint':1, 'readmode': 'deep8', 'subarray': 'full'}
 config['configuration']['instrument'] = {'aperture': aperture, 'instrument': 'nircam', 'mode': mode, 'disperser': None, 'filter': filter}
 
 scene = {}

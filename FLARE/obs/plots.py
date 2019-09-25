@@ -8,11 +8,9 @@ import matplotlib.cm as cm
 
 
 
-def make_significance_plot(img, threshold = 2.5):
+def make_significance_plot(img, threshold = 2.5, show = False, filename = False, imsize = 1):
 
-    n = len(imgs)
-
-    fig = plt.figure(figsize=figsize_inch, dpi=dpi)
+    fig = plt.figure(figsize=(imsize, imsize))
     ax = fig.add_axes([0,0,1,1])
 
     ax.axis('off')
@@ -22,7 +20,11 @@ def make_significance_plot(img, threshold = 2.5):
     ax.imshow(sig, cmap = cm.Greys, vmin = -5.0, vmax = 5.0, origin = 'lower')
     ax.imshow(np.ma.masked_where(sig <= threshold, sig), cmap = cm.plasma, vmin = threshold, vmax = 100, origin = 'lower')
 
-    plt.show()
+    if filename:
+        plt.savefig(filename)
+    if show:
+        plt.show()
+
     plt.close(fig)
 
 
@@ -46,6 +48,27 @@ def make_significance_plots(imgs, threshold = 2.5):
     plt.show()
     plt.close(fig)
 
+
+
+
+def make_segm_plot(segm, imsize = 1, filename = False, show = False):
+
+    fig, ax = plt.subplots(1, 1, figsize = (imsize,imsize))
+
+    plt.subplots_adjust(left=0, top=1, bottom=0, right=1, wspace=0.0, hspace=0.0)
+
+    new_cmap = rand_cmap(int(np.max(segm)), type='bright', first_color_black=True, last_color_black=False, verbose=False)
+
+    ax.imshow(segm, cmap = new_cmap, origin = 'lower')
+
+    ax.set_axis_off()
+
+    if filename:
+        plt.savefig(filename)
+    if show:
+        plt.show()
+
+    plt.close(fig)
 
 
 
@@ -94,7 +117,7 @@ def make_plots(imgs, threshold = 2.5, signficance_plot = False, filter_label = F
 
         else:
 
-            new_cmap = rand_cmap(1000, type='bright', first_color_black=True, last_color_black=False, verbose=False)
+            new_cmap = rand_cmap(np.max(img), type='bright', first_color_black=True, last_color_black=False, verbose=False)
 
             if fixed_range:
                 vmin = 0.0

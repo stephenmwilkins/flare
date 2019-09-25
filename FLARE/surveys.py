@@ -22,7 +22,8 @@ surveys['XDF'].fields['XDF'] = empty()
 surveys['XDF'].fields['XDF'].datadir = surveys['XDF'].datadir
 surveys['XDF'].fields['XDF'].mask_file = False
 surveys['XDF'].fields['XDF'].depth_aperture_radius_arcsec = (0.35/2.)
-surveys['XDF'].fields['XDF'].filters = ['HST.ACS.{0}'.format(f) for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] + ['HST.WFC3.{0}'.format(f) for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+# surveys['XDF'].fields['XDF'].filters = ['HST.ACS.{0}'.format(f) for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] + ['HST.WFC3.{0}'.format(f) for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+surveys['XDF'].fields['XDF'].filters = ['HST.ACS.{0}'.format(f) for f in ['f435w', 'f606w', 'f775w', 'f850lp']] + ['HST.WFC3.{0}'.format(f) for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 surveys['XDF'].fields['XDF'].pixel_scale = 0.06
 surveys['XDF'].fields['XDF'].filename = {}
 for filter in surveys['XDF'].fields['XDF'].filters:
@@ -32,7 +33,7 @@ for filter in surveys['XDF'].fields['XDF'].filters:
     surveys['XDF'].fields['XDF'].filename[filter] = surveys['XDF'].datadir + '/hlsp_xdf_hst_{0}-60mas_hudf_{1}_v1'.format(INST, f)
 surveys['XDF'].fields['XDF'].literature_depths = False
 
-# --- deepest sub-field 
+# --- deepest sub-field
 surveys['XDF'].fields['dXDF'] = copy.deepcopy(surveys['XDF'].fields['XDF'])
 surveys['XDF'].fields['dXDF'].mask_file = 'hlsp_xdf_hst_deepest_flag_v1.fits'
 surveys['XDF'].fields['dXDF'].area = 4.04 # arcmin
@@ -68,7 +69,7 @@ surveys['XDF'].fields['dXDF'].depths = {'HST.ACS.f435w': 29.8,'HST.ACS.f606w':30
 
 
 # ------------------------------------------------------------------------------------------
-# ------------- Webb hypothetical 
+# ------------- Webb hypothetical
 
 
 surveys['WebbHypothetical'] = empty()
@@ -158,7 +159,7 @@ depthmodel['5_20_benchmark']['exp_time'] = 19100.71
 depthmodel['10_1_benchmark'] = {'JWST.NIRCAM.F070W': 28.13, 'JWST.NIRCAM.F090W': 28.43, 'JWST.NIRCAM.F115W': 28.58, 'JWST.NIRCAM.F150W': 28.76, 'JWST.NIRCAM.F200W': 28.94, 'JWST.NIRCAM.F277W': 28.46, 'JWST.NIRCAM.F356W': 28.52, 'JWST.NIRCAM.F444W': 28.23}
 depthmodel['10_1_benchmark']['exp_time'] = 2018.51
 
-depthmodel['47_1_benchmark'] = {'JWST.NIRCAM.F070W': 28.81, 'JWST.NIRCAM.F090W': 29.06, 'JWST.NIRCAM.F115W': 29.2, 'JWST.NIRCAM.F150W': 29.4, 'JWST.NIRCAM.F200W': 29.59, 'JWST.NIRCAM.F277W': 29.06, 'JWST.NIRCAM.F356W': 29.13, 'JWST.NIRCAM.F444W': 28.81} 
+depthmodel['47_1_benchmark'] = {'JWST.NIRCAM.F070W': 28.81, 'JWST.NIRCAM.F090W': 29.06, 'JWST.NIRCAM.F115W': 29.2, 'JWST.NIRCAM.F150W': 29.4, 'JWST.NIRCAM.F200W': 29.59, 'JWST.NIRCAM.F277W': 29.06, 'JWST.NIRCAM.F356W': 29.13, 'JWST.NIRCAM.F444W': 28.81}
 depthmodel['47_1_benchmark']['exp_time'] = 9963.72
 
 
@@ -195,14 +196,3 @@ depthmodel['5_10_HUDF']['exp_time'] = 9544.99
 
 depthmodel['5_20_HUDF'] = {'JWST.NIRCAM.F070W': 29.38, 'JWST.NIRCAM.F090W': 29.73, 'JWST.NIRCAM.F115W': 29.88, 'JWST.NIRCAM.F150W': 30.06, 'JWST.NIRCAM.F200W': 30.26, 'JWST.NIRCAM.F277W': 29.88, 'JWST.NIRCAM.F356W': 29.96, 'JWST.NIRCAM.F444W': 29.48}
 depthmodel['5_20_HUDF']['exp_time'] = 19100.71
-
-
-
-
-
-
-
-
-
-
-
