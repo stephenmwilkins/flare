@@ -360,11 +360,22 @@ def measure_model_properties(img, verbose = False, save_apertures = False):
     sortpix = sortpix[sortpix>0.0] # ignore negative pixels
     cumsum = np.cumsum(sortpix)/photo['total'].flux
 
-    sizes['pixel'] = SimpleNamespace()
-    sizes['pixel'].radius = np.sqrt(len(cumsum[cumsum<0.5])/np.pi)
-    sizes['pixel'].minflux = np.min(sortpix[cumsum<0.5]) # faintest pixel contributing to the size
+    if len(cumsum[cumsum<0.5]) > 0: # this shouldn't be needed here but seemingly is.
 
-    if verbose: print('    r_e (Pixel)/pix: {0:.2f}'.format(sizes['pixel'].radius))
+        sizes['pixel'] = SimpleNamespace()
+        sizes['pixel'].radius = np.sqrt(len(cumsum[cumsum<0.5])/np.pi)
+        sizes['pixel'].minflux = np.min(sortpix[cumsum<0.5]) # faintest pixel contributing to the size
+
+        if verbose: print('r_e (Pixel)/pix: {0:.2f}'.format(sizes['pixel'].radius))
+
+    else:
+
+        sizes['pixel'] = SimpleNamespace()
+        sizes['pixel'].radius = -99
+        sizes['pixel'].minflux = -99
+
+        if verbose: print('r_e (Pixel)/pix: UNDEFINED')
+
 
     if not save_apertures:
         del photo['aperture'].radii
