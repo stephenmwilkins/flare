@@ -135,6 +135,8 @@ class eazy():
 
         self.hf = hf
 
+        print(f'{path(self.filters[-1])}flux')
+
         N = len(hf.get(f'{path(self.filters[-1])}flux').value)
 
         table = {'#id': np.arange(N)}

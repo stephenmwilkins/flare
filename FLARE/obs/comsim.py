@@ -3,6 +3,8 @@ import os
 import copy
 from types import SimpleNamespace
 
+import scipy.special
+
 import h5py
 
 class empty(): pass
@@ -449,11 +451,6 @@ class simulation():
         return hf
 
 
-
-
-
-
-
 class idealised(simulation):
 
 
@@ -489,10 +486,370 @@ class idealised(simulation):
         return {filter: self.Backgrounds[filter].create_background_image(self.CutoutWidth) for filter in self.Filters}
 
 
-
-
-
 # class real(simulation):
 #
 #     def __init__():
 #
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class simple():
+
+    def __init__(self, surveyName, fieldName, detection_criteria, prange = False, cosmo = FLARE.default_cosmo(), SPS = False, verbose = False, make_plots = False):
+
+        self.SimType = 'simple'
+        self.surveyName = surveyName
+        self.fieldName = fieldName
+        self.prange = prange
+        self.cosmo = cosmo
+
+        self.verbose = verbose
+        self.make_plots = make_plots
+
+        self.Field = FLARE.surveys.surveys[self.surveyName].fields[self.fieldName]
+        self.Filters = self.Field.filters
+
+        self.SPS = SPS # necessary for SED generating if not \beta model
+
+        self.depth =  {f: FLARE.photom.m_to_flux(self.Field.depths[f]) for f in self.Filters}
+
+        self.detection_filter = detection_criteria[0]
+        self.detection_snr = detection_criteria[1]
+        self.detection_stretch = detection_criteria[2]
+
+        if verbose:
+            for f in self.Filters: print(f'{f} {self.depth[f]:.2f}')
+
+
+    def run_list(self, list, run_EAZY = False):
+
+        Sources = []
+
+        for i in range(len(list['z'])):
+            p = {k:v[i] for k,v in list.items()}
+            Sources.append(self.run_single(p))
+
+        hf = self.write_to_HDF5(Sources, OutputFolder = f'data/{self.surveyName}/{self.fieldName}/{self.SimType}')
+
+        if self.verbose:
+
+            def get_name_shape(name, item):
+                shape = ''
+                if hasattr(item, 'value'):
+                    shape = item.shape
+                print(name, shape)
+
+            hf.visititems(get_name_shape)
+
+
+        if run_EAZY:
+
+            hf_EAZY = eazy.eazy(ID = self.ID, create_POFZ_FILE = False).run_new(hf, self.F, path = lambda f: f'ObsFnu/{f}/')
+
+            # --- append EAZY group to original file
+
+            hf_EAZY.copy('EAZY', hf)
+
+
+        if self.verbose:
+
+            def get_name_shape(name, item):
+                shape = ''
+                if hasattr(item, 'value'):
+                    shape = item.shape
+                print(name, shape)
+
+            hf.visititems(get_name_shape)
+
+
+        hf.close()
+
+
+
+    def run(self, N, run_EAZY = False):
+
+        # run for many galaxies, run EAZY, and output as HDF5
+
+        Sources = self.run_many(N)
+
+        hf = self.write_to_HDF5(Sources)
+
+        if self.verbose:
+
+            def get_name_shape(name, item):
+                shape = ''
+                if hasattr(item, 'value'):
+                    shape = item.shape
+                print(name, shape)
+
+            hf.visititems(get_name_shape)
+
+
+        if run_EAZY:
+
+            hf_EAZY = eazy.eazy(ID = self.ID).run_new(hf, self.F, path = lambda f: f'obs/{f}/')
+
+            # --- append EAZY group to original file
+
+            hf_EAZY.copy('EAZY', hf)
+
+
+        if self.verbose:
+
+            def get_name_shape(name, item):
+                shape = ''
+                if hasattr(item, 'value'):
+                    shape = item.shape
+                print(name, shape)
+
+            hf.visititems(get_name_shape)
+
+
+        hf.close()
+
+
+    def run_many(self, N):
+
+        return [self.run_single(self.get_p()) for i in range(N)]
+
+
+    def get_p(self):
+
+        # --- This gets the parameters for the model
+
+
+        # --- choose parameters
+
+        p = {}
+
+        # --- determine redshift first
+
+        if self.prange['z'][0] == 'uniform':
+            p['z'] = uniform(self.prange['z'][1])
+        elif self.prange['z'][0] == 'delta':
+            p['z'] = self.prange['z'][1]
+
+
+        # --- set age of Universe constraint on duration
+
+
+        if 'duration' in self.prange.keys():
+            if self.prange['duration'][0] == 'uniform':
+                self.prange['duration'][1][1] = self.cosmo.age(p['z']).to('Myr').value
+
+        # --- set other parameters
+
+        for parameter, value in removekey(self.prange, 'z').items():
+            if value[0] == 'uniform':
+                p[parameter] = uniform(value[1])
+            elif value[0] == 'delta':
+                p[parameter] = value[1]
+            elif value[0] == 'normal':
+                p[parameter] = value[1][0] + value[1][1] * np.random.randn()
+
+
+
+        return p
+
+
+
+
+
+
+    def run_single(self, p):
+
+        if self.verbose:
+            print('--- Input parameters')
+            for k,v in p.items(): print(f'{k}: {v:.2f}')
+
+        s = SimpleNamespace() # output object
+
+        s.InputParameters = p
+
+        # --- create SED
+        Fnu, derived = self.create_SED(p)
+
+        s.Fnu = Fnu
+        s.derived = derived
+
+        # --- add noise
+        s.ObsFnu = {}
+
+        if self.verbose: print('-'*5, 'Observed SED')
+
+        for f in self.Filters:
+
+            s.ObsFnu[f] = SimpleNamespace()
+            s.ObsFnu[f].error = self.depth[f]
+            s.ObsFnu[f].flux = s.Fnu[f][0] + s.ObsFnu[f].error*np.random.randn()
+
+            if self.verbose:
+                print(f'{f}: {s.ObsFnu[f].flux:.2f} {s.ObsFnu[f].flux/s.ObsFnu[f].error:.2f}')
+
+
+        # --- check whether detected
+
+
+        snr = s.ObsFnu[self.detection_filter].flux/s.ObsFnu[self.detection_filter].error
+
+        if np.random.random() < 0.5*(1.0+scipy.special.erf((snr-self.detection_snr)/self.detection_stretch)):
+            s.detected = True
+        else:
+            s.detected = False
+
+        if self.verbose:
+            print(f'SNR: {snr:.2f} Detected: {s.detected}')
+
+
+        # s.detected = detected
+        # s.ObservedProperties = ObservedProperties
+
+        return s
+
+
+    def create_SED(self, p):
+
+
+        derived = {}
+
+
+        if 'beta' in p:
+
+            rest_lam = np.arange(0., 5000., 1.)
+
+            self.F = FLARE.filters.add_filters(self.Filters, new_lam = rest_lam * (1. + p['z']))
+
+            sed = FLARE.SED.models.beta(rest_lam, p['beta'], 10**p['log10L1500'], normalisation_wavelength = 1500.)
+
+        elif 'log10M*' in p:
+
+            print('WARNING: not yet implemented')
+
+        elif 'log10L1500' in p:
+
+            if 'duration' in p.keys():
+                p['log10_duration'] = np.log10(p['duration']) + 6.
+
+            sfzh, sfr = SFZH.constant(self.SPS.grid['log10age'], self.SPS.grid['log10Z'] , {'log10_duration': p['log10_duration'], 'log10Z': p['log10Z'], 'log10M*': 0.0})
+
+            # --- generate SED for a given choice of parameters
+
+            SED = self.SPS.get_Lnu(sfzh, {'fesc': p['fesc'], 'log10tau_V': p['log10tau_V']}, dust_model = 'very_simple')
+
+            sed = SED.total
+
+            log10L1500 = np.log10(sed.return_Lnu(FLARE.filters.add_filters(['FAKE.TH.FUV'], new_lam = sed.lam))['FAKE.TH.FUV'])
+
+            derived['log10M*'] = p['log10L1500'] - log10L1500
+            derived['log10SFR'] = np.log10(sfr) + derived['log10M*']
+
+            sed.lnu *= 10**derived['log10M*']
+
+            self.F = FLARE.filters.add_filters(self.Filters, new_lam = sed.lam * (1.+p['z']))
+
+
+        sed.get_fnu(self.cosmo, p['z']) # --- generate observed frame spectrum (necessary to get broad band photometry)
+        sed.get_Fnu(self.F) # --- generate broadband photometry
+        Fnu = {f: [sed.Fnu[f]] for f in self.Filters}
+
+        # --- print out fluxes
+
+
+
+        if self.verbose:
+            print('-'*5, 'Derived Quantities')
+            for k,v in derived.items(): print(f'{k} {v:.2f}')
+            print('-'*5, 'SED')
+            for f in self.Filters: print('{0}: {1:.2f}/nJy'.format(f, Fnu[f][0]))
+
+        return Fnu, derived
+
+
+
+
+
+
+
+
+
+
+    def write_to_HDF5(self, Sources, ID = np.random.randint(1E9), OutputFolder = False):
+
+
+        self.ID = ID
+
+        if not OutputFolder: OutputFolder = f'data/{self.surveyName}/{self.fieldName}/{self.SimType}/individual'
+
+        OutputFile = f'{OutputFolder}/{ID}.h5'
+
+
+        if self.verbose:
+            print()
+            print('-'*10, 'Writing to HDF5')
+            print(f'Output file: {OutputFile}')
+
+        Sources = np.array(Sources)
+
+        hf = h5py.File(OutputFile, 'w')
+
+        # --- detected flag
+
+        detected = np.array([source.detected for source in Sources])
+
+        hf.create_dataset('detected', data = detected)
+
+        # --- necessary for future collation
+
+        hf.attrs['total'] = len(Sources)
+        hf.attrs['detected'] = len(Sources[detected])
+
+        hf.attrs['filters'] = np.array(self.Filters, dtype='S')
+
+        # --- input parameters
+
+        for k in Sources[0].InputParameters.keys():
+            data = np.array([source.InputParameters[k] for source in Sources])
+            hf.create_dataset(f'input/{k}', data=data)
+
+        # --- derived properties
+
+        for k in Sources[0].derived.keys():
+            data = np.array([source.derived[k] for source in Sources])
+            hf.create_dataset(f'derived/{k}', data=data)
+
+        # --- fluxes
+
+        for k in Sources[0].Fnu.keys():
+            data = np.array([source.Fnu[k][0] for source in Sources])
+            hf.create_dataset(f'Fnu/{k}', data=data)
+
+
+
+        # --- Observed Properties
+
+        for f in self.Filters:
+            hf.create_dataset(f'obs/{f}/flux', data = np.array([source.ObsFnu[f].flux for source in Sources])) # --- all sources, not just those detected
+            hf.create_dataset(f'obs/{f}/error', data = np.array([source.ObsFnu[f].error for source in Sources]))
+
+
+        # --- print structure of file with shape of each object
+
+        return hf

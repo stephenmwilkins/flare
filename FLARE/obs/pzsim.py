@@ -126,7 +126,7 @@ class simulation():
 
             self.F = FLARE.filters.add_filters(self.Filters, new_lam = rest_lam * (1. + p['z']))
 
-            sed = FLARE.SED.models.beta(rest_lam, p['beta'], 10**p['log10L1500'], normalisation_wavelength = 1500.)
+            sed = FLARE.SED.models.beta(rest_lam, p['beta'], 1.0, normalisation_wavelength = 1500.)
 
         else:
 
