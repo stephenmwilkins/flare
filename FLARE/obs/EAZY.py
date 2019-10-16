@@ -27,49 +27,49 @@ class eazy():
 
 
     def __init__(self, ID = np.random.randint(1E9), EAZY_working_dir = 'EAZY', path_to_EAZY = FLARE.FLARE_dir + '/software/eazy-photoz', create_POFZ_FILE = False):
-        
+
         self.ID = ID
-    
+
         # --- create EAZY working directory if it doesn't already exist
 
         self.EAZY_working_dir = EAZY_working_dir
         self.path_to_EAZY = path_to_EAZY
 
-        # 
-        
+        #
+
         self.create_POFZ_FILE = create_POFZ_FILE
 
-        if not os.path.exists(EAZY_working_dir): 
+        if not os.path.exists(EAZY_working_dir):
             os.mkdir(EAZY_working_dir)
-            os.mkdir(f'{EAZY_working_dir}/inputs') 
+            os.mkdir(f'{EAZY_working_dir}/inputs')
             os.mkdir(f'{EAZY_working_dir}/outputs')
 
             # --- create symbolic link to templates
 
             os.symlink(f'{path_to_EAZY}/templates', f'templates')
-    
-    
+
+
     def create_filter_RES(self, F):
-    
+
         self.F = F
         self.filters = F['filters']
-    
+
         # --- create filter RES file
         FLARE.filters.create_EAZY_filter_res(F, filter_res_file = f'{self.EAZY_working_dir}/inputs/{self.ID}.RES')
-    
-    
+
+
     def run(self, hf, F, phot_type = 'photometry/small_circular_kron_'):
-    
+
 
         # --- create filter RES file
 
         self.create_filter_RES(F)
 
         # --- create and then write parameter file
-        
+
         self.create_param()
         write_param_file(f'{self.EAZY_working_dir}/inputs/{self.ID}.param', self.params)
-    
+
         # --- create input catalogue
         self.create_input_from_HDF5(hf, phot_type = phot_type)
 
@@ -77,9 +77,31 @@ class eazy():
         os.system(f'{self.path_to_EAZY}/src/eazy -p {self.EAZY_working_dir}/inputs/{self.ID}.param')
 
         # --- read EAZY output
-        
+
         return get_EAZY_output_as_HDF5(f'{self.EAZY_working_dir}/outputs/{self.ID}', read_POFZ_FILE = self.create_POFZ_FILE)
-        
+
+
+    def run_new(self, hf, F, path = lambda f: f'photometry/small_circular_kron/{f}/'):
+
+        # --- create filter RES file
+
+        self.create_filter_RES(F)
+
+        # --- create and then write parameter file
+
+        self.create_param()
+        write_param_file(f'{self.EAZY_working_dir}/inputs/{self.ID}.param', self.params)
+
+        # --- create input catalogue
+        self.create_input_from_HDF5_new(hf, path = path)
+
+        # --- run EAZY
+        os.system(f'{self.path_to_EAZY}/src/eazy -p {self.EAZY_working_dir}/inputs/{self.ID}.param')
+
+        # --- read EAZY output
+
+        return get_EAZY_output_as_HDF5(f'{self.EAZY_working_dir}/outputs/{self.ID}', read_POFZ_FILE = self.create_POFZ_FILE)
+
 
     def create_param(self):
 
@@ -87,14 +109,14 @@ class eazy():
         self.params['CATALOG_FILE'] = f'{self.EAZY_working_dir}/inputs/{self.ID}.cat'
         self.params['MAIN_OUTPUT_FILE'] = f'{self.ID}'
         self.params['FILTERS_RES'] = f'{self.EAZY_working_dir}/inputs/{self.ID}.RES'
-     
+
         if self.create_POFZ_FILE: self.params['POFZ_FILE'] = 'y'
-        
+
 
     def create_input_from_HDF5(self, hf, phot_type = 'photometry/small_circular_kron_'):
 
         self.hf = hf
-        
+
         N = len(hf.get(f'obs/{self.filters[0]}/{phot_type}flux').value)
 
         table = {'#id': np.arange(N)}
@@ -109,6 +131,24 @@ class eazy():
         ascii.write(table, f'{self.EAZY_working_dir}/inputs/{self.ID}.cat', names=names, overwrite=True)
 
 
+    def create_input_from_HDF5_new(self, hf, path = lambda f: f'photometry/small_circular_kron/{f}/'):
+
+        self.hf = hf
+
+        print(f'{path(self.filters[-1])}flux')
+
+        N = len(hf.get(f'{path(self.filters[-1])}flux').value)
+
+        table = {'#id': np.arange(N)}
+
+        for i, f in enumerate(self.filters):
+            table['F'+str(i+1)] = hf.get(f'{path(f)}flux').value
+            table['E'+str(i+1)] = hf.get(f'{path(f)}error').value
+
+        flatten = lambda l: [item for sublist in l for item in sublist]
+        names = ['#id'] + flatten([['F'+str(i+1), 'E'+str(i+1)] for i in range(len(self.filters))])
+
+        ascii.write(table, f'{self.EAZY_working_dir}/inputs/{self.ID}.cat', names=names, overwrite=True)
 
 
 
@@ -137,19 +177,19 @@ def get_EAZY_output_as_HDF5(filename, read_POFZ_FILE = False):
     N = len(EAZY_output[1])
     print(N)
 
-    for i, lab in enumerate(output_labels):       
-        g.create_dataset(lab, data = EAZY_output[i]) 
+    for i, lab in enumerate(output_labels):
+        g.create_dataset(lab, data = EAZY_output[i])
 
     if read_POFZ_FILE:
-    
+
         POFZ = g.create_dataset('POZ', (N,1500))
-    
+
         for i in range(N):
-        
+
             POFZ[i] = np.loadtxt(f'{filename}_{i}.pz', usecols = 1)
-            
-        
-            
+
+
+
 
 
     return f
@@ -180,7 +220,7 @@ def default_params(EAZY_working_dir):
 
     ## Templates
     params['TEMPLATES_FILE'] = f'templates/eazy_v1.2_dusty.spectra.param' # Template definition file
-    params['TEMPLATE_COMBOS'] = 'a'                  # Template combination options: 
+    params['TEMPLATE_COMBOS'] = 'a'                  # Template combination options:
                                             #         1 : one template at a time
                                             #         2 : two templates, read allowed combinations from TEMPLATES_FILE
                                             #        -2 : two templates, all permutations
@@ -254,12 +294,3 @@ def write_param_file(filename, params):
     lines = [f'{k}\t {v}\n' for k,v in params.items()]
 
     open(filename,'w').writelines(lines)
-    
-
-
-
-
-
-
-
-
