@@ -424,7 +424,7 @@ class existing_model:
 
         return p
 
-    def calculate_linear_evolution_coeffs(self, zr = [7., 15.]):
+    def calculate_linear_evolution_coeffs(self, zr = [6., 15.]):
         # Function that calculates the linear evolution coeffs
         # returns a dictionary of linear model coefficients and goodness of fit
 
