@@ -453,7 +453,7 @@ class bluetides(existing_model):  # --- based on bluetides simulation
 
         self.name = 'Bluetides (Wilkins+2017)'
         self.ref = 'Wilkins+2017'
-        self.type = 'hydro' 
+        self.type = 'hydro'
         self.redshifts = [8.0, 9.0, 10.0, 11.0, 12.0, 13.0]  # array of redshifts
         self.phi_star = [-3.92, -4.2, -4.7, -4.79, -5.09, -5.71]  # array of log10(phi_star) values
         self.M_star = [-20.93, -20.68, -20.69, -20.17, -19.92, -19.91]  # array of M_star values
@@ -558,6 +558,27 @@ class Yung2018(existing_model):
         self.alpha = [-1.525, -1.602, -1.672, -1.715, -1.825, -1.879, -1.967] # array of alpha values
 
         super().__init__()
+
+
+
+class FLARES(existing_model):
+    # --- LF evolution model based on Yung et al. (2018)
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+
+        self.name = 'FLARES (Vijayan+2020)'
+        self.ref = 'Vijayan+2020'
+        self.type = 'SPH'
+        self.redshifts = [5., 6., 7., 8., 9.]    # array of redshifts
+        self.phi_star = [-3.82, -3.67, -4.20, -4.38, -4.45]  # array of log10(phi_star) values
+        self.M_star = [-21.91, -21.13, -21.19, -20.90, -20.42]  # array of M_star values
+        self.alpha = [-2.02, -2.03, -2.31, -2.46, -2.73] # array of alpha values
+
+        super().__init__()
+
+
 
 
 class LF_interpolation:
