@@ -360,6 +360,7 @@ class linear(evo_base):
         self.model = model
 
         self.lp = model.lp
+        self.z_ref = model.z_ref
 
         self.model_style = 'Linear regression LF evolution method.'
 
@@ -371,17 +372,14 @@ class linear(evo_base):
         # returns a dictionary of parameters
         p = {}
         for param in self.lp:
-            p[param] = self.lp[param][0] * z + self.lp[param][1]
+            p[param] = self.lp[param][0] * (z - self.z_ref) + self.lp[param][1]
 
         return p
 
     def parameters_line(self, zr = [6.,13.]):
-        # use linear evolution model
-        # get parameters as a function of z
-        # returns a dictionary of parameters
         p = {}
         for param in self.lp:
-            p[param] = [self.lp[param][0] * zr[0] + self.lp[param][1], self.lp[param][0] * zr[1] + self.lp[param][1]]
+            p[param] = [self.lp[param][0] * (zr[0] - self.z_ref) + self.lp[param][1], self.lp[param][0] * (zr[1] - self.z_ref) + self.lp[param][1]]
 
         return zr, p
 
@@ -408,7 +406,11 @@ class interp(evo_base):
 class existing_model:
 
     def __init__(self):
-        self.lp = self.calculate_linear_evolution_coeffs()
+
+
+        # convert M* to L* HERE
+
+        self.lp, self.z_ref = self.calculate_linear_evolution_coeffs()
         print(self.name)
 
     def interpolate_parameters(self, z=8.):
@@ -421,16 +423,15 @@ class existing_model:
         log10M_mod = self.M_star
         p = {'alpha': np.interp(z, z_mod, alpha_mod), 'log10phi*': np.interp(z, z_mod, log10phi_mod),
              'M*': np.interp(z, z_mod, log10M_mod)}
-
         return p
 
-    def calculate_linear_evolution_coeffs(self, zr = [6., 15.]):
+    def calculate_linear_evolution_coeffs(self, zr = [6., 15.], z_ref = 6.):
         # Function that calculates the linear evolution coeffs
         # returns a dictionary of linear model coefficients and goodness of fit
 
         s = (np.array(self.redshifts)>=zr[0])&(np.array(self.redshifts)<=zr[1])
 
-        z_mod = np.array(self.redshifts)[s]
+        z_mod = np.array(self.redshifts)[s] - z_ref
         alpha_mod = np.array(self.alpha)[s]
         log10phi_mod = np.array(self.phi_star)[s]
         M_mod = np.array(self.M_star)[s]
@@ -440,9 +441,9 @@ class existing_model:
         fit_log10phi = linregress(z_mod, log10phi_mod)
         fit_M = linregress(z_mod, M_mod)
 
-        self.lp = {'alpha': fit_alpha, 'log10phi*': fit_log10phi, 'M*': fit_M}
+        lp = {'alpha': fit_alpha, 'log10phi*': fit_log10phi, 'M*': fit_M}
 
-        return self.lp
+        return lp, z_ref
 
 
 class bluetides(existing_model):  # --- based on bluetides simulation
