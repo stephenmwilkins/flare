@@ -25,8 +25,8 @@ rcParams['xtick.major.size'] = 3
 rcParams['ytick.major.size'] = 3
 rcParams['xtick.minor.size'] = 1.5
 rcParams['ytick.minor.size'] = 1.5
-rcParams['xtick.labelsize'] = 8
-rcParams['ytick.labelsize'] = 8
+rcParams['xtick.labelsize'] = 7
+rcParams['ytick.labelsize'] = 7
 rcParams['ytick.direction'] = 'in'
 rcParams['xtick.direction'] = 'in'
 rcParams['ytick.minor.visible'] = True
@@ -41,12 +41,16 @@ rcParams['grid.color'] = 'k'
 rcParams['grid.linestyle'] = '-'
 rcParams['grid.linewidth'] = 0.8
 
+rcParams['legend.frameon'] = False
+# rcParams[''] = 
+# rcParams[''] =
+# rcParams[''] =
 
 
 mpl.rcParams.update(rcParams)
 
 
-print(mpl.rcParams)
+# print(mpl.rcParams)
 
 
 def simple(size = 4):

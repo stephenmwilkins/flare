@@ -36,7 +36,7 @@ def removekey(d, key):
 
 class simple():
 
-    def __init__(self, surveyName, fieldName, prange = False, cosmo = FLARE.default_cosmo()  SPS = False, verbose = False, make_plots = False):
+    def __init__(self, surveyName, fieldName, prange = False, cosmo = FLARE.default_cosmo(), SPS = False, verbose = False, make_plots = False):
 
         self.SimType = 'idealised'
         self.surveyName = surveyName
@@ -212,7 +212,7 @@ class simple():
 
         # --- check whether detected
 
-        
+
         s.derived = derived
 
         s.detected = detected

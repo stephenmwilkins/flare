@@ -471,8 +471,8 @@ class Finkelstein_review(existing_model):
         # Custom models should be created following the same form
 
         self.name = 'Observational review (Finkelstein2016)'
-        self.ref = 'Finkelstein2016'
-        self.type = 'empirical'
+        self.ref = 'Finkelstein+2016'
+        self.type = 'empirical extrapolation'
         # self.redshifts = [4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]  # array of redshifts
         # self.phi_star = [-2.99, -3.18, -3.37, -3.56, -3.75, -3.94, -4.13]  # array of log10(phi_star) values
         # self.M_star = [-21.05, -20.92, -20.79, -20.66, -20.52, -20.39, -20.25]  # array of M_star values
@@ -496,7 +496,7 @@ class Finkelstein_obs(existing_model):
 
         self.name = 'Observational (Finkelstein+2015)'
         self.ref = 'Finkelstein+2015'
-        self.type = 'observed'
+        self.type = 'empirical'
         self.redshifts = [4.0, 5.0, 6.0, 7.0, 8.0]  # array of redshifts
         self.phi_star = [np.log10(14.1 * 10 ** -4), np.log10(8.95 * 10 ** -4), np.log10(1.86 * 10 ** -4),
                          np.log10(1.57 * 10 ** -4), np.log10(0.72 * 10 ** -4)]  # array of log10(phi_star) values
@@ -571,7 +571,7 @@ class FLARES(existing_model):
 
         self.name = 'FLARES (Vijayan+2020)'
         self.ref = 'Vijayan+2020'
-        self.type = 'SPH'
+        self.type = 'hydro'
         self.redshifts = [5., 6., 7., 8., 9.]    # array of redshifts
         self.phi_star = [-3.82, -3.67, -4.20, -4.38, -4.45]  # array of log10(phi_star) values
         self.M_star = [-21.91, -21.13, -21.19, -20.90, -20.42]  # array of M_star values

@@ -81,7 +81,7 @@ class eazy():
         return get_EAZY_output_as_HDF5(f'{self.EAZY_working_dir}/outputs/{self.ID}', read_POFZ_FILE = self.create_POFZ_FILE)
 
 
-    def run_new(self, hf, F, path = lambda f: f'photometry/small_circular_kron/{f}/'):
+    def run_new(self, hf, F, path = lambda f: f'photometry/small_circular_kron/{f}/', output_file = False):
 
         # --- create filter RES file
 
@@ -100,7 +100,7 @@ class eazy():
 
         # --- read EAZY output
 
-        return get_EAZY_output_as_HDF5(f'{self.EAZY_working_dir}/outputs/{self.ID}', read_POFZ_FILE = self.create_POFZ_FILE)
+        return get_EAZY_output_as_HDF5(f'{self.EAZY_working_dir}/outputs/{self.ID}', read_POFZ_FILE = self.create_POFZ_FILE, output_file = output_file)
 
 
     def create_param(self):
@@ -157,14 +157,17 @@ class eazy():
 
 
 
-def get_EAZY_output_as_HDF5(filename, read_POFZ_FILE = False):
+def get_EAZY_output_as_HDF5(filename, read_POFZ_FILE = False, output_file = False):
 
     # --- create a temporary file
 
     import io
 
-    bio = io.BytesIO()
-    f = h5py.File(bio)
+    if output_file:
+        f = h5py.File(output_file, 'w')
+    else:
+        bio = io.BytesIO()
+        f = h5py.File(bio)
 
     g = f.create_group('EAZY')
 
