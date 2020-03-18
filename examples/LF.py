@@ -16,7 +16,7 @@ from FLARE.photom import m_to_flux
 
 import astropy.cosmology
 
-#cosmo = astropy.cosmology.default_cosmology.get()
+cosmo = astropy.cosmology.default_cosmology.get()
 
 # --- simple LF examples
 
@@ -47,10 +47,10 @@ evo.evo_plot(bin_edges, N)
 plt.show()
 
 # Plot with f_limits:
-m_limits = np.arange(26.,31.,1.)
-f_limits = FLARE.photom.m_to_flux(m_limits)/1E9
-evo.evo_plot(bin_edges, N, f_limits=f_limits)
-plt.show()
+#m_limits = np.arange(26.,31.,1.)
+#f_limits = FLARE.photom.m_to_flux(m_limits)/1E9
+#evo.evo_plot(bin_edges, N, f_limits=f_limits)
+#plt.show()
 
 # Plot of binned samples area 100 sq arcmin
 bin_edges, bin_centres, N_binned = evo_model.bin_sample(area=100.)
