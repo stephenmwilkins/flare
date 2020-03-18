@@ -1,7 +1,7 @@
-#from pylab import*
+ #from pylab import*
 
 from numpy import *
-
+import numpy as np
 
 # --- calculates the absorption due to the intergalactic medium using the Madau et al. formalism.
 
@@ -16,7 +16,7 @@ def madau(lambdas,z):
 	LAMBDA= [1216.0,1026.0,973.0,950.0]
 	A=[0.0036,0.0017,0.0012,0.00093]
 
-	if type(lambdas)== float or type(lambdas)==int or type(lambdas)==long:
+	if not isinstance(lambdas, (list, np.ndarray)):
 
 		l=lambdas
 		if l>LAMBDA[0]*(1+z):
@@ -29,7 +29,7 @@ def madau(lambdas,z):
 			teff+=A[i]*(l/LAMBDA[i])**3.46
 			if LAMBDA[i+1]*(1+z)<l<=LAMBDA[i]*(1+z):
 				return exp(-teff)
-		
+
 		return 	exp(-(teff+ 0.25*(l/LAMBDA[-1])**3*((1+z)**0.46-(l/LAMBDA[-1])**0.46)+9.4*(l/LAMBDA[-1])**1.5*((1+z)**0.18-(l/LAMBDA[-1])**0.18)-0.7*(l/LAMBDA[-1])**3*((l/LAMBDA[-1])**(-1.32)-(1+z)**(-1.32))+0.023*((l/LAMBDA[-1])**1.68-(1+z)**1.68)))
 
 
@@ -56,4 +56,3 @@ def madau(lambdas,z):
 			continue
 
 	return Expteff
-	
