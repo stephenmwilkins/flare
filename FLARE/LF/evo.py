@@ -91,6 +91,38 @@ class evo_base:
         return bin_edges, bin_centres, N
 
 
+    def completeness_erf(self, bin_centres, flux_limit, stretch=1.0, cosmo=False, samples_at_each_bin=False):
+        # calculates a grid for completeness.
+        # Should be done to the same size as N, take bin_centres from N.
+        # takes flux_limit and background (in nJy), and snr_target
+        # stretch is variable.
+
+        if not cosmo: cosmo = FLARE.core.default_cosmo()
+
+        c = np.zeros((len(bin_centres['z']), len(bin_centres['log10L'])))
+
+        print(c.shape)
+
+        for i, z in enumerate(bin_centres['z']):
+            for j, log10L in enumerate(bin_centres['log10L']):
+
+                f = lum_to_flux(10**log10L, cosmo, z)
+
+                if samples_at_each_bin:
+                    N_found = 0
+
+                    for q in range(samples_at_each_bin):
+                        if np.random.random() < 0.5 * (1.0+cps.erf(stretch*(f-flux_limit))):
+                            N_found += 1
+
+                    c[i, j] = N_found / samples_at_each_bin
+
+                else:
+                    c[i, j] = 0.5 * (1.0+cps.erf(stretch*(f-flux_limit)))
+
+        return c.T
+
+
     def sample(self, area=1., cosmo=False, redshift_limits=[8., 15.], log10L_limits=[27., 30.], dz=0.05,
                      seed=False):
 
@@ -450,9 +482,9 @@ def evo_plot(bin_edges, N, cosmo=False, f_limits=False, save_file=False):
         plt.plot(bin_edges['z'], np.log10(flux_to_L(f_limits, cosmo, bin_edges['z'])), 'k--', alpha=0.8)
 
     bar = plt.colorbar(orientation='vertical')
-    bar.set_label(r'$\rm log_{10}(N/ [arcmin^{-2}])$', rotation=90)
+    bar.set_label(r'$\rm log_{10}(N \; / \; arcmin^{-2})$', rotation=90)
 
-    plt.ylabel(r"$\rm log_{10}(L_{\nu}/ [erg\, s^{-1}\, Hz^{-1}])$")
+    plt.ylabel(r"$\rm log_{10}(L_{\nu} \; / \; erg\, s^{-1}\, Hz^{-1})$")
     plt.xlabel(r"$\rm z$")
     plt.xlim(min(bin_edges['z']), max(bin_edges['z']))
     plt.ylim(min(bin_edges['log10L']), max(bin_edges['log10L']))
