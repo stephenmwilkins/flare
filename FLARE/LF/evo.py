@@ -259,7 +259,7 @@ class existing_model:
         # convert M* to L* HERE
 
         self.lp, self.z_ref = self.calculate_linear_evolution_coeffs()
-        print(self.name)
+        print(self.name, self.LF_model)
 
     def interpolate_parameters(self, z=8.):
         # interpolates parameters as a function of z
@@ -433,15 +433,15 @@ class FLARES(existing_model):
         self.ref = 'Vijayan+2020'
         self.type = 'hydro'
         self.LF_model = 'Schechter'
-        self.redshifts = [5., 6., 7., 8., 9.]    # array of redshifts
-        self.phi_star = [-3.82, -3.67, -4.20, -4.38, -4.45]  # array of log10(phi_star) values
-        self.M_star = [-21.91, -21.13, -21.19, -20.90, -20.42]  # array of M_star values
-        self.alpha = [-2.02, -2.03, -2.31, -2.46, -2.73] # array of alpha values
+        self.redshifts = [5., 6., 7., 8., 9., 10.]  # array of redshifts
+        self.phi_star = [-3.674, -3.869, -4.353, -4.379, -4.299, -4.416]  # array of log10(phi_star) values
+        self.M_star = [-21.812, -21.484, -21.465, -20.946, -20.458, -20.084]  # array of M_star values
+        self.alpha = [-1.987, -2.141, -2.421, -2.584, -2.671, -3.053]  # array of alpha values
 
         super().__init__()
 
 
-class FLARES_DBLP(existing_model):
+class FLARES_DPL(existing_model):
     # --- LF evolution model based on Vijayan et al. (2020)
     # --- Double Power Law
 
@@ -452,7 +452,7 @@ class FLARES_DBLP(existing_model):
         self.name = 'FLARES (Vijayan+2020)'
         self.ref = 'Vijayan+2020'
         self.type = 'hydro'
-        self.LF_model = 'DoublePowerLaw'
+        self.LF_model = 'Double Power Law'
         self.redshifts = [5., 6., 7., 8., 9., 10.]    # array of redshifts
         self.phi_star = [-3.771, -4.054, -4.5, -4.605, -3.812, -4.148]  # array of log10(phi_star) values
         self.M_star = [-21.658, -21.446, -21.380, -20.966, -19.712, -19.658]  # array of M_star values
