@@ -10,7 +10,7 @@ from mpmath import gammainc
 
 import matplotlib.pyplot as plt
 
-from FLARE.photom import flux_to_L, lum_to_flux, M_to_lum
+from FLARE.photom import flux_to_L, lum_to_flux, M_to_lum, lum_to_M
 import FLARE.core
 
 
@@ -38,8 +38,18 @@ def _integ(x, a):
     return x ** (a - 1) * np.exp(-x)
 
 
+def _integ_dblpow(x, a, b):
+    return 1 / (10 ** (x*(a+1)) + 10 ** (x*(b+1)))
+
+
 def quadfunct(f, a, b, args):
     return cp.quad(f, a, b, args=args)[0]
+
+
+def quadfunct2(f, x1, x2, a, b):
+    args = (a, b)
+    return cp.quad(f, x1, x2, args=args)[0]
+
 
 def trapzfunct(f, bine1, bine2, alpha):
     x = np.array([bine1, bine2])
@@ -76,11 +86,23 @@ class evo_base:
                               range(1, len(bin_edges['z']))])
 
         params = self.parameters(bin_centres['z'])
-        alphas = params['alpha']
-        Lstars = M_to_lum(params['M*'])
-        phistars = 10**params['log10phi*']
 
-        N = phistars[None, :] * np.vectorize(quadfunct)(_integ,
+        if 'beta' in params.keys():
+            alphas = params['alpha']
+            Mstars = params['M*']
+            phistars = 10 ** params['log10phi*']
+            betas = params['beta']
+
+            N = phistars[None, :] * np.vectorize(quadfunct2)(_integ_dblpow,
+                                                            0.4*(lum_to_M(10**bin_edges['log10L'][1:, None]) - Mstars[None, :]),
+                                                            0.4*(lum_to_M(10**bin_edges['log10L'][:-1, None]) - Mstars[None, :]),
+                                                            alphas[None, :], betas[None, :] ) * volumes[None, :] * area_sr
+
+        else:
+            alphas = params['alpha']
+            Lstars = M_to_lum(params['M*'])
+            phistars = 10 ** params['log10phi*']
+            N = phistars[None, :] * np.vectorize(quadfunct)(_integ,
                                                          10 ** bin_edges['log10L'][:-1, None] / Lstars[None, :],
                                                          10 ** bin_edges['log10L'][1:, None] / Lstars[None, :],
                                                          args=(alphas[None, :])+1) * volumes[None, :] * area_sr
@@ -237,7 +259,7 @@ class existing_model:
         # convert M* to L* HERE
 
         self.lp, self.z_ref = self.calculate_linear_evolution_coeffs()
-        print(self.name)
+        print(self.name, self.LF_model)
 
     def interpolate_parameters(self, z=8.):
         # interpolates parameters as a function of z
@@ -267,7 +289,13 @@ class existing_model:
         fit_log10phi = linregress(z_mod, log10phi_mod)
         fit_M = linregress(z_mod, M_mod)
 
-        lp = {'alpha': fit_alpha, 'log10phi*': fit_log10phi, 'M*': fit_M}
+        if self.LF_model == 'DoublePowerLaw':
+            beta_mod = np.array(self.beta)[s]
+            fit_beta = linregress(z_mod, beta_mod)
+            lp = {'alpha': fit_alpha, 'beta': fit_beta, 'log10phi*': fit_log10phi, 'M*': fit_M}
+
+        else:
+            lp = {'alpha': fit_alpha, 'log10phi*': fit_log10phi, 'M*': fit_M}
 
         return lp, z_ref
 
@@ -281,6 +309,7 @@ class bluetides(existing_model):  # --- based on bluetides simulation
         self.name = 'Bluetides (Wilkins+2017)'
         self.ref = 'Wilkins+2017'
         self.type = 'hydro'
+        self.LF_model = 'Schechter'
         self.redshifts = [8.0, 9.0, 10.0, 11.0, 12.0, 13.0]  # array of redshifts
         self.phi_star = [-3.92, -4.2, -4.7, -4.79, -5.09, -5.71]  # array of log10(phi_star) values
         self.M_star = [-20.93, -20.68, -20.69, -20.17, -19.92, -19.91]  # array of M_star values
@@ -299,6 +328,7 @@ class Finkelstein_review(existing_model):
         self.name = 'Observational review (Finkelstein2016)'
         self.ref = 'Finkelstein+2016'
         self.type = 'empirical extrapolation'
+        self.LF_model = 'Schechter'
         # self.redshifts = [4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]  # array of redshifts
         # self.phi_star = [-2.99, -3.18, -3.37, -3.56, -3.75, -3.94, -4.13]  # array of log10(phi_star) values
         # self.M_star = [-21.05, -20.92, -20.79, -20.66, -20.52, -20.39, -20.25]  # array of M_star values
@@ -323,6 +353,7 @@ class Finkelstein_obs(existing_model):
         self.name = 'Observational (Finkelstein+2015)'
         self.ref = 'Finkelstein+2015'
         self.type = 'empirical'
+        self.LF_model = 'Schechter'
         self.redshifts = [4.0, 5.0, 6.0, 7.0, 8.0]  # array of redshifts
         self.phi_star = [np.log10(14.1 * 10 ** -4), np.log10(8.95 * 10 ** -4), np.log10(1.86 * 10 ** -4),
                          np.log10(1.57 * 10 ** -4), np.log10(0.72 * 10 ** -4)]  # array of log10(phi_star) values
@@ -342,6 +373,7 @@ class Ma2019(existing_model):
         self.name = 'FIRE-2 (Ma+2019)'
         self.ref = 'Ma+2019'
         self.type = 'hydro'
+        self.LF_model = 'Schechter'
         self.redshifts = [5., 6., 7., 8.0, 9.0, 10.0]  # array of redshifts
         self.phi_star = [-3.55, -3.44, -4.09, -3.98, -4.57, -4.74]  # array of log10(phi_star) values
         self.M_star = [-21.77, -21.34, -21.73, -20.97, -21.30, -20.90]  # array of M_star values
@@ -360,6 +392,7 @@ class Mason15(existing_model):
         self.name = 'Semi-empirical (Mason+2015)'
         self.ref = 'Mason+2015'
         self.type = 'semi-empirical'
+        self.LF_model = 'Schechter'
         self.redshifts = [0., 2., 4., 5., 6., 7., 8., 9., 10., 12., 14., 16.]    # array of redshifts
         self.phi_star = [-2.97, -2.52, -2.93, -3.12, -3.19, -3.48, -4.03, -4.50, -5.12, -5.94, -7.05, -8.25]    # array of phi_star value to interpolate
         self.M_star = [-19.9, -20.3, -21.2, -21.2, -20.9, -21.0, -21.3, -21.2, -21.1, -21.0, -20.9, -20.7]  # array of M_star values
@@ -378,6 +411,7 @@ class Yung2018(existing_model):
         self.name = 'Semi-analytical (Yung+2018)'
         self.ref = 'Yung+2018'
         self.type = 'semi-analytical'
+        self.LF_model = 'Schechter'
         self.redshifts = [4., 5., 6., 7., 8., 9., 10.]    # array of redshifts
         self.phi_star = [np.log10(3.151 * 10 ** -3), np.log10(2.075 * 10 ** -3), np.log10(1.352 * 10 ** -3),
          np.log10(0.818 * 10 ** -3), np.log10(0.306 * 10 ** -3), np.log10(0.133 * 10 ** -3), np.log10(0.053 * 10 ** -3)]  # array of log10(phi_star) values
@@ -389,7 +423,7 @@ class Yung2018(existing_model):
 
 
 class FLARES(existing_model):
-    # --- LF evolution model based on Yung et al. (2018)
+    # --- LF evolution model based on Vijayan et al. (2020)
 
     def __init__(self):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
@@ -398,14 +432,34 @@ class FLARES(existing_model):
         self.name = 'FLARES (Vijayan+2020)'
         self.ref = 'Vijayan+2020'
         self.type = 'hydro'
-        self.redshifts = [5., 6., 7., 8., 9.]    # array of redshifts
-        self.phi_star = [-3.82, -3.67, -4.20, -4.38, -4.45]  # array of log10(phi_star) values
-        self.M_star = [-21.91, -21.13, -21.19, -20.90, -20.42]  # array of M_star values
-        self.alpha = [-2.02, -2.03, -2.31, -2.46, -2.73] # array of alpha values
+        self.LF_model = 'Schechter'
+        self.redshifts = [5., 6., 7., 8., 9., 10.]  # array of redshifts
+        self.phi_star = [-3.674, -3.869, -4.353, -4.379, -4.299, -4.416]  # array of log10(phi_star) values
+        self.M_star = [-21.812, -21.484, -21.465, -20.946, -20.458, -20.084]  # array of M_star values
+        self.alpha = [-1.987, -2.141, -2.421, -2.584, -2.671, -3.053]  # array of alpha values
 
         super().__init__()
 
 
+class FLARES_DPL(existing_model):
+    # --- LF evolution model based on Vijayan et al. (2020)
+    # --- Double Power Law
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+
+        self.name = 'FLARES (Vijayan+2020)'
+        self.ref = 'Vijayan+2020'
+        self.type = 'hydro'
+        self.LF_model = 'Double Power Law'
+        self.redshifts = [5., 6., 7., 8., 9., 10.]    # array of redshifts
+        self.phi_star = [-3.771, -4.054, -4.5, -4.605, -3.812, -4.148]  # array of log10(phi_star) values
+        self.M_star = [-21.658, -21.446, -21.380, -20.966, -19.712, -19.658]  # array of M_star values
+        self.alpha = [-2.034, -2.218, -2.500, -2.674, -2.567, -3.008] # array of alpha values
+        self.beta = [-4.306, -5.194, -5.190, -4.773, -4.467, -4.864]  # array of alpha values
+
+        super().__init__()
 
 
 class LF_interpolation:
