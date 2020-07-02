@@ -4,6 +4,80 @@ import copy
 class empty: pass
 
 import FLARE.filters
+import FLARE.observatories
+import FLARE.photom
+
+
+surveys  = {}
+
+class survey():
+
+    def __init__(self, name, data_dir = None, data_reference = None):
+
+        self.name = name
+        self.fields = {}
+        self.data_reference = data_reference
+        self.data_dir = data_dir
+
+    def add_field(self, field_name, filters = [], depths = {}, area = None, mask_file = None, depth_aperture_radius_pixel = None):
+
+        self.fields[field_name] = empty()
+        self.fields[field_name].filters = filters
+        self.fields[field_name].depths = depths
+        self.fields[field_name].area = area
+        self.fields[field_name].mask_file = mask_file
+        self.fields[field_name].depth_aperture_radius_pixel = depth_aperture_radius_pixel
+
+
+
+# ------------------------------------------------------------------------------------------
+# ------------- Webb baseline
+# --- sensitivities are from https://jwst-docs.stsci.edu/near-infrared-camera/nircam-predicted-performance/nircam-sensitivity
+
+
+filters = [f'Webb.NIRCam.{f}' for f in ['F090W','F115W','F150W','F200W','F277W','F356W','F444W','F410M']]
+depths = {}
+
+SNR = 10
+depths['Webb.NIRCam.F090W'] = 15.3/SNR # nJy
+depths['Webb.NIRCam.F115W'] = 13.2/SNR # nJy
+depths['Webb.NIRCam.F150W'] = 10.6/SNR # nJy
+depths['Webb.NIRCam.F200W'] = 9.1/SNR # nJy
+depths['Webb.NIRCam.F277W'] = 14.3/SNR # nJy
+depths['Webb.NIRCam.F356W'] = 12.1/SNR # nJy
+depths['Webb.NIRCam.F444W'] = 23.6/SNR # nJy
+depths['Webb.NIRCam.F410M'] = 24.7/SNR # nJy
+
+surveys['Webb10k'] = survey('Webb10k')
+surveys['Webb10k'].add_field('base', filters, depths, depth_aperture_radius_pixel = 2.5)
+
+
+
+# ------------------------------------------------------------------------------------------
+# ------------- Euclid deep baseline
+
+
+filters = FLARE.observatories.Euclid.filterIDs
+
+depths = {}
+
+SNR = 10
+
+depths = {f: FLARE.photom.m_to_flux(26.)/5. for f in FLARE.observatories.Euclid.NISP.get_filter_IDs()}
+depths['Euclid.VIS.VIS'] = FLARE.photom.m_to_flux(26.5)/10.
+
+surveys['Euclid'] = survey('Euclid')
+surveys['Euclid'].add_field('deep', filters, depths, depth_aperture_radius_pixel = 2.5)
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -95,8 +169,6 @@ depthmodel['5_20_HUDF']['exp_time'] = 19100.71
 
 
 
-surveys = {}
-
 
 
 # ------------------------------------------------------------------------------------------
@@ -151,6 +223,14 @@ surveys['XDF'].fields['dXDF'].depths = {'HST.ACS.f435w': 29.8,'HST.ACS.f606w':30
 
 # ------------------------------------------------------------------------------------------
 # ------------- CANDELS
+
+
+
+
+
+
+
+
 
 
 

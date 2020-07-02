@@ -41,6 +41,10 @@ flux_limit = 10 # in nanojansky
 # bin_centres should be the same ones used for N above
 c = evo_model.completeness_erf(bin_centres, flux_limit, stretch=1, cosmo=cosmo)
 
+print(c.shape)
+
+
+
 X, Y = np.meshgrid(bin_centres['z'], bin_centres['log10L'])
 c_plot = plt.pcolormesh(X, Y, c)
 c_bar = plt.colorbar(c_plot)
@@ -61,7 +65,6 @@ plt.show()
 
 
 # --- Extra example for using a sampled completeness
-
 
 flux_limit = 10 # in nanojansky
 
