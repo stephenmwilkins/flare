@@ -65,7 +65,7 @@ class evo_base:
         print(self.model_style)
 
 
-    def N(self, area=1., cosmo=False, redshift_limits=[8., 15.], log10L_limits=[27.5, 30.], dz=0.05, dlog10L=0.05, per_arcmin=False):
+    def N(self, area=1., cosmo=False, redshift_limits=[8., 15.], log10L_limits=[27.5, 30.], dz=0.05, dlog10L=0.05, per_arcmin=False, return_volumes=False):
 
         # calculates the number of galaxies in each bin on a grid defined by redshift_limits, log10L_limits, dz, dlog10L
         # and area based on a luminosity function evolution model.
@@ -110,7 +110,11 @@ class evo_base:
         if per_arcmin:
             N /= area_sm
 
-        return bin_edges, bin_centres, N
+        if return_volumes:
+            return bin_edges, bin_centres, volumes, N
+
+        else:
+            return bin_edges, bin_centres, N
 
 
     def completeness_erf(self, bin_centres, flux_limit, stretch=1.0, cosmo=False, samples_at_each_bin=False):
@@ -289,7 +293,7 @@ class existing_model:
         fit_log10phi = linregress(z_mod, log10phi_mod)
         fit_M = linregress(z_mod, M_mod)
 
-        if self.LF_model == 'DoublePowerLaw':
+        if self.LF_model == 'Double Power Law':
             beta_mod = np.array(self.beta)[s]
             fit_beta = linregress(z_mod, beta_mod)
             lp = {'alpha': fit_alpha, 'beta': fit_beta, 'log10phi*': fit_log10phi, 'M*': fit_M}
@@ -363,6 +367,67 @@ class Finkelstein_obs(existing_model):
         super().__init__()
 
 
+class Bowler20152020(existing_model):
+    # --- LF evolution model based on Bowler et al. (2015, 2020)
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+
+        self.name = 'Observational (Bowler+2015,2020)'
+        self.ref = 'Bowler+2015,2020'
+        self.type = 'empirical'
+        self.LF_model = 'Schechter'
+        self.redshifts = [5, 6, 7, 8, 9]  # array of redshifts
+        self.phi_star = np.log10(
+            np.array([6.4e-4, 5.7e-4, 3.7e-4, 1.92e-4, 0.53e-4]))  # array of log10(phi_star) values
+        self.M_star = [-21.07, -20.77, -20.56, -20.48, -20.80]  # array of M_star values
+        self.alpha = [-1.81, -1.88, -2.09, -2.18, -2.31]  # array of alpha values
+
+        super().__init__()
+
+
+class Bowler20152020_DPL(existing_model):
+    # --- LF evolution model based on Bowler et al. (2015, 2020)
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+
+        self.name = 'Observational (Bowler+2015,2020)'
+        self.ref = 'Bowler+2015,2020'
+        self.type = 'empirical'
+        self.LF_model = 'Double Power Law'
+        self.redshifts = [5, 6, 7, 8, 9]  # array of redshifts
+        self.phi_star = np.log10(np.array([2.5e-4, 1.9e-4, 2.2e-4, 4.83e-4, 2.85e-4]))  # array of log10(phi_star) values
+        self.M_star = [-21.40, -21.20, -20.61, -19.80, -19.67]  # array of M_star values
+        self.alpha = [-2.00, -2.10, -2.19, -1.96, -2.10]  # array of alpha values
+        self.beta = np.array([-4.8, -5.1, -4.6, -3.98, -3.75])
+        
+        super().__init__()
+
+
+class Bouwens2015(existing_model):
+    # --- LF evolution model based on Bouwens et al. (2015)
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+
+        self.name = 'Observational (Bouwens+2015)'
+        self.ref = 'Bouwens+2015'
+        self.type = 'empirical'
+        self.LF_model = 'Schechter'
+        self.redshifts = [3.8, 4.9, 5.9, 6.8, 7.9, 10.4]  # array of redshifts
+        self.phi_star = np.log10(
+            np.array([1.97e-3, 0.74e-3, 0.50e-3, 0.29e-3, 0.21e-3, 0.008e-3]))  # array of log10(phi_star) values
+        self.M_star = [-20.88, -21.17, -20.94, -20.87, -20.63, -20.92]  # array of M_star values
+        self.alpha = [-1.64, -1.76, -1.87, -2.06, -2.02, -2.27]  # array of alpha values
+
+        super().__init__()
+
+
+
 class Ma2019(existing_model):
     # --- LF evolution model based on Ma et al. (2019) (f_dust = 0.8)
 
@@ -433,6 +498,30 @@ class FLARES(existing_model):
         self.ref = 'Vijayan+2020'
         self.type = 'hydro'
         self.LF_model = 'Schechter'
+        self.redshifts = [5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+        self.phi_star = [-3.6305001277308033, -3.875836361821652, -4.892210648014174, -5.254864977740009,
+                         -4.95384659793114,
+                         -4.877348845014224]
+        self.M_star = [-21.79285493467043, -21.59150068090623, -22.255242417520705, -22.027768435403182,
+                       -21.34875019363828,
+                       -20.55601510467414]
+        self.alpha = [-1.9772870410668615, -2.1213054661801465, -2.492156665448407, -2.7226300850912906, -2.722532096381987,
+                 -3.148004062716375]
+
+        super().__init__()
+
+
+class FLARES_old(existing_model):
+    # --- LF evolution model based on Vijayan et al. (2020)
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+
+        self.name = 'FLARES (Vijayan+2020)'
+        self.ref = 'Vijayan+2020'
+        self.type = 'hydro'
+        self.LF_model = 'Schechter'
         self.redshifts = [5., 6., 7., 8., 9., 10.]  # array of redshifts
         self.phi_star = [-3.674, -3.869, -4.353, -4.379, -4.299, -4.416]  # array of log10(phi_star) values
         self.M_star = [-21.812, -21.484, -21.465, -20.946, -20.458, -20.084]  # array of M_star values
@@ -458,6 +547,63 @@ class FLARES_DPL(existing_model):
         self.M_star = [-21.658, -21.446, -21.380, -20.966, -19.712, -19.658]  # array of M_star values
         self.alpha = [-2.034, -2.218, -2.500, -2.674, -2.567, -3.008] # array of alpha values
         self.beta = [-4.306, -5.194, -5.190, -4.773, -4.467, -4.864]  # array of alpha values
+
+        super().__init__()
+
+
+class TNG_A(existing_model):
+    # --- LF evolution model based on TNG dust model A (2019)
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+
+        self.name = 'TNG19: Model-A'
+        self.ref = 'TNG19'
+        self.type = 'hydro'
+        self.LF_model = 'Schechter'
+        self.redshifts = [5., 6., 7., 8.]  # array of redshifts
+        self.phi_star = [-3.244, -3.079, -3.846, -4.445]  # array of log10(phi_star) values
+        self.M_star = [-21.17, -20.61, -21.18, -21.38]  # array of M_star values
+        self.alpha = [-1.924, -1.876, -2.133, -2.280]  # array of alpha values
+
+        super().__init__()
+
+
+class TNG_B(existing_model):
+    # --- LF evolution model based on TNG dust model B (2019)
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+
+        self.name = 'TNG19: Model-B'
+        self.ref = 'TNG19'
+        self.type = 'hydro'
+        self.LF_model = 'Schechter'
+        self.redshifts = [5., 6., 7., 8.]  # array of redshifts
+        self.phi_star = [-3.107, -3.025, -3.418, -4.111]  # array of log10(phi_star) values
+        self.M_star = [-20.95, -20.52, -20.58, -20.86]  # array of M_star values
+        self.alpha = [-1.884, -1.833, -1.967, -2.216]  # array of alpha values
+
+        super().__init__()
+
+
+class TNG_C(existing_model):
+    # --- LF evolution model based on TNG dust model C (2019)
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+
+        self.name = 'TNG19: Model-C'
+        self.ref = 'TNG19'
+        self.type = 'hydro'
+        self.LF_model = 'Schechter'
+        self.redshifts = [5., 6., 7., 8.]  # array of redshifts
+        self.phi_star = [-3.398, -3.608, -4.209, -4.714]  # array of log10(phi_star) values
+        self.M_star = [-21.21, -21.31, -21.47, -21.44]  # array of M_star values
+        self.alpha = [-1.941, -2.042, -2.279, -2.455]  # array of alpha values
 
         super().__init__()
 
