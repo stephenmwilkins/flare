@@ -28,6 +28,7 @@ class instrument():
         self.channel = {}
         self.channels = None
         self.pixel_scale = None
+        self.zeropoints = None
 
 
     def get_filter_IDs(self, exclude = False):
@@ -48,6 +49,14 @@ class instrument():
                 filters.append(f)
 
         return filters
+
+    def get_zeropoints(self):
+        zeropoints = {}
+        for c in self.channels:
+            for f in self.channel[c].filters:
+                zeropoints[f] = self.channel[c].zeropoints[f]
+
+        return zeropoints
 
 
 class channel: pass
@@ -74,15 +83,19 @@ Roman.instrument['WFI'].pixel_scale = 0.11
 
 Hubble = observatory('Hubble', ['ACS','WFC3'])
 Hubble.instrument['ACS'].filters = ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']
+Hubble.instrument['ACS'].zeropoints = {'f435w': 25.684, 'f606w': 26.505, 'f775w': 25.678, 'f814w': 25.959, 'f850lp': 24.867}
 Hubble.instrument['ACS'].pixel_scale = 0.05
 Hubble.instrument['WFC3'].channels = ['UV','NIR']
 Hubble.instrument['WFC3'].channel['UV'] = channel()
 Hubble.instrument['WFC3'].channel['UV'].filters = ['f225w','f275w','f336w']
+Hubble.instrument['WFC3'].channel['UV'].zeropoints = {'f225w': 0.0, 'f275w': 0.0, 'f336w': 0.0}
 Hubble.instrument['WFC3'].channel['UV'].pixel_scale = 0.13 # might be wrong?
 Hubble.instrument['WFC3'].channel['NIR'] = channel()
 Hubble.instrument['WFC3'].channel['NIR'].filters = ['f105w', 'f125w', 'f140w', 'f160w']
+Hubble.instrument['WFC3'].channel['NIR'].zeropoints = {'f105w': 26.269, 'f125w': 26.230, 'f140w': 26.452, 'f160w': 25.946}
 Hubble.instrument['WFC3'].channel['NIR'].pixel_scale = 0.13
 Hubble.instrument['WFC3'].filters = Hubble.instrument['WFC3'].get_filters()
+Hubble.instrument['WFC3'].zeropoints = Hubble.instrument['WFC3'].get_zeropoints()
 
 Euclid = observatory('Euclid', ['VIS','NISP'])
 Euclid.instrument['NISP'].filters = ['Y','J','H']
