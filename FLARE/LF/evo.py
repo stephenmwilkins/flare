@@ -434,9 +434,9 @@ class FLARES(existing_model):
         self.type = 'hydro'
         self.LF_model = 'Schechter'
         self.redshifts = [5., 6., 7., 8., 9., 10.]  # array of redshifts
-        self.phi_star = [-3.674, -3.869, -4.353, -4.379, -4.299, -4.416]  # array of log10(phi_star) values
-        self.M_star = [-21.812, -21.484, -21.465, -20.946, -20.458, -20.084]  # array of M_star values
-        self.alpha = [-1.987, -2.141, -2.421, -2.584, -2.671, -3.053]  # array of alpha values
+        self.phi_star = [-3.630, -3.876, -4.892, -5.255, -4.954, -4.877]  # array of log10(phi_star) values
+        self.M_star = [-21.793, -21.592, -22.255, -22.028, -21.349, -20.556]  # array of M_star values
+        self.alpha = [-1.977, -2.121, -2.492, -2.723, -2.722, -3.148]  # array of alpha values
 
         super().__init__()
 
@@ -454,10 +454,10 @@ class FLARES_DPL(existing_model):
         self.type = 'hydro'
         self.LF_model = 'Double Power Law'
         self.redshifts = [5., 6., 7., 8., 9., 10.]    # array of redshifts
-        self.phi_star = [-3.771, -4.054, -4.5, -4.605, -3.812, -4.148]  # array of log10(phi_star) values
-        self.M_star = [-21.658, -21.446, -21.380, -20.966, -19.712, -19.658]  # array of M_star values
-        self.alpha = [-2.034, -2.218, -2.500, -2.674, -2.567, -3.008] # array of alpha values
-        self.beta = [-4.306, -5.194, -5.190, -4.773, -4.467, -4.864]  # array of alpha values
+        self.phi_star = [-3.767, -4.171, -4.957, -5.262, -3.158, -4.027]  # array of log10(phi_star) values
+        self.M_star = [-21.704, -21.776, -22.124, -21.823, -19.026, -19.612]  # array of M_star values
+        self.alpha = [-2.032, -2.204, -2.529, -2.766, -2.338, -3.082] # array of alpha values
+        self.beta = [-4.437, -5.184, -5.237, -5.173, -3.669, -4.006]  # array of alpha values
 
         super().__init__()
 
