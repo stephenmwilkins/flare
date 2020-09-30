@@ -35,11 +35,19 @@ def dVc(z, cosmo):
 
 
 def _integ(x, a):
-    return x ** (a - 1) * np.exp(-x)
+    return x ** (a) * np.exp(-x)
+
+
+def _integ2(x, a):
+    return 0.4*np.log(10)*10**(-0.4*x* (a+1)) * np.exp(-10**(-0.4*x))
 
 
 def _integ_dblpow(x, a, b):
     return 1 / (10 ** (x*(a+1)) + 10 ** (x*(b+1)))
+
+
+def _integ_dblpow2(x, a, b):
+    return x**a * (1+x)**(b-a)
 
 
 def quadfunct(f, a, b, args):
@@ -89,23 +97,44 @@ class evo_base:
 
         if 'beta' in params.keys():
             alphas = params['alpha']
+            Lstars = M_to_lum(params['M*'])
             Mstars = params['M*']
             phistars = 10 ** params['log10phi*']
             betas = params['beta']
 
             N = phistars[None, :] * np.vectorize(quadfunct2)(_integ_dblpow,
-                                                            0.4*(lum_to_M(10**bin_edges['log10L'][1:, None]) - Mstars[None, :]),
-                                                            0.4*(lum_to_M(10**bin_edges['log10L'][:-1, None]) - Mstars[None, :]),
-                                                            alphas[None, :], betas[None, :] ) * volumes[None, :] * area_sr
+                                                             0.4 * (lum_to_M(
+                                                                 10 ** bin_edges['log10L'][1:, None]) - Mstars[None,
+                                                                                                        :]),
+                                                             0.4 * (lum_to_M(
+                                                                 10 ** bin_edges['log10L'][:-1, None]) - Mstars[None,
+                                                                                                         :]),
+                                                             alphas[None, :], betas[None, :]) * volumes[None,
+                                                                                               :] * area_sr
+
+            ''' Left in for possible future implementation
+                        #N = phistars[None, :] * np.vectorize(quadfunct2)(_integ_dblpow2,
+                        #                                                10**(bin_edges['log10L'][:-1, None] - Lstars[None, :]),
+                        #                                                10**(bin_edges['log10L'][1:, None] - Lstars[None, :]),
+                        #                                                alphas[None, :], betas[None, :] ) * volumes[None, :] * area_sr
+            '''
 
         else:
             alphas = params['alpha']
             Lstars = M_to_lum(params['M*'])
             phistars = 10 ** params['log10phi*']
+            Mstars = params['M*']
             N = phistars[None, :] * np.vectorize(quadfunct)(_integ,
                                                          10 ** bin_edges['log10L'][:-1, None] / Lstars[None, :],
                                                          10 ** bin_edges['log10L'][1:, None] / Lstars[None, :],
-                                                         args=(alphas[None, :])+1) * volumes[None, :] * area_sr
+
+                                                         args=(alphas[None, :])) * volumes[None, :] * area_sr
+            ''' Left in for possible future implementation
+            N = phistars[None, :] * np.vectorize(quadfunct)(_integ2,
+                                                         lum_to_M(10**bin_edges['log10L'][1:, None]) - Mstars[None, :],
+                                                         lum_to_M(10**bin_edges['log10L'][:-1, None]) - Mstars[None, :],
+                                                         args=(alphas[None, :])) * volumes[None, :] * area_sr
+            '''
 
         if per_arcmin:
             N /= area_sm
@@ -117,11 +146,14 @@ class evo_base:
             return bin_edges, bin_centres, N
 
 
-    def completeness_erf(self, bin_centres, flux_limit, stretch=1.0, cosmo=False, samples_at_each_bin=False):
+    def completeness_erf(self, bin_centres, flux_limit, stretch=1.0, cosmo=False, samples_at_each_bin=False, sample_z_log10L=False):
         # calculates a grid for completeness.
         # Should be done to the same size as N, take bin_centres from N.
         # takes flux_limit and background (in nJy), and snr_target
         # stretch is variable.
+
+        dz = bin_centres['z'][1] - bin_centres['z'][0]
+        dlog10L = bin_centres['log10L'][1] - bin_centres['log10L'][0]
 
         if not cosmo: cosmo = FLARE.core.default_cosmo()
 
@@ -132,18 +164,36 @@ class evo_base:
         for i, z in enumerate(bin_centres['z']):
             for j, log10L in enumerate(bin_centres['log10L']):
 
-                f = lum_to_flux(10**log10L, cosmo, z)
-
                 if samples_at_each_bin:
-                    N_found = 0
 
-                    for q in range(samples_at_each_bin):
-                        if np.random.random() < 0.5 * (1.0+cps.erf(stretch*(f-flux_limit))):
-                            N_found += 1
+                    if sample_z_log10L:
 
-                    c[i, j] = N_found / samples_at_each_bin
+                        N_found = 0
+
+                        z_sample = np.random.uniform(z - dz / 2, z + dz / 2, samples_at_each_bin)
+                        log10L_sample = np.random.uniform(log10L - dlog10L / 2, log10L + dlog10L / 2, samples_at_each_bin)
+                        f = lum_to_flux(10 ** log10L_sample, cosmo, z_sample)
+
+                        for q in range(samples_at_each_bin):
+
+                            if np.random.random() < 0.5 * (1.0+cps.erf(stretch*(f[q]-flux_limit))):
+                                N_found += 1
+
+                        c[i, j] = N_found / samples_at_each_bin
+
+                    else:
+                        N_found = 0
+                        f = lum_to_flux(10 ** log10L, cosmo, z)
+
+                        for q in range(samples_at_each_bin):
+
+                            if np.random.random() < 0.5 * (1.0 + cps.erf(stretch * (f - flux_limit))):
+                                N_found += 1
+
+                        c[i, j] = N_found / samples_at_each_bin
 
                 else:
+                    f = lum_to_flux(10 ** log10L, cosmo, z)
                     c[i, j] = 0.5 * (1.0+cps.erf(stretch*(f-flux_limit)))
 
         return c.T
@@ -273,8 +323,15 @@ class existing_model:
         alpha_mod = self.alpha
         log10phi_mod = self.phi_star
         log10M_mod = self.M_star
-        p = {'alpha': np.interp(z, z_mod, alpha_mod), 'log10phi*': np.interp(z, z_mod, log10phi_mod),
-             'M*': np.interp(z, z_mod, log10M_mod)}
+        if self.LF_model == 'Double Power Law':
+            beta_mod = self.beta
+            p = {'alpha': np.interp(z, z_mod, alpha_mod), 'log10phi*': np.interp(z, z_mod, log10phi_mod),
+                 'M*': np.interp(z, z_mod, log10M_mod), 'beta': np.interp(z, z_mod, beta_mod)}
+
+        else:
+            p = {'alpha': np.interp(z, z_mod, alpha_mod), 'log10phi*': np.interp(z, z_mod, log10phi_mod),
+                 'M*': np.interp(z, z_mod, log10M_mod)}
+
         return p
 
     def calculate_linear_evolution_coeffs(self, zr = [6., 15.], z_ref = 6.):
@@ -619,7 +676,7 @@ class LF_interpolation:
         x = 10 ** y
         alpha = self.sp['alpha']
 
-        gamma = cp.quad(_integ, x, np.inf, args=alpha + 1)[0]
+        gamma = cp.quad(_integ, x, np.inf, args=alpha)[0]
         num = gamma * self.sp['phi*']
 
         return num
