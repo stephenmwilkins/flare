@@ -148,74 +148,6 @@ class evo_base:
             return bin_edges, bin_centres, N
 
 
-    def completeness_erf(self, bin_centres, flux_limit, stretch=1.0, cosmo=False, samples_at_each_bin=False, sample_z_log10L=False, test=False):
-        # calculates a grid for completeness.
-        # Should be done to the same size as N, take bin_centres from N.
-        # takes flux_limit and background (in nJy), and snr_target
-        # stretch is variable.
-
-        dz = bin_centres['z'][1] - bin_centres['z'][0]
-        dlog10L = bin_centres['log10L'][1] - bin_centres['log10L'][0]
-
-        if not cosmo: cosmo = FLARE.core.default_cosmo()
-
-        c = np.zeros((len(bin_centres['z']), len(bin_centres['log10L'])))
-
-        print(c.shape)
-
-        for i, z in enumerate(bin_centres['z']):
-            for j, log10L in enumerate(bin_centres['log10L']):
-
-                if samples_at_each_bin:
-
-                    if sample_z_log10L:
-
-                        N_found = 0
-
-                        z_sample = np.random.uniform(z - dz / 2, z + dz / 2, samples_at_each_bin)
-                        log10L_sample = np.random.uniform(log10L - dlog10L / 2, log10L + dlog10L / 2, samples_at_each_bin)
-                        f = lum_to_flux(10 ** log10L_sample, cosmo, z_sample)
-
-                        for q in range(samples_at_each_bin):
-
-                            if np.random.random() < 0.5 * (1.0+cps.erf(stretch*(f[q]-flux_limit))):
-                                N_found += 1
-
-                        c[i, j] = N_found / samples_at_each_bin
-
-                    else:
-                        N_found = 0
-                        f = lum_to_flux(10 ** log10L, cosmo, z)
-
-                        for q in range(samples_at_each_bin):
-
-                            if np.random.random() < 0.5 * (1.0 + cps.erf(stretch * (f - flux_limit))):
-                                N_found += 1
-
-                        c[i, j] = N_found / samples_at_each_bin
-
-                else:
-                    if test:
-                        if abs(log10L-np.log10(flux_to_L(flux_limit, cosmo, z))) <= dlog10L:
-                            #print(abs(log10L-np.log10(flux_to_L(flux_limit, cosmo, z))))
-                            f = np.linspace(lum_to_flux(10**(log10L-dlog10L/2), cosmo, z), lum_to_flux(10**(log10L+dlog10L/2), cosmo, z), 100)
-                            N_fract = 0.
-                            for fluxx in f:
-                                print(fluxx)
-                                N_fract += 0.5 * (1.0+cps.erf(stretch*(fluxx-flux_limit)))
-                            c[i, j] = N_fract / len(f)
-                        else:
-                            f = lum_to_flux(10 ** log10L, cosmo, z)
-                            c[i, j] = 0.5 * (1.0 + cps.erf(stretch * (f - flux_limit)))
-
-
-                    else:
-                        f = lum_to_flux(10 ** log10L, cosmo, z)
-                        c[i, j] = 0.5 * (1.0+cps.erf(stretch*(f-flux_limit)))
-
-        return c.T
-
-
     def sample(self, area=1., cosmo=False, redshift_limits=[8., 15.], log10L_limits=[27., 30.], dz=0.05,
                      seed=False):
 
@@ -429,46 +361,10 @@ class LF_interpolation:
         return N_sample
 
 
-def evo_plot(bin_edges, N, cosmo=False, f_limits=False, save_file=False):
-    # --- make nice plot
-
-    if not cosmo: cosmo = FLARE.core.default_cosmo()
-
-    fig = plt.figure(figsize=(6, 5))
-
-    X, Y = np.meshgrid(bin_edges['z'], bin_edges['log10L'])
-
-    cm = plt.get_cmap('plasma')
-    plt.pcolormesh(X, Y, np.log10(N), cmap=cm)
-
-    # --- draw lines of constant flux
-
-    if type(f_limits) is list or type(f_limits) is np.ndarray or type(f_limits) is range:
-
-        for f_limit in f_limits:
-            plt.plot(bin_edges['z'], np.log10(flux_to_L(f_limit, cosmo, bin_edges['z'])), 'k--', alpha=0.8)
-
-    if type(f_limits) is float:
-        plt.plot(bin_edges['z'], np.log10(flux_to_L(f_limits, cosmo, bin_edges['z'])), 'k--', alpha=0.8)
-
-    bar = plt.colorbar(orientation='vertical')
-    bar.set_label(r'$\rm log_{10}(N \; / \; arcmin^{-2})$', rotation=90)
-
-    plt.ylabel(r"$\rm log_{10}(L_{\nu} \; / \; erg\, s^{-1}\, Hz^{-1})$")
-    plt.xlabel(r"$\rm z$")
-    plt.xlim(min(bin_edges['z']), max(bin_edges['z']))
-    plt.ylim(min(bin_edges['log10L']), max(bin_edges['log10L']))
-
-    if save_file == False:
-        return fig
-    else:
-        plt.savefig(save_file + '.png', dpi=300)
-
-
 model_names = ['bluetides', 'Finkelstein_review', 'Finkelstein_obs', 'Bowler20152020', 'Bowler20152020_DPL', 'Bouwens2015', 'Ma2019', 'Mason15', 'Yung2018', 'FLARES', 'FLARES_DPL', 'TNG_A', 'TNG_B', 'TNG_C']
 
 def print_model_parameters(model_list):
-    headers = ['Redshift', 'log10phi*', 'log10L*', 'alpha', 'beta']
+    headers = ['Redshift', 'log10phi*', 'log10L*', 'M*', 'alpha', 'beta']
     #headers = ['Model', 'Reference', 'type', 'LF model', 'Redshift', 'log10phi*', 'log10L*', 'alpha', 'beta']
 
     if type(model_list) == str:
@@ -484,19 +380,21 @@ def print_model_parameters(model_list):
         if m.LF_model == 'Double Power Law':
             for i, z in enumerate(m.redshifts):
                 redshift = f'{m.redshifts[i]:.2f}'
-                log10L = f'{np.log10(M_to_lum(m.M_star[i])):.2f}'
                 phistar = f'{m.phi_star[i]:.2f}'
+                log10L = f'{np.log10(M_to_lum(m.M_star[i])):.2f}'
                 alpha = f'{m.alpha[i]:.2f}'
                 beta = f'{m.beta[i]:.2f}'
-                print(row_format.format(redshift, phistar, log10L, alpha, beta))
+                Mstar = f'{m.M_star[i]:.2f}'
+                print(row_format.format(redshift, phistar, log10L, Mstar, alpha, beta))
 
         if m.LF_model == 'Schechter':
             for i, z in enumerate(m.redshifts):
                 redshift = f'{m.redshifts[i]:.2f}'
-                log10L = f'{np.log10(M_to_lum(m.M_star[i])):.2f}'
                 phistar = f'{m.phi_star[i]:.2f}'
+                log10L = f'{np.log10(M_to_lum(m.M_star[i])):.2f}'
+                Mstar = f'{m.M_star[i]:.2f}'
                 alpha = f'{m.alpha[i]:.2f}'
-                print(row_format.format(redshift, phistar, log10L, alpha, 'N/A'))
+                print(row_format.format(redshift, phistar, log10L, Mstar, alpha, 'N/A'))
 
     return
 

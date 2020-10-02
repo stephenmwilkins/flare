@@ -8,6 +8,7 @@ import matplotlib.cm as cm
 import FLARE.plt as fplt
 
 import FLARE.LF.evo as evo
+import FLARE.LF.lf_parameters as lf_params
 
 
 
@@ -42,7 +43,7 @@ s = 30
 
 for model, c, ms in zip(models, cm.viridis(np.arange(Nmodels)/Nmodels), ['o','^','h','d','*','v','p','s']):
 
-    m = getattr(evo, model)()
+    m = getattr(lf_params, model)()
 
     if model == 'FLARES':
         alpha = 1.0
@@ -69,3 +70,9 @@ axes[0].legend(fontsize = 6, bbox_to_anchor=(0.0, 1.05), loc = 'lower left')
 # fig.savefig('figs/LF_parameters_models.pdf')
 
 plt.show()
+
+
+# Printout of all model parameters in FLARE.LF module
+models = evo.model_names
+
+evo.print_model_parameters(models)
