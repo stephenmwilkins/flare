@@ -39,7 +39,9 @@ def get_name_shape(name, item):
 
 class simulation():
 
-    def __init__(self, Filters, prange, cosmo = FLARE.default_cosmo(),  SPS = False, verbose = False):
+    def __init__(self, Filters, prange, cosmo = FLARE.default_cosmo(),  SPS = False, verbose = False, SimType = 'const'):
+
+        self.SimType = SimType
 
         self.Filters = Filters
 
@@ -50,11 +52,11 @@ class simulation():
 
         self.SPS = SPS # necessary for SED generating if not \beta model
 
-    def run(self, N, ID = False):
+    def run(self, N, ID = False, OutputFolder = False):
 
         Sources = self.run_many(N)
 
-        self.hf = self.write_to_HDF5(Sources, ID = ID)
+        self.hf = self.write_to_HDF5(Sources, ID = ID, OutputFolder = OutputFolder)
 
 
     def run_many(self, N):
@@ -82,6 +84,12 @@ class simulation():
         if 'duration' in self.prange.keys():
             if self.prange['duration'][0] == 'uniform':
                 self.prange['duration'][1][1] = self.cosmo.age(p['z']).to('Myr').value
+
+        # --- for isntantanesous set age = age of the Universe
+
+        if self.SimType == 'instantaneous':
+            p['log10age'] = self.cosmo.age(p['z']).to('Myr').value
+
 
         # --- set other parameters
 
@@ -120,7 +128,7 @@ class simulation():
         derived = {}
 
 
-        if 'beta' in p:
+        if self.SimType == 'beta':
 
             rest_lam = np.arange(0., 5000., 1.)
 
@@ -128,21 +136,41 @@ class simulation():
 
             sed = FLARE.SED.models.beta(rest_lam, p['beta'], 1.0, normalisation_wavelength = 1500.)
 
-        else:
+        elif self.SimType == 'const':
 
             # --- get SFH for a given choice of
 
-            sfzh, sfr = SFZH.constant(self.SPS.grid['log10age'], self.SPS.grid['log10Z'] , {'log10_duration': p['log10_duration'], 'log10Z': p['log10Z'], 'log10M*': 8.0})
+
+            # -- this was the old behaviour where we later rescaled by SNR
+            if 'SNR' in p:
+                sfzh, sfr = SFZH.constant(self.SPS.grid['log10age'], self.SPS.grid['log10Z'] , {'log10_duration': p['log10_duration'], 'log10Z': p['log10Z'], 'log10M*': 8.0})
+            if 'log10M*' in p:
+                sfzh, sfr = SFZH.constant(self.SPS.grid['log10age'], self.SPS.grid['log10Z'] , {'log10_duration': p['log10_duration'], 'log10Z': p['log10Z'], 'log10M*': p['log10M*']})
 
             # --- generate SED for a given choice of parameters
 
-            SED = self.SPS.get_Lnu(sfzh, {'fesc': p['fesc'], 'log10tau_V': p['log10tau_V']}, dust_model = 'very_simple')
+            SED = self.SPS.get_Lnu(sfzh, {'fesc': p['fesc'], 'log10tau_V': p['log10tau_V']}, dust = ('simple', {'slope': -1.0}))
 
             sed = SED.total
-
             self.F = FLARE.filters.add_filters(self.Filters, new_lam = sed.lam * (1.+p['z']))
 
-            restF = FLARE.filters.add_filters(self.Filters, new_lam = sed.lam * (1.+p['z']))
+        elif self.SimType == 'instantaneous': # instantaneous burst as close to age of the Universe as possible
+
+            # --- get SFH for a given choice of
+
+            sfzh, sfr = SFZH.instantaneous(self.SPS.grid['log10age'], self.SPS.grid['log10Z'] , {'log10age': p['log10age'], 'log10Z': p['log10Z'], 'log10M*': p['log10M*']})
+
+            # --- generate SED for a given choice of parameters
+
+            SED = self.SPS.get_Lnu(sfzh, {'fesc': 0.0, 'log10tau_V': p['log10tau_V']}, dust = ('simple', {'slope': -1.0}))
+
+            sed = SED.total
+            self.F = FLARE.filters.add_filters(self.Filters, new_lam = sed.lam * (1.+p['z']))
+
+
+        else:
+
+            print('WARNING! Incorrect simulation type set')
 
 
 
@@ -169,7 +197,7 @@ class simulation():
 
         self.ID = ID
 
-        if not OutputFolder: OutputFolder = f'data/'
+        if not OutputFolder: OutputFolder = f'data'
 
         OutputFile = f'{OutputFolder}/{ID}.h5'
 

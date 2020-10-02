@@ -310,6 +310,7 @@ class existing_model:
         return lp, z_ref
 
 
+
 class LF_interpolation:
     # --- LF interpolation functions for sampling and predictions
 
