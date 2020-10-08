@@ -39,9 +39,10 @@ LF_plots.evo_plot(bin_edges, N, f_limits=[f_limit_deep])
 plt.show()
 
 
-# ? This was the same thing. Leaving for now.
+
 evo_model = evo.interp(m) # initialises the linear evolution model with the FLARES parameters
 bin_edges, bin_centres, N = evo_model.N(cosmo = cosmo, redshift_limits = [8., 15.], log10L_limits = [27., 30.], dz = 0.1, dlog10L = 0.01)
+N = np.multiply(N, c)
 n = np.sum(N)
 print('density per arcmin: {0:9.2f}'.format(n))
 print('number in Eudlid deep: {0:9.1f}'.format(n*area))

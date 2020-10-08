@@ -10,6 +10,8 @@ from mpmath import gammainc
 
 import matplotlib.pyplot as plt
 
+import csv
+
 from FLARE.photom import flux_to_L, lum_to_flux, M_to_lum, lum_to_M
 import FLARE.core
 
@@ -361,6 +363,10 @@ class LF_interpolation:
         return N_sample
 
 
+def get_model(model):
+    return getattr(lf_parameters, model)()
+
+
 model_names = ['bluetides', 'Finkelstein_review', 'Finkelstein_obs', 'Bowler20152020', 'Bowler20152020_DPL', 'Bouwens2015', 'Ma2019', 'Mason15', 'Yung2018', 'FLARES', 'FLARES_DPL', 'TNG_A', 'TNG_B', 'TNG_C']
 
 def print_model_parameters(model_list):
@@ -374,7 +380,7 @@ def print_model_parameters(model_list):
 
     for model in model_list:
 
-        m = getattr(lf_parameters, model)()
+        m = get_model(model)
 
         print(row_format.format(*headers))
         if m.LF_model == 'Double Power Law':
@@ -398,3 +404,45 @@ def print_model_parameters(model_list):
 
     return
 
+
+def write_model_parameters_csv(model_list, filename='lf_parameters'):
+    #headers = ['Redshift', 'log10phi*', 'log10L*', 'M*', 'alpha', 'beta']
+    headers = ['Model', 'Reference', 'type', 'LF model', 'Redshift', 'log10phi*', 'log10L*', 'M*', 'alpha', 'beta', 'ADS', 'arXiv']
+
+    if type(model_list) == str:
+        model_list = [model_list]
+
+    row_format = '{},' * (len(headers))
+
+    with open(f'{filename}.csv', mode='w', newline='') as output_file:
+        output_writer = csv.writer(output_file, delimiter=',')
+
+        output_writer.writerow(headers)
+
+        for model in model_list:
+
+            m = get_model(model)
+
+            #print(row_format.format(*headers))
+            if m.LF_model == 'Double Power Law':
+                for i, z in enumerate(m.redshifts):
+                    redshift = f'{m.redshifts[i]:.4f}'
+                    phistar = f'{m.phi_star[i]:.4f}'
+                    log10L = f'{np.log10(M_to_lum(m.M_star[i])):.4f}'
+                    alpha = f'{m.alpha[i]:.4f}'
+                    beta = f'{m.beta[i]:.4f}'
+                    Mstar = f'{m.M_star[i]:.4f}'
+
+                    output_writer.writerow([m.name, m.ref, m.type, m.LF_model, redshift, phistar, log10L, Mstar, alpha, beta, m.ads, m.arxiv])
+
+
+            if m.LF_model == 'Schechter':
+                for i, z in enumerate(m.redshifts):
+                    redshift = f'{m.redshifts[i]:.4f}'
+                    phistar = f'{m.phi_star[i]:.4f}'
+                    log10L = f'{np.log10(M_to_lum(m.M_star[i])):.4f}'
+                    Mstar = f'{m.M_star[i]:.4f}'
+                    alpha = f'{m.alpha[i]:.4f}'
+                    output_writer.writerow([m.name, m.ref, m.type, m.LF_model, redshift, phistar, log10L, Mstar, alpha, 'N/A', m.ads, m.arxiv])
+
+    return
