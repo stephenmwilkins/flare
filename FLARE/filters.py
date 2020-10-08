@@ -1,5 +1,6 @@
 
 from .core import *
+from . import observatories
 
 class empty: pass
 
@@ -28,15 +29,28 @@ class filter():
 
     def __init__(self, f, new_lam = False, filter_path = FLARE_dir + '/data/filters/'):
 
+
+        observatory =  f.split('.')[0]
+        instrument =  f.split('.')[1]
+        fs = f.split('.')[2]
+
         # l, t are the original wavelength and transmission grid
 
         self.l, self.t = np.loadtxt(filter_path + '/'+'/'.join(f.split('.'))+'.txt', skiprows = 1).T
 
-        if f.split('.')[1] == 'NIRCAM': self.l *= 1E4 # convert from microns to \AA
-        if f.split('.')[1] == 'NIRCam': self.l *= 1E4 # convert from microns to \AA
-        if f.split('.')[1] == 'WFI':
+        if instrument == 'NIRCAM': self.l *= 1E4 # convert from microns to \AA
+        if instrument == 'NIRCam': self.l *= 1E4 # convert from microns to \AA
+        if instrument == 'WFI':
             self.l *= 1E4 # convert from microns to \AA
             self.t /= 3. # WFI is effective area
+
+        self.zeropoint = False
+        self.nJy_to_es = False
+
+        zeropoints = observatories.observatories[observatory].instrument[instrument].zeropoints
+        if zeropoints:
+            self.zeropoint = zeropoints[fs]
+            self.nJy_to_es = 1E-9 * 10**(0.4*(self.zeropoint-8.9))
 
         if isinstance(new_lam, np.ndarray):
 

@@ -41,8 +41,10 @@ plt.show()
 
 flux_limit = 10 # in nanojansky
 
-# bin_centres should be the same ones used for N above
-c = completeness.completeness_erf(bin_centres, flux_limit, stretch=1, cosmo=cosmo)
+
+
+c = evo_model.completeness_erf(bin_centres, flux_limit, stretch=1000, cosmo=cosmo)
+
 
 print(c.shape)
 
