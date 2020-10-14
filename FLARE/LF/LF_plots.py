@@ -1,6 +1,7 @@
 import FLARE
 
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
 plt.style.use('simple') # --- makes nicer plots
 
@@ -58,16 +59,17 @@ def evo_plot(bin_edges, N, cosmo=False, f_limits=False, save_file=False):
         plt.savefig(save_file + '.png', dpi=300)
 
 
-def lf_for_z(z, log10L_bin_centres, models):
+def lf_for_z(z, log10L_bin_centres, models, legend=False):
     # THIS WILL BE individual LF plot
 
+    colors = ['b', 'r', 'orange', 'g', 'k', 'c', 'y', 'm', 'darkslateblue', 'gray', 'tomato', 'lawngreen', 'teal', 'wheat']
 
     fig = plt.figure()
 
     if type(models) == str:
         models = [models]
 
-    for model in models:
+    for i, model in enumerate(models):
 
         m = getattr(lf_parameters, model)()
 
@@ -81,7 +83,7 @@ def lf_for_z(z, log10L_bin_centres, models):
 
             phi = phistar / (10 ** (x * (alpha + 1)) + 10 ** (x * (beta + 1)))
 
-            plt.scatter(log10L_bin_centres, np.log10(phi))
+            plt.scatter(log10L_bin_centres, np.log10(phi), c=colors[i], label=model)
 
         else:
 
@@ -90,16 +92,21 @@ def lf_for_z(z, log10L_bin_centres, models):
             x = 10**(log10L_bin_centres - np.log10(M_to_lum(np.array(m.M_star)[s][0])))
             phistar = 10**np.array(m.phi_star)[s][0]
             alpha = np.array(m.alpha)[s][0]
-            plt.scatter(log10L_bin_centres, np.log10(phistar*(x)**(alpha + 1) * np.exp(-x)))
+            plt.scatter(log10L_bin_centres, np.log10(phistar*(x)**(alpha + 1) * np.exp(-x)), c=colors[i], label=model)
 
     plt.ylabel(r'$\rm log_{10}(\phi \; / \; cMpc^{-3} \; dex^{-1})$')
     plt.xlabel(r"$\rm log_{10}(L_{UV} \; / \; erg\, s^{-1}\, Hz^{-1})$")
 
+    if legend:
+        plt.legend(loc='best')
+
     return fig
 
 
-def lf_params_zs(zs, log10L_bin_centres, models):
+def lf_params_zs(zs, log10L_bin_centres, models, legend=False):
     # THIS WILL BE LF PLOT FOR A SELECTION OF MODELS
+
+    colours = ['b', 'r', 'orange', 'g', 'k', 'c', 'y', 'm', 'darkslateblue', 'gray', 'tomato', 'lawngreen', 'teal', 'wheat']
 
     if len(zs)%2 == 1:
         N = int(len(zs)/2) + 1
@@ -114,9 +121,45 @@ def lf_params_zs(zs, log10L_bin_centres, models):
     if type(models) == str:
         models = [models]
 
+    Nxx = len(models)
+
     for z, ax in zip(zs, axes.flatten()):
 
-        for model in models:
+        if legend:
+            if Nxx > 7:
+                if ax == axes[0, 0]:
+                    try:
+                        g = []
+                        for i, model in enumerate(models[:7]):
+                            colors_plot = colours[:7]
+                            g.append(ax.scatter([-99.], [-99.], c=colors_plot[i], s=5, label=model))
+                        ax.legend(handles=g, loc='lower left')
+
+                    except:
+                        continue
+                if ax == axes[0, 1]:
+                    try:
+                        g = []
+                        for i, model in enumerate(models[7:]):
+                            colors_plot = colours[7:]
+                            g.append(ax.scatter([-99.], [-99.], c=colors_plot[i], s=5, label=model))
+                        ax.legend(handles=g, loc='lower left')
+
+                    except:
+                        continue
+            else:
+                if ax == axes[0, 0]:
+                    try:
+                        g = []
+                        for i, model in enumerate(models):
+                            g.append(ax.scatter([-99.], [-99.], c=colours[i], s=5, label=model))
+                        ax.legend(handles=g, loc='lower left')
+
+                    except:
+                        continue
+
+
+        for i, model in enumerate(models):
 
             m = getattr(lf_parameters, model)()
 
@@ -131,7 +174,7 @@ def lf_params_zs(zs, log10L_bin_centres, models):
 
                     phi = phistar / (10 ** (x * (alpha + 1)) + 10 ** (x * (beta + 1)))
 
-                    ax.scatter(log10L_bin_centres, np.log10(phi), s=5)
+                    ax.scatter(log10L_bin_centres, np.log10(phi), s=5, c=colours[i])
                 except:
                     continue
 
@@ -144,7 +187,7 @@ def lf_params_zs(zs, log10L_bin_centres, models):
                     x = 10**(log10L_bin_centres - np.log10(M_to_lum(np.array(m.M_star)[s][0])))
                     phistar = 10**np.array(m.phi_star)[s][0]
                     alpha = np.array(m.alpha)[s][0]
-                    ax.scatter(log10L_bin_centres, np.log10(phistar*(x)**(alpha + 1) * np.exp(-x)), s=5)
+                    ax.scatter(log10L_bin_centres, np.log10(phistar*(x)**(alpha + 1) * np.exp(-x)), s=5, c=colours[i])
 
                 except:
                     continue
@@ -154,8 +197,8 @@ def lf_params_zs(zs, log10L_bin_centres, models):
 
         ylim = np.array([-8., -4.01])
 
-        ax.set_ylim(-8.)
-        #ax.set_xlim([27.25, 30.])
+        ax.set_ylim(-8., -1.5)
+        ax.set_xlim([min(log10L_bin_centres), max(log10L_bin_centres)])
 
 
     fig.text(0.5, 0.05, r'$\rm\log_{10}(L_{FUV}/erg\ s^{-1}\ Hz^{-1})$', horizontalalignment='center', verticalalignment='center')
@@ -163,4 +206,4 @@ def lf_params_zs(zs, log10L_bin_centres, models):
 
 
 
-    return
+    return fig
