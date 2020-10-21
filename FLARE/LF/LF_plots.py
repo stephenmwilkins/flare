@@ -2,6 +2,7 @@ import FLARE
 
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+import matplotlib as mpl
 
 plt.style.use('simple') # --- makes nicer plots
 
@@ -201,8 +202,136 @@ def lf_params_zs(zs, log10L_bin_centres, models, legend=False):
         ax.set_xlim([min(log10L_bin_centres), max(log10L_bin_centres)])
 
 
-    fig.text(0.5, 0.05, r'$\rm\log_{10}(L_{FUV}/erg\ s^{-1}\ Hz^{-1})$', horizontalalignment='center', verticalalignment='center')
-    fig.text(0.05, 0.5, r'$\rm\log_{10}(\phi/Mpc^{-3})$', horizontalalignment='center', verticalalignment='center', rotation=90)
+    fig.text(0.5, 0.05, r'$\rm\log_{10}[L_{FUV} \; / \; (erg \; s^{-1} \; Hz^{-1})]$', horizontalalignment='center', verticalalignment='center')
+    fig.text(0.05, 0.5, r'$\rm\log_{10}[\phi \; / \; Mpc^{-3}]$', horizontalalignment='center', verticalalignment='center', rotation=90)
+
+
+
+    return fig
+
+
+
+
+def lf_multi(zs, log10L_bin_centres, models, binned_lf=False, legend=False):
+    # THIS WILL BE LF PLOT FOR A SELECTION OF MODELS
+
+    colours = ['b', 'r', 'orange', 'g', 'k', 'c', 'y', 'm', 'darkslateblue', 'gray', 'tomato', 'lawngreen', 'teal', 'wheat']
+
+    cmap = mpl.cm.tab20
+
+    if len(zs)%2 == 1:
+        N = int(len(zs)/2) + 1
+    else:
+        N = int(len(zs) / 2)
+
+    fig, axes = plt.subplots(N, 2, figsize=(6, N*2), sharex=True, sharey=True)
+
+
+    plt.subplots_adjust(left=0.10, bottom=0.10, top=0.95, right=0.85, wspace=0., hspace=-0.)
+
+    if type(models) == str:
+        models = [models]
+
+    Nxx = len(models)
+
+    for z, ax in zip(zs, axes.flatten()):
+
+        if legend:
+            if Nxx > 7:
+                if ax == axes[0, 0]:
+                    try:
+                        g = []
+                        for i, model in enumerate(models[:7]):
+                            colors_plot = colours[:7]
+                            g.append(Line2D([-99., -98.], [-99., -98.], color=cmap(i/Nxx), label=model, alpha=0.6))
+                        ax.legend(handles=g, loc='lower left')
+
+                    except:
+                        continue
+                if ax == axes[0, 1]:
+                    try:
+                        g = []
+                        for i, model in enumerate(models[7:]):
+                            i = i+7
+                            colors_plot = colours[7:]
+                            g.append(Line2D([-99., -98.], [-99., -98.], color=cmap(i/Nxx), label=model, alpha=0.6))
+                        ax.legend(handles=g, loc='lower left')
+
+                    except:
+                        continue
+            else:
+                if ax == axes[0, 0]:
+                    try:
+                        g = []
+                        for i, model in enumerate(models):
+                            g.append(Line2D([-99., -98.], [-99., -98.], color=cmap(i/Nxx), label=model, alpha=0.6))
+                        ax.legend(handles=g, loc='lower left')
+
+                    except:
+                        continue
+
+        if ax == axes[1, 0]:
+            # try:
+            print('here')
+            g = []
+            for i in range(1):  # replace with something more clever that takes into account other binned LFs
+                g.append(plt.errorbar(-99., -99., yerr=1., fmt='kD', alpha=0.8, label='FLARES binned', markersize=3, elinewidth=1, capsize=1, capthick=1))
+            ax.legend(handles=g, loc='lower left')
+            # except:
+            #    continue
+
+        for i, model in enumerate(models):
+
+            m = getattr(lf_parameters, model)()
+
+            if hasattr(m, 'beta'):
+                s = abs(np.array(m.redshifts) - z) < 0.5
+
+                try:
+                    x = 0.4 * (lum_to_M(10 ** log10L_bin_centres) - np.array(m.M_star)[s][0])
+                    phistar = 10 ** np.array(m.phi_star)[s][0]
+                    alpha = np.array(m.alpha)[s][0]
+                    beta = np.array(m.beta)[s][0]
+
+                    phi = phistar / (10 ** (x * (alpha + 1)) + 10 ** (x * (beta + 1)))
+
+                    ax.plot(log10L_bin_centres, np.log10(phi), c=cmap(i/Nxx), alpha=0.6)
+                except:
+                    continue
+
+
+            else:
+
+                s = abs(np.array(m.redshifts) - z) < 0.5
+
+                try:
+                    x = 10**(log10L_bin_centres - np.log10(M_to_lum(np.array(m.M_star)[s][0])))
+                    phistar = 10**np.array(m.phi_star)[s][0]
+                    alpha = np.array(m.alpha)[s][0]
+                    ax.plot(log10L_bin_centres, np.log10(phistar*(x)**(alpha + 1) * np.exp(-x)), c=cmap(i/Nxx), alpha=0.6)
+
+                except:
+                    continue
+
+        if binned_lf:
+            try:
+                q = abs(np.array([float(k) for k in [*binned_lf.keys()]]) - z) < 0.5
+                z_key = str(int(np.array([float(k) for k in [*binned_lf.keys()]])[q]))
+                ax.errorbar(np.log10(M_to_lum(np.array(binned_lf[str(int(z_key))]['M']))), np.log10(np.array(binned_lf[str(int(z_key))]['phi'])), yerr=np.array(binned_lf[str(int(z_key))]['phi_err'])/np.array(binned_lf[str(int(z_key))]['phi']), fmt='kD', alpha=0.8, zorder=50, markersize=3, elinewidth=1, capsize=1, capthick=1)
+
+            except:
+                continue
+
+        ax.text(0.7, 0.9, r'$\rm z=[{0},{1})$'.format(z - 0.5, z + 0.5), fontsize=8, transform=ax.transAxes)
+
+        ylim = np.array([-8., -4.01])
+
+        ax.set_ylim(-8., -1.5)
+        ax.set_xlim([min(log10L_bin_centres), max(log10L_bin_centres)])
+
+
+    fig.text(0.5, 0.05, r'$\rm\log_{10}[L_{FUV} \; / \; (erg \; s^{-1} \; Hz^{-1})]$', horizontalalignment='center', verticalalignment='center')
+    fig.text(0.05, 0.5, r'$\rm\log_{10}[\phi \; / \; Mpc^{-3}]$', horizontalalignment='center', verticalalignment='center', rotation=90)
 
 
 
