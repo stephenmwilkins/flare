@@ -215,7 +215,7 @@ def lf_params_zs(zs, log10L_bin_centres, models, legend=False):
 def lf_multi(zs, log10L_bin_centres, models, binned_lf=False, legend=False):
     # THIS WILL BE LF PLOT FOR A SELECTION OF MODELS
 
-    colours = ['b', 'r', 'orange', 'g', 'k', 'c', 'y', 'm', 'darkslateblue', 'gray', 'tomato', 'lawngreen', 'teal', 'wheat']
+    markers = ['D', 's', 'h', '^', 'o', '*', 'v']
 
     cmap = mpl.cm.tab20
 
@@ -242,7 +242,6 @@ def lf_multi(zs, log10L_bin_centres, models, binned_lf=False, legend=False):
                     try:
                         g = []
                         for i, model in enumerate(models[:7]):
-                            colors_plot = colours[:7]
                             g.append(Line2D([-99., -98.], [-99., -98.], color=cmap(i/Nxx), label=model, alpha=0.6))
                         ax.legend(handles=g, loc='lower left')
 
@@ -253,7 +252,6 @@ def lf_multi(zs, log10L_bin_centres, models, binned_lf=False, legend=False):
                         g = []
                         for i, model in enumerate(models[7:]):
                             i = i+7
-                            colors_plot = colours[7:]
                             g.append(Line2D([-99., -98.], [-99., -98.], color=cmap(i/Nxx), label=model, alpha=0.6))
                         ax.legend(handles=g, loc='lower left')
 
@@ -271,12 +269,26 @@ def lf_multi(zs, log10L_bin_centres, models, binned_lf=False, legend=False):
                         continue
 
         if ax == axes[1, 0]:
-            # try:
-            print('here')
-            g = []
-            for i in range(1):  # replace with something more clever that takes into account other binned LFs
-                g.append(plt.errorbar(-99., -99., yerr=1., fmt='kD', alpha=0.8, label='FLARES binned', markersize=3, elinewidth=1, capsize=1, capthick=1))
-            ax.legend(handles=g, loc='lower left')
+
+            if binned_lf:
+
+                if type(binned_lf) == list:
+                    g = []
+
+                    for l, lf in enumerate(binned_lf):
+                        g.append(plt.errorbar(-99., -99., yerr=1., fmt='k'+markers[l], alpha=0.6, label=lf['label'], markersize=3, elinewidth=1, capsize=1, capthick=1))
+                    ax.legend(handles=g, loc='lower left')
+
+                else:
+                    g = []
+
+                    for l in range(1):
+                        g.append(
+                            plt.errorbar(-99., -99., yerr=1., fmt='kD', alpha=0.6, label=binned_lf['label'], markersize=3,
+                                         elinewidth=1, capsize=1, capthick=1))
+                    ax.legend(handles=g, loc='lower left')
+
+
             # except:
             #    continue
 
@@ -314,13 +326,30 @@ def lf_multi(zs, log10L_bin_centres, models, binned_lf=False, legend=False):
                     continue
 
         if binned_lf:
-            try:
-                q = abs(np.array([float(k) for k in [*binned_lf.keys()]]) - z) < 0.5
-                z_key = str(int(np.array([float(k) for k in [*binned_lf.keys()]])[q]))
-                ax.errorbar(np.log10(M_to_lum(np.array(binned_lf[str(int(z_key))]['M']))), np.log10(np.array(binned_lf[str(int(z_key))]['phi'])), yerr=np.array(binned_lf[str(int(z_key))]['phi_err'])/np.array(binned_lf[str(int(z_key))]['phi']), fmt='kD', alpha=0.8, zorder=50, markersize=3, elinewidth=1, capsize=1, capthick=1)
+            if type(binned_lf) == list:
+                for l, lf in enumerate(binned_lf):
+                    try:
+                        q = abs(np.array([float(k) for k in [*lf['LF'].keys()]]) - z) < 0.5
+                        z_key = str(int(np.array([float(k) for k in [*lf['LF'].keys()]])[q]))
+                        ax.errorbar(np.log10(M_to_lum(np.array(lf['LF'][str(int(z_key))]['M']))),
+                                    np.log10(np.array(lf['LF'][str(int(z_key))]['phi'])),
+                                    yerr=np.array(lf['LF'][str(int(z_key))]['phi_err']) / np.array(
+                                        lf['LF'][str(int(z_key))]['phi']), fmt='k'+markers[l], alpha=0.6, zorder=50+l,
+                                    markersize=3, elinewidth=1, capsize=1, capthick=1, uplims=lf['LF'][str(int(z_key))]['uplim'])
 
-            except:
-                continue
+                    except:
+                        continue
+
+
+            else:
+                try:
+                    q = abs(np.array([float(k) for k in [*binned_lf['LF'].keys()]]) - z) < 0.5
+                    z_key = str(int(np.array([float(k) for k in [*binned_lf['LF'].keys()]])[q]))
+                    ax.errorbar(np.log10(M_to_lum(np.array(binned_lf['LF'][str(int(z_key))]['M']))), np.log10(np.array(binned_lf['LF'][str(int(z_key))]['phi'])), yerr=np.array(binned_lf['LF'][str(int(z_key))]['phi_err'])/np.array(binned_lf['LF'][str(int(z_key))]['phi']), fmt='kD', alpha=0.6, zorder=50, markersize=3, elinewidth=1, capsize=1, capthick=1, uplims=binned_lf['LF'][str(int(z_key))]['uplim'])
+
+                except:
+                    continue
+
 
         ax.text(0.7, 0.9, r'$\rm z=[{0},{1})$'.format(z - 0.5, z + 0.5), fontsize=8, transform=ax.transAxes)
 
