@@ -70,6 +70,7 @@ class bluetides(existing_model):  # --- based on bluetides simulation
         self.ref = 'Wilkins+2017'
         self.type = 'hydro'
         self.LF_model = 'Schechter'
+        self.label = 'BlueTides'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2017MNRAS.469.2517W/abstract'
         self.arxiv = 'https://arxiv.org/abs/1704.00954'
@@ -89,10 +90,11 @@ class Finkelstein_review(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'Observational review (Finkelstein2016)'
-        self.ref = 'Finkelstein+2016'
+        self.name = 'Observational review (Finkelstein 2016)'
+        self.ref = 'Finkelstein2016'
         self.type = 'empirical extrapolation'
         self.LF_model = 'Schechter'
+        self.label = 'Finkelstein 2016'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2016PASA...33...37F/abstract'
         self.arxiv = 'https://arxiv.org/abs/1511.05558'
@@ -122,6 +124,7 @@ class Finkelstein_obs(existing_model):
         self.ref = 'Finkelstein+2015'
         self.type = 'empirical'
         self.LF_model = 'Schechter'
+        self.label = 'Finkelstein+2015'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2015ApJ...810...71F/abstract'
         self.arxiv = 'https://arxiv.org/abs/1410.5439'
@@ -142,10 +145,11 @@ class Bowler20152020(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'Observational (Bowler+2015,2020)'
+        self.name = 'Observational (Bowler+2015, 2020)'
         self.ref = 'Bowler+2015,2020'
         self.type = 'empirical'
         self.LF_model = 'Schechter'
+        self.label = 'Bowler+2015, 2020'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2020MNRAS.493.2059B/abstract'
         self.arxiv = 'https://arxiv.org/abs/1911.12832'
@@ -166,10 +170,11 @@ class Bowler20152020_DPL(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'Observational (Bowler+2015,2020)'
+        self.name = 'Observational (Bowler+2015, 2020)'
         self.ref = 'Bowler+2015,2020'
         self.type = 'empirical'
         self.LF_model = 'Double Power Law'
+        self.label = 'Bowler+2015, 2020 DPL'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2020MNRAS.493.2059B/abstract'
         self.arxiv = 'https://arxiv.org/abs/1911.12832'
@@ -195,6 +200,7 @@ class Bouwens2015(existing_model):
         self.ref = 'Bouwens+2015'
         self.type = 'empirical'
         self.LF_model = 'Schechter'
+        self.label = 'Bouwens+2015'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2015ApJ...803...34B/abstract'
         self.arxiv = 'https://arxiv.org/abs/1403.4295'
@@ -219,6 +225,7 @@ class Ma2019(existing_model):
         self.ref = 'Ma+2019'
         self.type = 'hydro'
         self.LF_model = 'Schechter'
+        self.label = 'Ma+2019'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2019MNRAS.487.1844M/abstract'
         self.arxiv = 'https://arxiv.org/abs/1902.10152'
@@ -242,6 +249,7 @@ class Mason15(existing_model):
         self.ref = 'Mason+2015'
         self.type = 'semi-empirical'
         self.LF_model = 'Schechter'
+        self.label = 'Mason+2015'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2015ApJ...813...21M/abstract'
         self.arxiv = 'https://arxiv.org/abs/1508.01204'
@@ -268,6 +276,7 @@ class Yung2018(existing_model):
         self.ref = 'Yung+2018'
         self.type = 'semi-analytical'
         self.LF_model = 'Schechter'
+        self.label = 'Yung+2018'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2019MNRAS.483.2983Y/abstract'
         self.arxiv = 'https://arxiv.org/abs/1803.09761'
@@ -293,6 +302,7 @@ class FLARES(existing_model):
         self.ref = 'Vijayan+2020'
         self.type = 'hydro'
         self.LF_model = 'Schechter'
+        self.label = 'FLARES'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2020arXiv200806057V/abstract'
         self.arxiv = 'https://arxiv.org/abs/2008.06057'
@@ -322,6 +332,7 @@ class FLARES_old(existing_model):
         self.ref = 'Vijayan+2020'
         self.type = 'hydro'
         self.LF_model = 'Schechter'
+        self.label = 'FLARES'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2020arXiv200806057V/abstract'
         self.arxiv = 'https://arxiv.org/abs/2008.06057'
@@ -342,10 +353,11 @@ class FLARES_DPL(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'FLARES (Vijayan+2020)'
+        self.name = 'FLARES DPL (Vijayan+2020)'
         self.ref = 'Vijayan+2020'
         self.type = 'hydro'
         self.LF_model = 'Double Power Law'
+        self.label = 'FLARES DPL'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2020arXiv200806057V/abstract'
         self.arxiv = 'https://arxiv.org/abs/2008.06057'
@@ -367,10 +379,11 @@ class FLARES_DPL_OLD(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'FLARES (Vijayan+2020)'
+        self.name = 'FLARES DPL (Vijayan+2020)'
         self.ref = 'Vijayan+2020'
         self.type = 'hydro'
         self.LF_model = 'Double Power Law'
+        self.label = 'FLARES DPL'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2020arXiv200806057V/abstract'
         self.arxiv = 'https://arxiv.org/abs/2008.06057'
@@ -391,10 +404,11 @@ class TNG_A(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'TNG19: Model-A'
+        self.name = 'Illustris TNG: Model-A (Vogelsberger+2019)'
         self.ref = 'Vogelsberger+2019'
         self.type = 'hydro'
         self.LF_model = 'Schechter'
+        self.label = 'Illustris TNG: Model-A'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2020MNRAS.492.5167V/abstract'
         self.arxiv = 'https://arxiv.org/abs/1904.07238'
@@ -414,10 +428,11 @@ class TNG_B(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'TNG19: Model-B'
+        self.name = 'Illustris TNG: Model-B (Vogelsberger+2019)'
         self.ref = 'Vogelsberger+2019'
         self.type = 'hydro'
         self.LF_model = 'Schechter'
+        self.label = 'Illustris TNG: Model-B'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2020MNRAS.492.5167V/abstract'
         self.arxiv = 'https://arxiv.org/abs/1904.07238'
@@ -437,10 +452,11 @@ class TNG_C(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'TNG19: Model-C'
+        self.name = 'Illustris TNG: Model-C (Vogelsberger+2019)'
         self.ref = 'Vogelsberger+2019'
         self.type = 'hydro'
         self.LF_model = 'Schechter'
+        self.label = 'Illustris TNG: Model-C'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2020MNRAS.492.5167V/abstract'
         self.arxiv = 'https://arxiv.org/abs/1904.07238'
