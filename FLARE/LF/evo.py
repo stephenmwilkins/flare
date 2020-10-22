@@ -16,6 +16,7 @@ from FLARE.photom import flux_to_L, lum_to_flux, M_to_lum, lum_to_M
 import FLARE.core
 
 import FLARE.LF.lf_parameters as lf_parameters
+import FLARE.LF.binned_lf as binned_lf
 
 
 #
@@ -368,7 +369,14 @@ def get_model(model):
     return getattr(lf_parameters, model)()
 
 
+def get_lf(binned_lf_name):
+    return getattr(binned_lf, binned_lf_name)().lf
+
+
 model_names = ['bluetides', 'Finkelstein_review', 'Finkelstein_obs', 'Bowler20152020', 'Bowler20152020_DPL', 'Bouwens2015', 'Ma2019', 'Mason15', 'Yung2018', 'FLARES', 'FLARES_DPL', 'TNG_A', 'TNG_B', 'TNG_C']
+
+binned_lf_names = ['Atek18', 'Bouwens15', 'Bouwens16', 'Bouwens17', 'Bowler20', 'FLARES', 'Finkelstein', 'Finkelstein15', 'McLeod15', 'Oesch18', 'Stefanon19']
+
 
 def print_model_parameters(model_list):
     headers = ['Redshift', 'log10phi*', 'log10L*', 'M*', 'alpha', 'beta']
