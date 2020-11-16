@@ -27,7 +27,7 @@ sfzh, sfr = SFZH.constant(SPS.grid['log10age'], SPS.grid['log10Z'] , {'log10_dur
 print('star formation rate: {0}'.format(sfr))
 
 
-for fesc in [0.0, 1.0]:
+for fesc in [1.0, 0.0]:
 
     SED = SPS.get_Lnu(sfzh, {'fesc': fesc}, dust = False)
     plt.plot(np.log10(SED.total.lam), np.log10(SED.total.lnu))
@@ -57,22 +57,28 @@ plt.show()
 # --- create observed SED
 
 cosmo = FLARE.default_cosmo()
-z = 8.0
+z = 9.0
 
 SED.total.get_fnu(cosmo, z) # calculate observer frame wavelength
 
 plt.plot(SED.total.lamz, np.log10(SED.total.fnu), zorder = 1) # plot SED
 
 
-filters = FLARE.filters.HST + FLARE.filters.Spitzer
-F = FLARE.filters.add_filters(filters, new_lam = SED.total.lamz) # --- NOTE: need to give it the redshifted
-SED.total.get_Fnu(F) # generates Fnu (broad band fluxes)
-for f in filters: plt.scatter(F[f].pivwv(), np.log10(SED.total.Fnu[f]), edgecolor = 'k', zorder = 2, label = f)
-
-
+# filters = FLARE.filters.HST + FLARE.filters.Spitzer
+# F = FLARE.filters.add_filters(filters, new_lam = SED.total.lamz) # --- NOTE: need to give it the redshifted
+# SED.total.get_Fnu(F) # generates Fnu (broad band fluxes)
+# for f in filters: plt.scatter(F[f].pivwv(), np.log10(SED.total.Fnu[f]), edgecolor = 'k', zorder = 2, label = f)
+#
 
 plt.xlim([5000.,50000.])
 
 mx = np.max(np.log10(SED.total.fnu))
 plt.ylim([mx-4., mx+0.3])
 plt.show()
+
+
+from astropy.io import ascii
+from astropy.table import Table, Column, MaskedColumn
+
+data = Table([SED.total.lamz, SED.total.fnu], names=['observed wavelength/AA','flux/nJy'])
+ascii.write(data, f'LBG_{z}.dat', overwrite=True)

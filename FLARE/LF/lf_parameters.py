@@ -5,12 +5,13 @@ import numpy as np
 
 class existing_model:
 
-    def __init__(self):
+    def __init__(self, verbose = False):
 
         # convert M* to L* HERE
 
         self.lp, self.z_ref = self.calculate_linear_evolution_coeffs()
-        print(self.name, self.type, self.LF_model)
+        if verbose:
+            print(self.name, self.type, self.LF_model)
 
     def interpolate_parameters(self, z=8.):
         # interpolates parameters as a function of z
@@ -467,4 +468,3 @@ class TNG_C(existing_model):
         self.alpha = [-1.941, -2.042, -2.279, -2.455]  # array of alpha values
 
         super().__init__()
-

@@ -73,9 +73,10 @@ def trapzfunct(f, bine1, bine2, alpha):
 
 class evo_base:
 
-    def __init__(self):
+    def __init__(self, verbose = False):
 
-        print(self.model_style)
+        if verbose:
+            print(self.model_style)
 
 
     def N(self, area=1., cosmo=False, redshift_limits=[8., 15.], log10L_limits=[27.5, 30.], dz=0.05, dlog10L=0.05, per_arcmin=False, return_volumes=False):
@@ -259,13 +260,14 @@ class interp(evo_base):
 
 class existing_model:
 
-    def __init__(self):
+    def __init__(self, verbose = False):
 
 
         # convert M* to L* HERE
 
         self.lp, self.z_ref = self.calculate_linear_evolution_coeffs()
-        print(self.name, self.LF_model)
+        if verbose:
+            print(self.name, self.LF_model)
 
     def interpolate_parameters(self, z=8.):
         # interpolates parameters as a function of z
