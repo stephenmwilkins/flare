@@ -22,7 +22,7 @@ cmap = mpl.cm.rainbow
 norm = mpl.colors.Normalize(vmin=3, vmax=5.5)
 
 
-Observatories = ['Hubble', 'Webb', 'Euclid', 'Roman', 'Spitzer']
+Observatories = ['Hubble', 'Webb', 'Euclid', 'Roman', 'Spitzer','VISTA']
 
 
 print(observatories.Webb.NIRCam.Short.filters) # a single channel (most instruments have a single channel)

@@ -9,7 +9,7 @@ from scipy import interpolate
 
 
 curves = ['simple','MW_N18','MW_Pei92','SMC_Pei92','Starburst_Calzetti2000']
-
+named_curves = ['MW_N18','MW_Pei92','SMC_Pei92','Starburst_Calzetti2000']
 
 
 class simple():

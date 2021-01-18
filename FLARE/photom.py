@@ -1,6 +1,9 @@
 
 import numpy as np
 
+import FLARE
+
+
 geo = 4.*np.pi*(100.*10.*3.0867*10**16)**2 # factor relating the L to M in cm^2
 
 
@@ -36,9 +39,24 @@ def M_to_lum(M):
     return 10**(-0.4*(M+48.6)) * geo
 
 
-def M_to_m(M, cosmo, z):
+# def M_to_m(M, z, cosmo = FLARE.default_cosmo()):
+#
+#     return flux_to_m(lum_to_flux(M_to_lum(M), cosmo, z))
 
-    return flux_to_m(lum_to_flux(M_to_lum(M), cosmo, z))
+
+def DM(z, cosmo = FLARE.default_cosmo()):
+    luminosity_distance = cosmo.luminosity_distance(z).to('pc').value
+    return 5*np.log10(luminosity_distance/(np.sqrt(1.+z)*10.))
+
+
+def M_to_m(M, z, cosmo = FLARE.default_cosmo()):
+    return M + DM(z, cosmo = cosmo)
+
+def m_to_M(m, z, cosmo = FLARE.default_cosmo()):
+    return m - DM(z, cosmo = cosmo)
+
+
+
 
 def m_to_lum(m, cosmo, z):
 

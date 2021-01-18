@@ -107,7 +107,18 @@ Spitzer = observatory('Spitzer', ['IRAC'])
 Spitzer.instrument['IRAC'].filters = ['ch1', 'ch2']
 Spitzer.instrument['IRAC'].pixel_scale = 1.22
 
-observatory_list = ['Webb', 'Roman', 'Hubble', 'Euclid', 'Spitzer']
+
+VISTA = observatory('VISTA', ['VIRCAM'])
+VISTA.instrument['VIRCAM'].filters = ['Z', 'Y', 'J', 'H', 'Ks']
+
+
+
+
+
+
+
+
+observatory_list = ['Webb', 'Roman', 'Hubble', 'Euclid', 'Spitzer','VISTA']
 for observatory in observatory_list:
     globals()[observatory].update()
 

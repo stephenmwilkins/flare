@@ -72,6 +72,7 @@ class bluetides(existing_model):  # --- based on bluetides simulation
         self.type = 'hydro'
         self.LF_model = 'Schechter'
         self.label = 'BlueTides'
+        self.label2 = 'Hydro\ (Bluetides)'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2017MNRAS.469.2517W/abstract'
         self.arxiv = 'https://arxiv.org/abs/1704.00954'
@@ -92,10 +93,11 @@ class Finkelstein_review(existing_model):
         # Custom models should be created following the same form
 
         self.name = 'Observational review (Finkelstein 2016)'
-        self.ref = 'Finkelstein2016'
-        self.type = 'empirical extrapolation'
+        self.ref = 'Finkelstein+2016'
+        self.type = 'empirical'
         self.LF_model = 'Schechter'
-        self.label = 'Finkelstein 2016'
+        self.label = 'Empirical (F15)'
+        self.label2 = 'Empirical\ (F15)'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2016PASA...33...37F/abstract'
         self.arxiv = 'https://arxiv.org/abs/1511.05558'
@@ -123,7 +125,7 @@ class Finkelstein_obs(existing_model):
 
         self.name = 'Observational (Finkelstein+2015)'
         self.ref = 'Finkelstein+2015'
-        self.type = 'empirical'
+        self.type = 'observed'
         self.LF_model = 'Schechter'
         self.label = 'Finkelstein+2015'
 
@@ -148,7 +150,7 @@ class Bowler20152020(existing_model):
 
         self.name = 'Observational (Bowler+2015, 2020)'
         self.ref = 'Bowler+2015,2020'
-        self.type = 'empirical'
+        self.type = 'observed'
         self.LF_model = 'Schechter'
         self.label = 'Bowler+2015, 2020'
 
@@ -173,7 +175,7 @@ class Bowler20152020_DPL(existing_model):
 
         self.name = 'Observational (Bowler+2015, 2020)'
         self.ref = 'Bowler+2015,2020'
-        self.type = 'empirical'
+        self.type = 'observed'
         self.LF_model = 'Double Power Law'
         self.label = 'Bowler+2015, 2020 DPL'
 
@@ -199,7 +201,7 @@ class Bouwens2015(existing_model):
 
         self.name = 'Observational (Bouwens+2015)'
         self.ref = 'Bouwens+2015'
-        self.type = 'empirical'
+        self.type = 'observed'
         self.LF_model = 'Schechter'
         self.label = 'Bouwens+2015'
 
@@ -227,6 +229,7 @@ class Ma2019(existing_model):
         self.type = 'hydro'
         self.LF_model = 'Schechter'
         self.label = 'Ma+2019'
+        self.label2 = 'Hydro\ (FIRE)'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2019MNRAS.487.1844M/abstract'
         self.arxiv = 'https://arxiv.org/abs/1902.10152'
@@ -246,11 +249,12 @@ class Mason15(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'Semi-empirical (Mason+2015)'
+        self.name = 'analytical (Mason+2015)'
         self.ref = 'Mason+2015'
-        self.type = 'semi-empirical'
+        self.type = 'analytical'
         self.LF_model = 'Schechter'
         self.label = 'Mason+2015'
+        self.label2 = 'Analytical\ (M15)'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2015ApJ...813...21M/abstract'
         self.arxiv = 'https://arxiv.org/abs/1508.01204'
@@ -278,6 +282,7 @@ class Yung2018(existing_model):
         self.type = 'semi-analytical'
         self.LF_model = 'Schechter'
         self.label = 'Yung+2018'
+        self.label2 = 'SAM\ (Y18)'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2019MNRAS.483.2983Y/abstract'
         self.arxiv = 'https://arxiv.org/abs/1803.09761'
@@ -304,6 +309,7 @@ class FLARES(existing_model):
         self.type = 'hydro'
         self.LF_model = 'Schechter'
         self.label = 'FLARES'
+        self.label2 = 'Hydro\ (FLARES)'
 
         self.ads = 'https://ui.adsabs.harvard.edu/abs/2020arXiv200806057V/abstract'
         self.arxiv = 'https://arxiv.org/abs/2008.06057'
