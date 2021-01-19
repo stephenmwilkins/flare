@@ -38,6 +38,8 @@ class filter():
 
         self.l, self.t = np.loadtxt(filter_path + '/'+'/'.join(f.split('.'))+'.txt', skiprows = 1).T
 
+        self.t[self.t<0] = 0
+
         if instrument == 'NIRCAM': self.l *= 1E4 # convert from microns to \AA
         if instrument == 'NIRCam': self.l *= 1E4 # convert from microns to \AA
         if instrument == 'WFI':
