@@ -19,15 +19,37 @@ class survey():
         self.data_reference = data_reference
         self.data_dir = data_dir
 
-    def add_field(self, field_name, filters = [], depths = {}, area = None, mask_file = None, depth_aperture_radius_pixel = None):
+    def add_field(self, field_name, filters = [], depths = {}, area = None, mask_file = None, depth_aperture_radius_arcsec = None, depth_aperture_radius_pixel = None, depth_aperture_significance = None, pixel_scale = None):
 
         self.fields[field_name] = empty()
         self.fields[field_name].filters = filters
         self.fields[field_name].depths = depths
         self.fields[field_name].area = area
         self.fields[field_name].mask_file = mask_file
+        self.fields[field_name].depth_aperture_radius_arcsec = depth_aperture_radius_arcsec
         self.fields[field_name].depth_aperture_radius_pixel = depth_aperture_radius_pixel
+        self.fields[field_name].depth_aperture_significance = depth_aperture_significance
+        self.fields[field_name].pixel_scale = pixel_scale
 
+
+
+
+# ------------------------------------------------------------------------------------------
+# ------------- Hubble Simple
+
+# ------------------------------------------------------------------------------------------
+# ------------- XDF [SEE FAR BELOW FOR MORE COMPLETE INFORMATION BUT OLD METHODOLOGY ]
+
+surveys['SimpleHubble'] = survey('SimpleHubble')
+surveys['SimpleHubble'].fields = {}
+
+
+# --- deepest sub-field
+
+filters = [f'Hubble.ACS.{f}' for f in ['f435w', 'f606w', 'f775w', 'f814w']] + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f160w']]
+depths = {f: 10. for f in filters} # nJy
+
+surveys['SimpleHubble'].add_field('10nJy', filters, depths, depth_aperture_radius_arcsec = 0.35/2., depth_aperture_significance = 5, pixel_scale = 0.06)
 
 
 # ------------------------------------------------------------------------------------------
@@ -89,7 +111,7 @@ filters = [f'Hubble.ACS.{f}' for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850
 
 # --- deepest sub-field
 
-depths_mag = {'HST.ACS.f435w': 29.8,'HST.ACS.f606w':30.3,'HST.ACS.f775w':30.3,'HST.ACS.f814w':29.1,'HST.ACS.f850lp':29.4,'HST.WFC3.f105w':30.1,'HST.WFC3.f125w':29.8,'HST.WFC3.f140w':29.8,'HST.WFC3.f160w':29.8}
+depths_mag = {'Hubble.ACS.f435w': 29.8,'Hubble.ACS.f606w':30.3,'Hubble.ACS.f775w':30.3,'Hubble.ACS.f814w':29.1,'Hubble.ACS.f850lp':29.4,'Hubble.WFC3.f105w':30.1,'Hubble.WFC3.f125w':29.8,'Hubble.WFC3.f140w':29.8,'Hubble.WFC3.f160w':29.8}
 
 depths = {f: FLARE.photom.m_to_flux(m) for f,m in depths_mag.items()}
 

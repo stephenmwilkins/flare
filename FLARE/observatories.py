@@ -123,3 +123,19 @@ for observatory in observatory_list:
     globals()[observatory].update()
 
 observatories = {observatory: globals()[observatory] for observatory in observatory_list}
+
+
+
+
+def get_zeropoint(filter):
+
+    observatory, instrument, f = filter.split('.')
+
+    return observatories[observatory].instrument[instrument].zeropoints[f]
+
+
+def get_nJy_to_es(filter):
+
+    zeropoint = get_zeropoint(filter)
+
+    return 1E-9 * 10**(0.4*(zeropoint-8.9))
