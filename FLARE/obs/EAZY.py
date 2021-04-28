@@ -45,7 +45,7 @@ class eazy():
             os.mkdir(f'{EAZY_working_dir}/outputs')
 
             # --- create symbolic link to templates
-
+        if not os.path.exists(f'templates'):
             os.symlink(f'{path_to_EAZY}/templates', f'templates')
 
 
