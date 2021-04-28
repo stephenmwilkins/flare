@@ -16,76 +16,44 @@ def get_name_shape(name, item):
 
 
 
-def merge(filenames, output_filename):
+def merge(filenames, output_filename, delete_files = False):
 
 
     # ---------------------------------------------
-    # --- create a new HDF5 file with with the same structure but total length
+    # --- create a new HDF5 file with with the same structure but longer
 
-    os.system(f'cp {filenames[0]}.h5 {output_filename}.h5')
+    hf = h5py.File(f'{output_filename}.h5', 'w') # --- create new
 
-    hf = h5py.File(f'{output_filename}.h5', 'a') # --- create new
+    N_files = len(filenames)
+    N_file = int(filenames[0].split('_')[-2])
+    N_total = N_files * N_file
 
+    print(N_total)
 
-        hf.attrs['total'] = N_total
-        hf.attrs['detected'] = N_detected
-
-        def create_new(name, item):
-            if name.split('/')[0] == 'obs':
-                N = N_detected
-            elif name.split('/')[0] == 'EAZY':
-                N = N_detected
-            else:
-                N = N_total
-            if hasattr(item, 'value'):
-                hf.create_dataset(name, (N,))
+    def create_new(name, item):
+        if hasattr(item, 'value'):
+            hf.create_dataset(name, (N_total,))
 
 
-        Files[0].visititems(create_new)
+    first_hf = h5py.File(f'{filenames[0]}.h5', 'r')
+    first_hf.visititems(create_new)
+    first_hf.close()
 
-        # ---------------------------------------------
-        # --- append each entry
+    # ---------------------------------------------
+    # --- append each entry
 
-        def append(name, item):
+    def append(name, item):
+        if hasattr(item, 'value'):
+            hf[name][i*N_file:(i+1)*N_file] = item.value
 
-            if hasattr(item, 'value'):
+    for i, filename in enumerate(filenames):
+        next_hf = h5py.File(f'{filename}.h5', 'r')
+        next_hf.visititems(append)
+        next_hf.close()
 
-                if name.split('/')[0] == 'obs':
-                    hf[name][running_n_detected:running_n_detected+n_detected] = item.value
-                elif name.split('/')[0] == 'EAZY':
-                    hf[name][running_n_detected:running_n_detected+n_detected] = item.value
-                else:
-                    hf[name][running_n_total:running_n_total+n_total] = item.value
+    hf.close()
 
-        running_n_total = 0
-        running_n_detected = 0
+    # --- delete files
 
-        for i,file in enumerate(Files):
-
-            # print(FileNames[i])
-
-            # file.visititems(get_name_shape)
-
-            n_total = file.attrs['total']
-            n_detected = file.attrs['detected']
-
-            file.visititems(append)
-
-            running_n_total += n_total
-            running_n_detected += n_detected
-
-        # ---------------------------------------------
-        # --- print structure of file with shape of each object
-
-
-
-        # hf.visititems(get_name_shape)
-
-
-        # print(hf['obs/HST.WFC3.f160w/sizes/COG'].value)
-
-
-        hf.close()
-
-        print('deleting files')
-        for FileName in FileNames: os.remove(f'{DataFolder}/individual/{FileName}')
+    if delete_files:
+        pass
