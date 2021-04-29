@@ -94,6 +94,7 @@ Hubble.instrument['WFC3'].channel['NIR'] = channel()
 Hubble.instrument['WFC3'].channel['NIR'].filters = ['f105w', 'f125w', 'f140w', 'f160w']
 Hubble.instrument['WFC3'].channel['NIR'].zeropoints = {'f105w': 26.269, 'f125w': 26.230, 'f140w': 26.452, 'f160w': 25.946}
 Hubble.instrument['WFC3'].channel['NIR'].pixel_scale = 0.13
+Hubble.instrument['WFC3'].pixel_scale = 0.13
 Hubble.instrument['WFC3'].filters = Hubble.instrument['WFC3'].get_filters()
 Hubble.instrument['WFC3'].zeropoints = Hubble.instrument['WFC3'].get_zeropoints()
 
@@ -110,7 +111,7 @@ Spitzer.instrument['IRAC'].pixel_scale = 1.22
 
 VISTA = observatory('VISTA', ['VIRCAM'])
 VISTA.instrument['VIRCAM'].filters = ['Z', 'Y', 'J', 'H', 'Ks']
-
+VISTA.instrument['VIRCAM'].pixel_scale = None
 
 
 
@@ -123,6 +124,30 @@ for observatory in observatory_list:
     globals()[observatory].update()
 
 observatories = {observatory: globals()[observatory] for observatory in observatory_list}
+
+
+
+# ---
+
+
+filter_info = {}
+for observatory in observatory_list:
+    for instrument in observatories[observatory].instruments:
+        channels = observatories[observatory].instrument[instrument].channels
+        if channels:
+            for channel in channels:
+                for filter in observatories[observatory].instrument[instrument].channel[channel].filters:
+                    f = f'{observatory}.{instrument}.{filter}'
+                    filter_info[f] = {}
+                    filter_info[f]['pixel_scale'] = observatories[observatory].instrument[instrument].channel[channel].pixel_scale
+                    # print(f, filter_info[f]['pixel_scale'])
+
+        else:
+            for filter in observatories[observatory].instrument[instrument].filters:
+                f = f'{observatory}.{instrument}.{filter}'
+                filter_info[f] = {}
+                filter_info[f]['pixel_scale'] = observatories[observatory].instrument[instrument].pixel_scale
+                # print(f, filter_info[f]['pixel_scale'])
 
 
 

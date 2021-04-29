@@ -28,6 +28,8 @@ def merge(filenames, output_filename, delete_files = False):
     N_file = int(filenames[0].split('_')[-2])
     N_total = N_files * N_file
 
+
+
     print(N_total)
 
     def create_new(name, item):
@@ -36,6 +38,10 @@ def merge(filenames, output_filename, delete_files = False):
 
 
     first_hf = h5py.File(f'{filenames[0]}.h5', 'r')
+
+    for key, value in first_hf.attrs.items():
+        hf.attrs[key] = value
+
     first_hf.visititems(create_new)
     first_hf.close()
 
