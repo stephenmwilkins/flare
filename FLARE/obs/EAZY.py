@@ -67,6 +67,8 @@ class eazy():
 
         # --- create and then write parameter file
 
+        print(self.ID)
+
         self.create_param()
         write_param_file(f'{self.EAZY_working_dir}/inputs/{self.ID}.param', self.params)
 
