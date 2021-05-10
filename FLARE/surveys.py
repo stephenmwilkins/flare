@@ -89,12 +89,12 @@ surveys['test'] = Survey('test')
 filters = [f'Hubble.ACS.{f}' for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 data_dir = 'test_data/'
 depths_mag = {'Hubble.ACS.f435w': 29.8,'Hubble.ACS.f606w':30.3,'Hubble.ACS.f775w':30.3,'Hubble.ACS.f814w':29.1,'Hubble.ACS.f850lp':29.4,'Hubble.WFC3.f105w':30.1,'Hubble.WFC3.f125w':29.8,'Hubble.WFC3.f140w':29.8,'Hubble.WFC3.f160w':29.8}
-depth_aperture_radius_pixel = 0.35/2.
+depth_aperture_radius_arcsec = 0.35/2.
 depth_aperture_significance = 5
 pixel_scale = 0.06
 detection_filters = ['Hubble.WFC3.f105w','Hubble.WFC3.f125w','Hubble.WFC3.f140w','Hubble.WFC3.f160w']
 
-surveys['test'].add_field('test', data_dir = data_dir, filters = filters, depths_mag = depths_mag, depth_aperture_radius_pixel = depth_aperture_radius_pixel, detection_filters = detection_filters, depth_aperture_significance = depth_aperture_significance, pixel_scale = pixel_scale)
+surveys['test'].add_field('test', data_dir = data_dir, filters = filters, depths_mag = depths_mag, depth_aperture_radius_arcsec = depth_aperture_radius_arcsec, detection_filters = detection_filters, depth_aperture_significance = depth_aperture_significance, pixel_scale = pixel_scale)
 
 
 
@@ -115,12 +115,12 @@ XDF = Survey('XDF')
 filters = [f'Hubble.ACS.{f}' for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 data_dir = FLARE.FLARE_dir + '/data/images/hubble/xdf'
 depths_mag = {'Hubble.ACS.f435w': 29.8,'Hubble.ACS.f606w':30.3,'Hubble.ACS.f775w':30.3,'Hubble.ACS.f814w':29.1,'Hubble.ACS.f850lp':29.4,'Hubble.WFC3.f105w':30.1,'Hubble.WFC3.f125w':29.8,'Hubble.WFC3.f140w':29.8,'Hubble.WFC3.f160w':29.8}
-depth_aperture_radius_pixel = 0.35/2.
+depth_aperture_radius_arcsec = 0.35/2.
 depth_aperture_significance = 5
 pixel_scale = 0.06
 mask_file = 'hlsp_xdf_hst_deepest_flag_v1.fits'
 detection_filters = ['Hubble.WFC3.f105w','Hubble.WFC3.f125w','Hubble.WFC3.f140w','Hubble.WFC3.f160w']
 
-XDF.add_field('dXDF', data_dir = data_dir, filters = filters, depths_mag = depths_mag, depth_aperture_radius_pixel = depth_aperture_radius_pixel, mask_file = mask_file, detection_filters = detection_filters, depth_aperture_significance = depth_aperture_significance, pixel_scale = pixel_scale)
+XDF.add_field('dXDF', data_dir = data_dir, filters = filters, depths_mag = depths_mag, depth_aperture_radius_arcsec = depth_aperture_radius_arcsec, mask_file = mask_file, detection_filters = detection_filters, depth_aperture_significance = depth_aperture_significance, pixel_scale = pixel_scale)
 
 surveys['XDF'] = XDF
