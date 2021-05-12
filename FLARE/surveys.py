@@ -113,6 +113,9 @@ XDF = Survey('XDF')
 # --- deepest sub-field
 
 filters = [f'Hubble.ACS.{f}' for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+filters = [f'Hubble.ACS.{f}' for f in ['f435w', 'f606w', 'f775w', 'f850lp']] + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+
+
 data_dir = FLARE.FLARE_dir + '/data/images/hubble/xdf'
 depths_mag = {'Hubble.ACS.f435w': 29.8,'Hubble.ACS.f606w':30.3,'Hubble.ACS.f775w':30.3,'Hubble.ACS.f814w':29.1,'Hubble.ACS.f850lp':29.4,'Hubble.WFC3.f105w':30.1,'Hubble.WFC3.f125w':29.8,'Hubble.WFC3.f140w':29.8,'Hubble.WFC3.f160w':29.8}
 depth_aperture_radius_arcsec = 0.35/2.

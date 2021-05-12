@@ -59,7 +59,7 @@ class eazy():
 
 
 
-    def run(self, o, F, flux_path = lambda f: f'observed/flux/{f}', flux_err_path = lambda f: f'observed/flux_err/{f}', output_file = False):
+    def run(self, o, F, detected = None, path = lambda f: f'{f}', output_file = False):
 
         # --- create filter RES file
 
@@ -73,7 +73,7 @@ class eazy():
         write_param_file(f'{self.EAZY_working_dir}/inputs/{self.ID}.param', self.params)
 
         # --- create input catalogue
-        self.create_input_from_dict(o, flux_path = flux_path, flux_err_path = flux_err_path)
+        self.create_input_from_dict(o, detected = detected, path = path)
 
         # --- run EAZY
         os.system(f'{self.path_to_EAZY}/src/eazy -p {self.EAZY_working_dir}/inputs/{self.ID}.param')
@@ -116,40 +116,47 @@ class eazy():
 
 
 
-    def create_input_from_dict(self, o, flux_path = lambda f: f'observed/flux/{f}', flux_err_path = lambda f: f'observed/flux_err/{f}'):
+    def create_input_from_dict(self, o, detected = None, path = lambda f: f'{f}'):
 
+        if detected is None:
+            N = len(o[next(iter(o))])
+            detected = np.ones(N, dtype=bool) # create detection array with all true
+        else:
+            N = len(detected[detected])
 
-        N = len(o['observed/detected'][o['observed/detected']])
 
         table = {'#id': np.arange(N)}
 
         for i, f in enumerate(self.filters):
-            table['F'+str(i+1)] = o[f'{flux_path(f)}'][o['observed/detected']]
-            table['E'+str(i+1)] = o[f'{flux_err_path(f)}'][o['observed/detected']]
+            table['F'+str(i+1)] = o[f'{path(f)}/flux'][detected]
+            table['E'+str(i+1)] = o[f'{path(f)}/flux_err'][detected]
 
         flatten = lambda l: [item for sublist in l for item in sublist]
         names = ['#id'] + flatten([['F'+str(i+1), 'E'+str(i+1)] for i in range(len(self.filters))])
 
         ascii.write(table, f'{self.EAZY_working_dir}/inputs/{self.ID}.cat', names=names, overwrite=True)
 
-    def create_input_from_HDF5(self, hf, path = lambda f: f'observed/fluxes/{f}'):
 
-        self.hf = hf
 
-        print(f'{path(self.filters[-1])}/flux')
 
-        N = len(hf.get(f'{path(self.filters[-1])}/flux').value)
-
-        table = {'#id': np.arange(N)}
-
-        for i, f in enumerate(self.filters):
-            table['F'+str(i+1)] = hf.get(f'{path(f)}/flux').value
-            table['E'+str(i+1)] = hf.get(f'{path(f)}/err').value
-
-        flatten = lambda l: [item for sublist in l for item in sublist]
-        names = ['#id'] + flatten([['F'+str(i+1), 'E'+str(i+1)] for i in range(len(self.filters))])
-
-        ascii.write(table, f'{self.EAZY_working_dir}/inputs/{self.ID}.cat', names=names, overwrite=True)
+    # def create_input_from_HDF5(self, hf, path = lambda f: f'observed/fluxes/{f}'):
+    #
+    #     self.hf = hf
+    #
+    #     print(f'{path(self.filters[-1])}/flux')
+    #
+    #     N = len(hf.get(f'{path(self.filters[-1])}/flux').value)
+    #
+    #     table = {'#id': np.arange(N)}
+    #
+    #     for i, f in enumerate(self.filters):
+    #         table['F'+str(i+1)] = hf.get(f'{path(f)}/flux').value
+    #         table['E'+str(i+1)] = hf.get(f'{path(f)}/err').value
+    #
+    #     flatten = lambda l: [item for sublist in l for item in sublist]
+    #     names = ['#id'] + flatten([['F'+str(i+1), 'E'+str(i+1)] for i in range(len(self.filters))])
+    #
+    #     ascii.write(table, f'{self.EAZY_working_dir}/inputs/{self.ID}.cat', names=names, overwrite=True)
 
 
 
