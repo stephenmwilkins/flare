@@ -70,9 +70,11 @@ def make_significance_plots(imgs, threshold = 2.5, save_file = None, show = True
     for ax, f in zip(axes, filters):
         ax = make_significance_panel(ax, imgs[f])
 
-    if show:
-        plt.show()
-    plt.close(fig)
+    if save_file: fig.savefig(f'{save_file}')
+    if show: plt.show()
+
+
+
 
 
 # ---------------------------------------------------------------------------------------------
