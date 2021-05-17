@@ -11,8 +11,8 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from FLARE import filters
-from FLARE import observatories
+from flare import filters
+from flare import observatories
 
 
 

@@ -13,15 +13,15 @@ import tempfile
 
 from astropy.io import ascii
 
-import FLARE
-import FLARE.photom
-import FLARE.filters
+import flare
+import flare.photom
+import flare.filters
 
 
 
 class Eazy():
 
-    def __init__(self, ID = np.random.randint(1E9), EAZY_working_dir = 'EAZY', path_to_EAZY = FLARE.FLARE_dir + '/software/eazy-photoz', create_POFZ_FILE = False):
+    def __init__(self, ID = np.random.randint(1E9), EAZY_working_dir = 'EAZY', path_to_EAZY = flare.FLARE_dir + '/software/eazy-photoz', create_POFZ_FILE = False):
 
         self.ID = ID
 
@@ -48,7 +48,7 @@ class Eazy():
         self.filters = F['filters']
 
         # --- create filter RES file
-        FLARE.filters.create_EAZY_filter_res(F, filter_res_file = f'{self.EAZY_working_dir}/inputs/{self.ID}.RES')
+        flare.filters.create_EAZY_filter_res(F, filter_res_file = f'{self.EAZY_working_dir}/inputs/{self.ID}.RES')
 
 
 

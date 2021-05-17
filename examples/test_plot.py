@@ -3,7 +3,7 @@
 
 import matplotlib as mpl
 import numpy as np
-import FLARE.plt as fplt
+import flare.plt as fplt
 
 
 

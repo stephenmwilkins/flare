@@ -6,6 +6,9 @@ class empty: pass
 
 import numpy as np
 
+import os
+this_dir, this_filename = os.path.split(__file__)
+
 
 # --- artificial
 
@@ -16,7 +19,7 @@ TH = ['FAKE.TH.'+f for f in ['FUV','MUV', 'NUV','U','B','V','R','I','Z','Y','J',
 
 
 
-def add_filters(filters, new_lam = False,  filter_path = FLARE_dir + '/data/filters/'):
+def add_filters(filters, new_lam = False,  filter_path = f'{this_dir}/data/filters/'):
 
     F = {f: filter(f, new_lam, filter_path) for f in filters}
 
@@ -27,7 +30,7 @@ def add_filters(filters, new_lam = False,  filter_path = FLARE_dir + '/data/filt
 
 class filter():
 
-    def __init__(self, f, new_lam = False, filter_path = FLARE_dir + '/data/filters/'):
+    def __init__(self, f, new_lam = False, filter_path =  f'{this_dir}/data/filters/'):
 
 
         observatory =  f.split('.')[0]
@@ -186,87 +189,3 @@ CEERS = ['JWST.NIRCAM.'+f for f in ['F115W','F150W','F200W', ]]
 # --- All *real* filters
 
 all_filters = FAKE + TH + Hubble + Spitzer + Euclid + Subaru + Webb + Roman
-
-#
-# # --- filter info
-#
-# info = {filter:empty() for filter in all_filters}
-#
-# for filter in all_filters: info[filter].zeropoint = None # photometric zeropoint (e/s -> erg/s/Hz)
-# for filter in all_filters: info[filter].pixel_scale = None # arcsec
-# for filter in all_filters: info[filter].FOV = None # field of view of instrument filter is on
-#
-# info['HST.ACS.f435w'].zeropoint = 25.684
-# info['HST.ACS.f606w'].zeropoint = 26.505
-# info['HST.ACS.f775w'].zeropoint = 25.678
-# info['HST.ACS.f814w'].zeropoint = 25.959
-# info['HST.ACS.f850lp'].zeropoint = 24.867
-# info['HST.WFC3.f105w'].zeropoint = 26.269
-# info['HST.WFC3.f125w'].zeropoint = 26.230
-# info['HST.WFC3.f140w'].zeropoint = 26.452
-# info['HST.WFC3.f160w'].zeropoint = 25.946
-#
-#
-# for filter in NIRCam: info[filter].zeropoint = 26.0 # need to think about this
-#
-# for filter in IRAC: info[filter].pixel_scale = 1.22
-# for filter in Euclid_NISP: info[filter].pixel_scale = 0.3
-# for filter in Roman: info[filter].pixel_scale = 0.11
-# for filter in ACS: info[filter].pixel_scale = 0.05
-# for filter in WFC3: info[filter].pixel_scale = 0.13
-# for filter in NIRCam_s: info[filter].pixel_scale = 0.031
-# for filter in NIRCam_l: info[filter].pixel_scale = 0.063
-# for filter in MIRI: info[filter].pixel_scale = 0.11
-# # for filter in : info[filter].pixel_scale =
-#
-#
-
-
-
-
-
-
-
-
-
-
-# ----------------------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------
-
-# below is deprecated in favour of the above
-
-pixel_scale = {}
-
-# --- Spizer
-
-pixel_scale.update({f: 1.22 for f in IRAC})
-
-# --- Euclid
-
-pixel_scale.update({f: 0.3 for f in Euclid_NISP})
-
-# --- Hubble
-
-pixel_scale.update({f: 0.05 for f in ACS_W}) # this is wrong
-pixel_scale.update({f: 0.13 for f in WFC3UVIS_W}) # this is wrong
-pixel_scale.update({f: 0.13 for f in WFC3NIR_W})
-
-# --- Webb
-
-pixel_scale.update({f: 0.031 for f in NIRCam_s})
-pixel_scale.update({f: 0.063 for f in NIRCam_l})
-pixel_scale.update({f: 0.11 for f in MIRI})
-
-
-
-zeropoints = {}
-zeropoints['HST.ACS.f435w'] = 25.684
-zeropoints['HST.ACS.f606w'] = 26.505
-zeropoints['HST.ACS.f775w'] = 25.678
-zeropoints['HST.ACS.f814w'] = 25.959
-zeropoints['HST.ACS.f850lp'] = 24.867
-
-zeropoints['HST.WFC3.f105w'] = 26.269
-zeropoints['HST.WFC3.f125w'] = 26.230
-zeropoints['HST.WFC3.f140w'] = 26.452
-zeropoints['HST.WFC3.f160w'] = 25.946

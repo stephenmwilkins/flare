@@ -11,9 +11,9 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from FLARE import filters
-from FLARE import surveys
-from FLARE import plt as fplt
+from flare import filters
+from flare import surveys
+from flare import plt as fplt
 
 fig = plt.figure(figsize = (5, 2))
 

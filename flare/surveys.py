@@ -3,10 +3,10 @@ import copy
 
 class empty: pass
 
-import FLARE
-import FLARE.filters
-import FLARE.observatories
-import FLARE.photom
+import flare
+import flare.filters
+import flare.observatories
+import flare.photom
 
 
 surveys  = {}
@@ -42,10 +42,10 @@ class Field:
 
         if depths:
             self.depths = depths
-            self.depths_mag = {f: FLARE.photom.flux_to_m(m) for f, m in self.depths.items()}
+            self.depths_mag = {f: flare.photom.flux_to_m(m) for f, m in self.depths.items()}
         elif depths_mag:
             self.depths_mag = depths_mag
-            self.depths = {f: FLARE.photom.m_to_flux(m) for f, m in self.depths_mag.items()}
+            self.depths = {f: flare.photom.m_to_flux(m) for f, m in self.depths_mag.items()}
         else:
             print('WARNING! No depths have been set')
 
@@ -116,7 +116,7 @@ filters = [f'Hubble.ACS.{f}' for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850
 filters = [f'Hubble.ACS.{f}' for f in ['f435w', 'f606w', 'f775w', 'f850lp']] + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
 
-data_dir = FLARE.FLARE_dir + '/data/images/hubble/xdf'
+data_dir = flare.FLARE_dir + '/data/images/hubble/xdf'
 depths_mag = {'Hubble.ACS.f435w': 29.8,'Hubble.ACS.f606w':30.3,'Hubble.ACS.f775w':30.3,'Hubble.ACS.f814w':29.1,'Hubble.ACS.f850lp':29.4,'Hubble.WFC3.f105w':30.1,'Hubble.WFC3.f125w':29.8,'Hubble.WFC3.f140w':29.8,'Hubble.WFC3.f160w':29.8}
 depth_aperture_radius_arcsec = 0.35/2.
 depth_aperture_significance = 5

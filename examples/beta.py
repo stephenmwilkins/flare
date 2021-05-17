@@ -1,15 +1,15 @@
 
 import numpy as np
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from FLARE.SED import models
-import FLARE.filters
+from flare.SED import models
+import flare.filters
 
-# import FLARE
+# import flare
 
 
 
@@ -30,7 +30,7 @@ plt.show()
 
 # --- now move to the observer frame
 
-cosmo = FLARE.default_cosmo()
+cosmo = flare.default_cosmo()
 
 z = 8.
 
@@ -39,9 +39,9 @@ m.get_fnu(cosmo, z, include_IGM = True) # --- generates redshifted wavelength gr
 plt.plot(m.lamz, m.fnu,  zorder = 1)
 plt.savefig('beta1.png')
 
-filters = FLARE.filters.HST
+filters = flare.filters.HST
 
-F = FLARE.filters.add_filters(filters, new_lam = m.lam * (1. + z)) # --- NOTE: need to give it the redshifted 
+F = flare.filters.add_filters(filters, new_lam = m.lam * (1. + z)) # --- NOTE: need to give it the redshifted
 
 m.get_Fnu(F) # generates Fnu (broad band fluxes)
 
@@ -52,5 +52,3 @@ plt.legend()
 
 plt.show()
 plt.savefig('beta2.png')
- 
-
