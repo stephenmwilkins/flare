@@ -10,11 +10,6 @@ import os
 this_dir, this_filename = os.path.split(__file__)
 
 
-# --- artificial
-
-FAKE = ['FAKE.FAKE.'+f for f in ['1500','2500','Uth','Bth','Vth','Ith','Zth','Yth','Jth','Hth']]
-TH = ['FAKE.TH.'+f for f in ['FUV','MUV', 'NUV','U','B','V','R','I','Z','Y','J','H','K']]
-
 
 
 
@@ -52,10 +47,16 @@ class filter():
         self.zeropoint = False
         self.nJy_to_es = False
 
-        zeropoints = observatories.observatories[observatory].instrument[instrument].zeropoints
-        if zeropoints:
-            self.zeropoint = zeropoints[fs]
-            self.nJy_to_es = 1E-9 * 10**(0.4*(self.zeropoint-8.9))
+        try:
+            zeropoints = observatories.observatories[observatory].instrument[instrument].zeropoints
+            if zeropoints:
+                self.zeropoint = zeropoints[fs]
+                self.nJy_to_es = 1E-9 * 10**(0.4*(self.zeropoint-8.9))
+
+        except:
+            self.zeropoint = False
+
+
 
         if isinstance(new_lam, np.ndarray):
 
@@ -136,6 +137,12 @@ def create_EAZY_filter_res(F, filter_res_file = 'FILTER.RES'):
 
 # below is deprecated in favour of the observatories sub-module
 
+
+# --- artificial
+
+FAKE = ['FAKE.FAKE.'+f for f in ['1500','2500','Uth','Bth','Vth','Ith','Zth','Yth','Jth','Hth']]
+TH = ['FAKE.TH.'+f for f in ['FUV','MUV', 'NUV','U','B','V','R','I','Z','Y','J','H','K']]
+
 # --- Roman
 
 Roman = ['Roman.Roman.'+f for f in ['F062', 'F087', 'F106', 'F129', 'F146', 'F158', 'F184']]
@@ -143,8 +150,8 @@ WFIRST = Roman
 
 # --- Hubble
 
-WFC3UVIS_W = ['HST.WFC3.'+f for f in ['f225w','f275w','f336w']]
-WFC3NIR_W = ['HST.WFC3.'+f for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+WFC3UVIS_W = ['Hubble.WFC3.'+f for f in ['f225w','f275w','f336w']]
+WFC3NIR_W = ['Hubble.WFC3.'+f for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 WFC3 = WFC3UVIS_W + WFC3NIR_W
 
 ACS_W = ['HST.ACS.'+f for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']]
