@@ -42,7 +42,7 @@ rcParams['grid.linestyle'] = '-'
 rcParams['grid.linewidth'] = 0.8
 
 rcParams['legend.frameon'] = False
-# rcParams[''] = 
+# rcParams[''] =
 # rcParams[''] =
 # rcParams[''] =
 
@@ -79,6 +79,21 @@ def simple_fig():
     ax = fig.add_axes((left, bottom, width, height))
 
     return fig, ax
+
+
+def single_wcbar(base_size = 3):
+
+    left  = 0.15
+    height = 0.8
+    bottom = 0.15
+    width = 0.65
+
+    fig = plt.figure(figsize = (base_size, base_size*width/height))
+
+    ax = fig.add_axes((left, bottom, width, height))
+    cax = fig.add_axes([left+width, bottom, 0.03, height])
+
+    return fig, ax, cax
 
 
 def hist(set_axis_off = True):

@@ -7,7 +7,7 @@ import matplotlib.cm as cm
 
 
 
-def make_flux_plots(imgs, vmin = 0, vmax = None):
+def make_flux_plots(imgs, vmin = 0, vmax = None, show = True):
 
     n = len(imgs)
 

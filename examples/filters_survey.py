@@ -31,13 +31,14 @@ cmap = mpl.cm.rainbow
 norm = mpl.colors.Normalize(vmin=3.5, vmax=4.2) # \AA
 
 
+
+# --- survey
+
 survey = 'XDF'
 field = 'dXDF'
-
-
 s = surveys.surveys[survey].fields[field]
-
 print(s.filters)
+
 
 F = filters.add_filters(s.filters)
 
