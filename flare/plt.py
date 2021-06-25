@@ -87,9 +87,28 @@ def single_wcbar(base_size = 3.5):
 
     return fig, ax, cax
 
-
 def simple_wcbar(base_size = 3.5):
     return single_wcbar(base_size = base_size)
+
+
+def simple_wcbar_whist(base_size = 3.5):
+
+    left  = 0.15
+    height = 0.8
+    bottom = 0.15
+    width = 0.4
+    hwidth = 0.2
+
+    fig = plt.figure(figsize = (base_size, base_size*width/height))
+
+    ax = fig.add_axes((left, bottom, width, height))
+    hax = fig.add_axes([left+width, bottom, hwidth, height])
+    cax = fig.add_axes([left+width+hwidth, bottom, 0.03, height])
+
+    return fig, ax, cax, hax
+
+
+
 
 
 def hist(set_axis_off = True):
