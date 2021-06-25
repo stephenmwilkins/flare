@@ -108,6 +108,18 @@ class filter():
 
         return np.trapz(self.t, x=self.l)/self.Tpeak()
 
+    def mnmx(self):
+
+        return (self.min(), self.max())
+
+    def max(self):
+
+        return self.l[self.T>1E-2][-1]
+
+    def min(self):
+
+        return self.l[self.T>1E-2][0]
+
 
 
 

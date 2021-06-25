@@ -53,7 +53,7 @@ mpl.rcParams.update(rcParams)
 # print(mpl.rcParams)
 
 
-def simple(size = 4):
+def simple(size = 3.5):
 
     fig = plt.figure(figsize = (size, size))
 
@@ -69,19 +69,11 @@ def simple(size = 4):
 
 def simple_fig():
 
-    fig = plt.figure(figsize = (3., 3.))
-
-    left  = 0.15
-    height = 0.8
-    bottom = 0.15
-    width = 0.8
-
-    ax = fig.add_axes((left, bottom, width, height))
-
-    return fig, ax
+    return simple()
 
 
-def single_wcbar(base_size = 3):
+
+def single_wcbar(base_size = 3.5):
 
     left  = 0.15
     height = 0.8
@@ -96,9 +88,11 @@ def single_wcbar(base_size = 3):
     return fig, ax, cax
 
 
+def simple_wcbar(base_size = 3.5):
+    return single_wcbar(base_size = base_size)
+
+
 def hist(set_axis_off = True):
-
-
 
     fig = plt.figure(figsize = (4., 4.))
 
