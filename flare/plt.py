@@ -96,8 +96,8 @@ def simple_wcbar_whist(base_size = 3.5):
     left  = 0.15
     height = 0.8
     bottom = 0.15
-    width = 0.4
-    hwidth = 0.2
+    width = 0.55
+    hwidth = 0.15
 
     fig = plt.figure(figsize = (base_size, base_size*width/height))
 
