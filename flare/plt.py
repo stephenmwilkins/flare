@@ -107,7 +107,23 @@ def simple_wcbar_whist(base_size = 3.5):
 
     return fig, ax, cax, hax
 
+def simple_wcbart_whist(base_size = 3.5):
 
+    # --- with colour bar on top
+
+    left  = 0.15
+    height = 0.6
+    bottom = 0.15
+    width = 0.6
+    hwidth = 0.15
+
+    fig = plt.figure(figsize = (base_size, base_size*width/height))
+
+    ax = fig.add_axes((left, bottom, width, height))
+    hax = fig.add_axes([left+width, bottom, hwidth, height])
+    cax = fig.add_axes([left, bottom+height, width, 0.03])
+
+    return fig, ax, cax, hax
 
 
 

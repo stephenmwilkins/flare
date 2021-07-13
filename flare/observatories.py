@@ -62,6 +62,19 @@ class instrument():
 class channel: pass
 
 
+
+FAKE = observatory('FAKE', ['FAKE', 'TH'])
+FAKE.instrument['FAKE'] = instrument('FAKE', 'FAKE')
+FAKE.instrument['FAKE'].filters = ['1500','1500n','1600','2000','2000n','2500','2500n','3000n','B','BBa','BBb','D4000a','D4000b','FUV','H','I','J','K','MUV','NUV','R','U','Un','V','Vn','Vw','Y','Z']
+FAKE.instrument['FAKE'].pixel_scale = None
+FAKE.instrument['FAKE'].zeropoints = None
+FAKE.instrument['TH'] = instrument('FAKE', 'TH')
+FAKE.instrument['TH'].filters = Webb.instrument['FAKE'].filters
+FAKE.instrument['TH'].pixel_scale = None
+FAKE.instrument['TH'].zeropoints = None
+
+
+
 Webb = observatory('Webb', ['NIRCam', 'MIRI'])
 Webb.instrument['NIRCam'].channels = ['Short', 'Long']
 Webb.instrument['NIRCam'].channel['Short'] =  channel()
@@ -124,7 +137,7 @@ VISTA.instrument['VIRCAM'].zeropoints = None
 
 
 
-observatory_list = ['Webb', 'Roman', 'Hubble', 'Euclid', 'Spitzer','VISTA']
+observatory_list = ['Webb', 'Roman', 'Hubble', 'Euclid', 'Spitzer','VISTA','FAKE']
 for observatory in observatory_list:
     globals()[observatory].update()
 
