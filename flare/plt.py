@@ -53,6 +53,20 @@ mpl.rcParams.update(rcParams)
 # print(mpl.rcParams)
 
 
+
+def simple_sm(size = 2.5):
+
+    fig = plt.figure(figsize = (size, size))
+
+    left  = 0.25
+    height = 0.7
+    bottom = 0.25
+    width = 0.7
+
+    ax = fig.add_axes((left, bottom, width, height))
+
+    return fig, ax
+
 def simple(size = 3.5):
 
     fig = plt.figure(figsize = (size, size))
