@@ -69,7 +69,7 @@ FAKE.instrument['FAKE'].filters = ['1500','1500n','1600','2000','2000n','2500','
 FAKE.instrument['FAKE'].pixel_scale = None
 FAKE.instrument['FAKE'].zeropoints = None
 FAKE.instrument['TH'] = instrument('FAKE', 'TH')
-FAKE.instrument['TH'].filters = Webb.instrument['FAKE'].filters
+FAKE.instrument['TH'].filters = FAKE.instrument['FAKE'].filters
 FAKE.instrument['TH'].pixel_scale = None
 FAKE.instrument['TH'].zeropoints = None
 
