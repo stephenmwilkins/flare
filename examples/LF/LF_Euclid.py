@@ -2,21 +2,21 @@
 
 
 import numpy as np
-import matplotlib.pyplot as plt 
-from matplotlib import cm 
+import matplotlib.pyplot as plt
+from matplotlib import cm
 
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import FLARE
-import FLARE.LF
-from FLARE.LF import evo, lf_parameters, LF_plots, completeness
-from FLARE.photom import m_to_flux
+import flare
+import flare.LF
+from flare.LF import evo, lf_parameters, LF_plots, completeness
+from flare.photom import m_to_flux
 
-cosmo = FLARE.default_cosmo() # WMAP9
+cosmo = flare.default_cosmo() # WMAP9
 
-f_limit_deep = FLARE.photom.m_to_flux(26.)
+f_limit_deep = flare.photom.m_to_flux(26.)
 
 area = 60.*60.*40.
 
@@ -49,4 +49,3 @@ print('number in Eudlid deep: {0:9.1f}'.format(n*area))
 
 LF_plots.evo_plot(bin_edges, N, f_limits=[f_limit_deep])
 plt.show()
-

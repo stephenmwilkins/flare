@@ -1,5 +1,5 @@
-import FLARE
-from FLARE.photom import lum_to_flux
+import flare
+from flare.photom import lum_to_flux
 
 import matplotlib.pyplot as plt
 
@@ -9,7 +9,7 @@ import numpy as np
 def flux_sample_bin_plot(samples, cosmo=False, bins=100, range=[[0., 15.], [0., 3.]], save_file=False):
     # --- make nice plot
 
-    if not cosmo: cosmo = FLARE.core.default_cosmo()
+    if not cosmo: cosmo = flare.core.default_cosmo()
 
     fig = plt.figure(figsize=(6, 5))
 

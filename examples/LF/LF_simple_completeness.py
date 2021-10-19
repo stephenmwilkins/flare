@@ -7,9 +7,9 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
-import FLARE.LF
-from FLARE.LF import evo, completeness, lf_parameters, LF_plots
-from FLARE.photom import m_to_flux
+import flare.LF
+from flare.LF import evo, completeness, lf_parameters, LF_plots
+from flare.photom import m_to_flux
 
 import astropy.cosmology
 

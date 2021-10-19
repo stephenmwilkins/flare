@@ -58,6 +58,6 @@ def m_to_M(m, z, cosmo = flare.default_cosmo()):
 
 
 
-def m_to_lum(m, cosmo, z):
+def m_to_lum(m, z, cosmo = flare.default_cosmo()):
 
     return flux_to_L(m_to_flux(m), cosmo, z)

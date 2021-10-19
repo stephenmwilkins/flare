@@ -5,10 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-import FLARE.plt as fplt
+import flare.plt as fplt
 
-import FLARE.LF.evo as evo
-import FLARE.LF.lf_parameters as lf_params
+import flare.LF.evo as evo
+import flare.LF.lf_parameters as lf_params
 
 
 

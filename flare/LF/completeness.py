@@ -1,8 +1,8 @@
-import FLARE
+import flare
 
 import numpy as np
 
-from FLARE.photom import lum_to_flux, flux_to_L
+from flare.photom import lum_to_flux, flux_to_L
 
 import scipy.special as cps
 
@@ -16,7 +16,7 @@ def completeness_cut(bin_centres, flux_limit, stretch=1.0, cosmo=False):
     dz = bin_centres['z'][1] - bin_centres['z'][0]
     dlog10L = bin_centres['log10L'][1] - bin_centres['log10L'][0]
 
-    if not cosmo: cosmo = FLARE.core.default_cosmo()
+    if not cosmo: cosmo = flare.core.default_cosmo()
 
     c = np.zeros((len(bin_centres['z']), len(bin_centres['log10L'])))
 
@@ -37,7 +37,7 @@ def completeness_sample(bin_centres, flux_limit, stretch=1.0, cosmo=False, N_sam
     dz = bin_centres['z'][1] - bin_centres['z'][0]
     dlog10L = bin_centres['log10L'][1] - bin_centres['log10L'][0]
 
-    if not cosmo: cosmo = FLARE.core.default_cosmo()
+    if not cosmo: cosmo = flare.core.default_cosmo()
 
     c = np.zeros((len(bin_centres['z']), len(bin_centres['log10L'])))
 
@@ -66,7 +66,7 @@ def completeness_erf(bin_centres, flux_limit, stretch=1.0, cosmo=False, N_sample
     dz = bin_centres['z'][1] - bin_centres['z'][0]
     dlog10L = bin_centres['log10L'][1] - bin_centres['log10L'][0]
 
-    if not cosmo: cosmo = FLARE.core.default_cosmo()
+    if not cosmo: cosmo = flare.core.default_cosmo()
 
     c = np.zeros((len(bin_centres['z']), len(bin_centres['log10L'])))
 
@@ -95,7 +95,7 @@ def completeness_erf_legacy(bin_centres, flux_limit, stretch=1.0, cosmo=False, N
     dz = bin_centres['z'][1] - bin_centres['z'][0]
     dlog10L = bin_centres['log10L'][1] - bin_centres['log10L'][0]
 
-    if not cosmo: cosmo = FLARE.core.default_cosmo()
+    if not cosmo: cosmo = flare.core.default_cosmo()
 
     c = np.zeros((len(bin_centres['z']), len(bin_centres['log10L'])))
 
@@ -113,4 +113,3 @@ def completeness_erf_legacy(bin_centres, flux_limit, stretch=1.0, cosmo=False, N
                 c[i, j] = N_fract / N_samples
 
     return c.T
-

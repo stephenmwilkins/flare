@@ -12,11 +12,11 @@ import matplotlib.pyplot as plt
 
 import csv
 
-from FLARE.photom import flux_to_L, lum_to_flux, M_to_lum, lum_to_M
-import FLARE.core
+from flare.photom import flux_to_L, lum_to_flux, M_to_lum, lum_to_M
+import flare.core
 
-import FLARE.LF.lf_parameters as lf_parameters
-import FLARE.LF.binned_lf as binned_lf
+import flare.LF.lf_parameters as lf_parameters
+import flare.LF.binned_lf as binned_lf
 
 
 #
@@ -88,7 +88,7 @@ class evo_base:
         area_sd = area_sm / 3600.  # Area in square degrees
         area_sr = (np.pi / 180.) ** 2 * area_sd  # Area in steradian
 
-        if not cosmo: cosmo = FLARE.core.default_cosmo()
+        if not cosmo: cosmo = flare.core.default_cosmo()
 
         # Setting the bin edges as well as centres for later operations
         bin_edges = {'log10L': np.arange(log10L_limits[0], log10L_limits[-1] + dlog10L, dlog10L),
@@ -157,7 +157,7 @@ class evo_base:
 
         # samples the LF evolution model in a given area
 
-        if not cosmo: cosmo = FLARE.core.default_cosmo()
+        if not cosmo: cosmo = flare.core.default_cosmo()
 
         area_sm = area  # Area in square arcmin
         area_sd = area_sm / 3600.  # Area in square degrees
@@ -197,7 +197,7 @@ class evo_base:
     def interpolate_LF(self, bin_centres, N, zs, log10Ls):
 
         # returns numbers of objects for input luminosities (log10Ls) and redshifts (zs)
-        # takes bin centres and N-array from, e.g. FLARE.evo.linear.N()
+        # takes bin centres and N-array from, e.g. flare.evo.linear.N()
 
         lf_interp = cpi.interp2d(bin_centres['z'], bin_centres['log10L'], N)
 
@@ -375,9 +375,9 @@ def get_lf(binned_lf_name):
     return getattr(binned_lf, binned_lf_name)().lf
 
 
-model_names = ['bluetides', 'Finkelstein_review', 'Finkelstein_obs', 'Bowler20152020', 'Bowler20152020_DPL', 'Bouwens2015', 'Ma2019', 'Mason15', 'Yung2018', 'FLARES', 'FLARES_DPL', 'TNG_A', 'TNG_B', 'TNG_C']
+model_names = ['bluetides', 'Finkelstein_review', 'Finkelstein_obs', 'Bowler20152020', 'Bowler20152020_DPL', 'Bouwens2015', 'Ma2019', 'Mason15', 'Yung2018', 'flareS', 'flareS_DPL', 'TNG_A', 'TNG_B', 'TNG_C']
 
-binned_lf_names = ['Atek18', 'Bouwens15', 'Bouwens16', 'Bouwens17', 'Bowler20', 'FLARES', 'Finkelstein', 'Finkelstein15', 'McLeod15', 'Oesch18', 'Stefanon19']
+binned_lf_names = ['Atek18', 'Bouwens15', 'Bouwens16', 'Bouwens17', 'Bowler20', 'flareS', 'Finkelstein', 'Finkelstein15', 'McLeod15', 'Oesch18', 'Stefanon19']
 
 
 def print_model_parameters(model_list):

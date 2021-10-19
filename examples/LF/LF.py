@@ -2,17 +2,17 @@
 
 
 import numpy as np
-import matplotlib.pyplot as plt 
-from matplotlib import cm 
+import matplotlib.pyplot as plt
+from matplotlib import cm
 
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
-import FLARE.LF
-from FLARE.LF import evo, LF_plots, lf_parameters, flux_plot_temp
-from FLARE.photom import m_to_flux
+import flare.LF
+from flare.LF import evo, LF_plots, lf_parameters, flux_plot_temp
+from flare.photom import m_to_flux
 
 import astropy.cosmology
 
@@ -47,5 +47,3 @@ bin_edges, bin_centres, N = evo_model.N(cosmo = cosmo, redshift_limits = [8., 15
 # <<<<< make plot
 LF_plots.evo_plot(bin_edges, N)
 plt.show()
-
-

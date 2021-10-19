@@ -1,7 +1,7 @@
 
 
 clean-install:
-	pip uninstall FLARE
+	pip uninstall flare
 	pip install . -r requirements.txt
 
 install:

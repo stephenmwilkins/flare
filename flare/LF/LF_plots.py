@@ -1,13 +1,14 @@
-import FLARE
+import flare
 
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import matplotlib as mpl
 
-plt.style.use('simple') # --- makes nicer plots
 
-from FLARE.photom import flux_to_L, M_to_lum, lum_to_M
-from FLARE.LF import lf_parameters
+import flare.plt as fplt
+
+from flare.photom import flux_to_L, M_to_lum, lum_to_M
+from flare.LF import lf_parameters
 
 import numpy as np
 
@@ -44,7 +45,7 @@ def _integ_dblpow(x, a, b):
 def evo_plot(bin_edges, N, cosmo=False, f_limits=False, save_file=False):
     # --- make nice plot
 
-    if not cosmo: cosmo = FLARE.core.default_cosmo()
+    if not cosmo: cosmo = flare.core.default_cosmo()
 
     fig = plt.figure(figsize=(6, 5))
 
