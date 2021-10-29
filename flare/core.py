@@ -7,6 +7,7 @@ try:
     FLARE_dir = os.environ['FLARE']
     print('FLARE = '+FLARE_dir)
 except:
+    FLARE_dir = ''
     print('WARNING: FLARE environment variable not set')
 
 
