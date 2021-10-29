@@ -10,10 +10,6 @@ import os
 this_dir, this_filename = os.path.split(__file__)
 
 
-
-
-
-
 def add_filters(filters, new_lam = False,  filter_path = f'{this_dir}/data/filters/'):
 
     F = {f: filter(f, new_lam, filter_path) for f in filters}

@@ -14,6 +14,6 @@ except:
 
 def default_cosmo():
 
-    from astropy.cosmology import WMAP9 as cosmo
+    from astropy.cosmology import Planck13 as cosmo
 
     return cosmo
