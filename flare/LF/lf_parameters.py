@@ -32,7 +32,7 @@ class existing_model:
 
         return p
 
-    def calculate_linear_evolution_coeffs(self, zr=[6., 15.], z_ref=6.):
+    def calculate_linear_evolution_coeffs(self, zr=[5., 15.], z_ref=5.):
         # Function that calculates the linear evolution coeffs
         # returns a dictionary of linear model coefficients and goodness of fit
 
@@ -92,7 +92,7 @@ class Finkelstein_review(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'Observational review (Finkelstein 2016)'
+        self.name = 'Finkelstein 2016'
         self.ref = 'Finkelstein+2016'
         self.type = 'empirical'
         self.LF_model = 'Schechter'
@@ -123,7 +123,7 @@ class Finkelstein_obs(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'Observational (Finkelstein+2015)'
+        self.name = 'Finkelstein+2015'
         self.ref = 'Finkelstein+2015'
         self.type = 'observed'
         self.LF_model = 'Schechter'
@@ -148,7 +148,7 @@ class Bowler20152020(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'Observational (Bowler+2015, 2020)'
+        self.name = 'Bowler+2015, 2020 [Schechter]'
         self.ref = 'Bowler+2015,2020'
         self.type = 'observed'
         self.LF_model = 'Schechter'
@@ -173,7 +173,7 @@ class Bowler20152020_DPL(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'Observational (Bowler+2015, 2020)'
+        self.name = 'Bowler+2015,2020 [DPL]'
         self.ref = 'Bowler+2015,2020'
         self.type = 'observed'
         self.LF_model = 'Double Power Law'
@@ -199,7 +199,7 @@ class Bouwens2015(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'Observational (Bouwens+2015)'
+        self.name = 'Bouwens+2015'
         self.ref = 'Bouwens+2015'
         self.type = 'observed'
         self.LF_model = 'Schechter'
@@ -215,6 +215,32 @@ class Bouwens2015(existing_model):
         self.alpha = [-1.64, -1.76, -1.87, -2.06, -2.02, -2.27]  # array of alpha values
 
         super().__init__()
+
+
+class Bouwens2021(existing_model):
+    # --- LF evolution model based on Bouwens et al. (2015)
+
+    def __init__(self):
+        # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
+        # Custom models should be created following the same form
+
+        self.name = 'Bouwens+2021; Oesch+2018'
+        self.ref = 'Bouwens+2021; Oesch+2018'
+        self.type = 'observed'
+        self.LF_model = 'Schechter'
+        self.label = 'Bouwens+2021; Oesch+2018'
+
+        self.ads = 'https://ui.adsabs.harvard.edu/abs/2021AJ....162...47B/abstract'
+        self.arxiv = 'https://arxiv.org/pdf/2102.07775.pdf'
+
+        self.redshifts = [2.1, 2.9, 3.8, 4.9, 5.9, 6.8, 7.9, 8.9, 10.2]  # array of redshifts
+        self.phi_star = np.log10(
+            np.array([4e-3, 2.1e-3, 1.69e-3, 0.79e-3, 0.51e-3, 0.19e-3, 0.09e-3, 0.021e-3, 0.0042e-3]))  # array of log10(phi_star) values
+        self.M_star = [-20.28, -20.87, -20.93, -21.1, -20.93, -21.15, -20.93, -21.15, -21.19]  # array of M_star values
+        self.alpha = [-1.54, -1.61, -1.69, -1.74, -1.93, -2.06, -2.23, -2.33, -2.38]  # array of alpha values
+
+        super().__init__()
+
 
 
 class Ma2019(existing_model):
@@ -249,7 +275,7 @@ class Mason15(existing_model):
         # Contains model redshift range (must be increasing) and corresponding LF evolution model parameters
         # Custom models should be created following the same form
 
-        self.name = 'analytical (Mason+2015)'
+        self.name = 'Mason+2015'
         self.ref = 'Mason+2015'
         self.type = 'analytical'
         self.LF_model = 'Schechter'

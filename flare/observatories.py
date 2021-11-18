@@ -31,6 +31,8 @@ class instrument():
         self.zeropoints = None
 
 
+
+
     def get_filter_IDs(self, exclude = False):
 
         if not exclude:
@@ -41,6 +43,11 @@ class instrument():
                 if f[-1].upper() not in exclude:
                     filter_IDs.append('.'.join([self.obs, self.inst, f]))
             return filter_IDs
+
+
+    def f(self, exclude = False):
+        return(self.get_filter_IDs(exclude=exclude))
+
 
     def get_filters(self):
         filters = []
